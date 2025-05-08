@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vue.js Sim0ple App</title>
+    <!-- Agregar Vue.js desde CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.2.47/vue.global.prod.js"></script>
+</head>
+<body>
+      
+    <div id="app">
+       <button @click="mostrar = !mostrar">Mostrar/Ocultar</button>
+       <p v-if="mostrar">!Holiiii¡</p>
+    </div>
+
+    <script>
+        const app = Vue.createApp({
+            data() {
+                return {
+                    mostrar : false,
+                };
+            },
+           methods: {
+            }
+        });
+
+        app.mount('#app');
+    </script>
+</body>
+</html>

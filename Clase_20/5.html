@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vue.js Sim0ple App</title>
+    <!-- Agregar Vue.js desde CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.2.47/vue.global.prod.js"></script>
+</head>
+<body>
+     
+    <div id="app">
+        <h1>Lista de Tareas</h1>
+        <ul>
+            <li v-for="(tarea, index) in tareas" :key="index">
+                {{ tarea }}
+            </li>
+        </ul>
+
+    </div>
+
+    <script>
+        const app = Vue.createApp({
+            data() {
+                return {
+                    tareas: ['1', '2', '3'],
+                    nuevaTarea: ''
+                };
+            },
+            methods: {
+                
+            }
+        });
+
+        app.mount('#app');
+    </script>
+</body>
+</html>

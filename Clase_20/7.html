@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vue.js Sim0ple App</title>
+    <!-- Agregar Vue.js desde CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.2.47/vue.global.prod.js"></script>
+
+    <style>
+        .destacado {
+            color: red;
+            font-weight: bold;
+            background-color: yellow;
+        }
+    </style>
+</head>
+<body>
+     
+    <div id="app">
+        <h1>Lcambiar estilo</h1>
+        <p :class="{destacado: esDestadado}" > texto_1</p>
+        <button @click="esDestadado = !esDestadado">Cambiar estilo</button>
+        </button>
+        
+
+    </div>
+
+    <script>
+        const app = Vue.createApp({
+            data() {
+                return {
+                    esDestadado: false, // Variable para controlar el estilo
+                };
+            },
+            methods: {
+                // Puedes agregar métodos aquí si es necesario
+                
+            }
+        });
+        app.mount('#app');
+    </script>
+</body>
+</html>
