@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Lista de Pokémon con Vue</title>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    ul {
+      list-style-type: none;
+      padding: 0;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 10px;
+    }
+    li {
+      background: #e0f7fa;
+      padding: 10px;
+      border-radius: 8px;
+      text-align: center;
+      text-transform: capitalize;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    li:hover {
+      transform: scale(1.05);
+      background: #b2ebf2;
+    }
+    img {
+      width: 80px;
+      height: 80px;
+    }
+  </style>
+</head>
+<body>
+
+<div id="app">
+  <pokemon-list></pokemon-list>
+</div>
+
+<script>
+const PokemonList = {
+  template: `
+    <div>
+      <h2>Pokémon (los primeros 20)</h2>
+      <p v-if="loading">Cargando...</p>
+      <ul v-else>
+        <li v-for="pokemon in pokemons" :key="pokemon.name" @click="mostrarDetalles(pokemon)">
+          <img :src="pokemon.image" :alt="pokemon.name" />
+          <div>{{ pokemon.name }}</div>
+        </li>
+      </ul>
+    </div>
+  `,
+  data() {
+    return {
+      pokemons: [],
+      loading: true
+    }
+  },
+  methods: {
+    async fetchPokemonDetails(pokemon) {
+      const response = await fetch(pokemon.url);
+      const data = await response.json();
+      return {
+        name: pokemon.name,
+        image: data.sprites.front_default,
+        height: data.height,
+        weight: data.weight,
+        abilities: data.abilities.map(a => a.ability.name)
+      };
+    },
+    async mostrarDetalles(pokemon) {
+      const info = `
+Nombre: ${pokemon.name}
+Altura: ${pokemon.height}
+Peso: ${pokemon.weight}
+Habilidades: ${pokemon.abilities.join(', ')}
+      `;
+      alert(info);
+    }
+  },
+  async mounted() {
+    try {
+      const response = await fetch('https://pokeapi.co/api/v2/pokemon?limit=20');
+      const data = await response.json();
+
+      const detalles = await Promise.all(
+        data.results.map(pokemon => this.fetchPokemonDetails(pokemon))
+      );
+
+      this.pokemons = detalles;
+    } catch (error) {
+      console.error('Error al cargar Pokémon:', error);
+    } finally {
+      this.loading = false;
+    }
+  }
+};
+
+const app = Vue.createApp({});
+app.component('pokemon-list', PokemonList);
+app.mount('#app');
+</script>
+
+</body>
+</html>

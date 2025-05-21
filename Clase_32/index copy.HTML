@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Lista Dinámica con Vue</title>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    ul {
+      list-style-type: none;
+      padding: 0;
+    }
+    li {
+      background: #f3f3f3;
+      margin: 5px 0;
+      padding: 10px;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+
+<div id="app">
+  <user-list></user-list>
+</div>
+
+<script>
+const UserList = {
+  template: `
+    <div>
+      <h2>Usuarios</h2>
+      <p v-if="loading">Cargando...</p>
+      <ul v-else>
+        <li v-for="user in users" :key="user.id">{{ user.name }}</li>
+      </ul>
+    </div>
+  `,
+  data() {
+    return {
+      loading: true,
+      users: []
+    };
+  },
+  mounted() {
+    // Simulación de llamada a API
+    setTimeout(() => {
+      this.users = [
+        { id: 1, name: 'Ana' },
+        { id: 2, name: 'Luis' },
+        { id: 3, name: 'María' }
+      ];
+      this.loading = false;
+    }, 1500);
+  }
+};
+
+const app = Vue.createApp({});
+app.component('user-list', UserList);
+app.mount('#app');
+</script>
+
+</body>
+</html>
