@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Ejemplo de Estructura HTML</title>
+
+  <!-- 🔧 Recursos externos -->
+  <link rel="stylesheet" href="estilos.css"> <!-- Vincular CSS externo -->
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; line-height: 1.6; }
+    section { margin-bottom: 2rem; }
+    table, th, td { border: 1px solid #ccc; border-collapse: collapse; padding: 8px; }
+    th { background-color: #f0f0f0; }
+  </style>
+
+  <script>
+    // Código JS de ejemplo
+    console.log("Documento cargado correctamente");
+  </script>
+</head>
+
+<body>
+
+  <!-- 📄 Estructura básica del documento -->
+  <header>
+    <h1>Estructura Básica de un Documento HTML</h1>
+  </header>
+
+  <main>
+
+    <!-- 📝 Texto y contenido -->
+    <section>
+      <h2>Texto y Contenido</h2>
+      <p>Este es un párrafo de ejemplo. <br> Aquí hay un salto de línea.</p>
+      <hr>
+      <p>Podemos usar <strong>negritas</strong> o <em>cursiva</em> para destacar texto.</p>
+      <div>Este es un <span>contenedor</span> de ejemplo.</div>
+    </section>
+
+    <!-- 🔗 Enlaces e imágenes -->
+    <section>
+      <h2>Enlaces e Imágenes</h2>
+      <p>Visita <a href="https://developer.mozilla.org/es/" target="_blank">MDN Web Docs</a>.</p>
+      <img src="https://via.placeholder.com/150" alt="Imagen de ejemplo">
+    </section>
+
+    <!-- 📋 Listas -->
+    <section>
+      <h2>Listas</h2>
+
+      <h3>Lista no ordenada</h3>
+      <ul>
+        <li>HTML</li>
+        <li>CSS</li>
+        <li>JavaScript</li>
+      </ul>
+
+      <h3>Lista ordenada</h3>
+      <ol>
+        <li>Primer paso</li>
+        <li>Segundo paso</li>
+        <li>Tercer paso</li>
+      </ol>
+    </section>
+
+    <!-- 📊 Tablas -->
+    <section>
+      <h2>Tabla de Datos</h2>
+      <table>
+        <tr>
+          <th>Etiqueta</th>
+          <th>Descripción</th>
+        </tr>
+        <tr>
+          <td>&lt;table&gt;</td>
+          <td>Crea una tabla</td>
+        </tr>
+        <tr>
+          <td>&lt;tr&gt;</td>
+          <td>Fila de la tabla</td>
+        </tr>
+        <tr>
+          <td>&lt;td&gt;</td>
+          <td>Celda normal</td>
+        </tr>
+        <tr>
+          <td>&lt;th&gt;</td>
+          <td>Celda de encabezado</td>
+        </tr>
+      </table>
+    </section>
+
+    <!-- 🧾 Formularios -->
+    <section>
+      <h2>Formulario de Contacto</h2>
+      <form>
+        <label for="nombre">Nombre:</label>
+        <input type="text" id="nombre" name="nombre"><br><br>
+
+        <label for="comentario">Comentario:</label><br>
+        <textarea id="comentario" name="comentario" rows="4" cols="30"></textarea><br><br>
+
+        <button type="submit">Enviar</button>
+      </form>
+    </section>
+
+  </main>
+
+  <!-- 📄 Pie de página -->
+  <footer>
+    <p>&copy; 2025 - Documento de ejemplo HTML</p>
+  </footer>
+
+</body>
+</html>
