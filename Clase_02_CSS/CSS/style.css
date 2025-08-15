@@ -2,10 +2,97 @@
     margin: 0;
     padding: 0;
 }
+body{
+    overflow-x: hidden;
+}
 .Menu{
     background-color: rgb(186, 246, 255);
+    overflow: hidden;
+    width: 200vw;
+    float: left;
+    display: flex;
+    
 }
 .Menu img{
     width: auto;
     height: 7vh;
 }
+.Menu ul{
+    list-style-type: none;
+    overflow: hidden;
+    width: 40%;
+    text-align: center;
+    align-items: center;
+    align-content: center;
+}
+.Menu ul li{
+    padding: 20px;
+    float: left;
+}
+.Menu button{
+    background-color: azure;
+    padding: 0.1rem;
+    font-size: 18px;
+    border-radius: 5px;
+    width: auto;
+    max-width: 10%;
+}
+.Banner{
+    overflow: hidden;
+    width: 100%;
+    height: 100vh;
+
+    display: block;
+
+    background-image: url(../IMG/Banner.jpeg);
+    background-repeat: no-repeat;
+    background-size: 100%;
+}
+.Banner h1{
+    width: 100%;
+    height: 100%;
+
+    backdrop-filter: blur(5px);
+
+    text-align: center;
+
+    font-size: 15rem;
+
+    position: absolute;
+}
+.Tienda{
+    
+    width: 100%;
+    height: auto;
+    padding: 0 10% 0 10%;
+}
+h2{
+    font-size: 2rem;
+    color: rgb(58, 19, 198);
+}
+.Productos{
+    
+    width: 100%;
+    height: auto;
+    float: left;
+    display: flex;
+    flex-wrap: wrap;
+
+}
+.Card{
+    background-color: rgb(193, 193, 193);
+    width: 20%;
+    margin: 2vh 3vw;
+    border-radius: 3%;
+    box-shadow: 5px 5px 10px;
+    overflow: hidden;
+}
+.Card img{
+    width: 100%;
+    height: auto;
+}
+
+.Card div{
+    padding: 1vh 2%;
+}
+
