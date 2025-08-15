@@ -1,0 +1,11 @@
+*{
+    margin: 0;
+    padding: 0;
+}
+.Menu{
+    background-color: rgb(186, 246, 255);
+}
+.Menu img{
+    width: auto;
+    height: 7vh;
+}
