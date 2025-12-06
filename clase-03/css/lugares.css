@@ -1,0 +1,101 @@
+/* Estilos específicos para la página de lugares */
+
+/* Estilos generales para la sección de lugares */
+.lugares {
+  background-color: #f4f4f4;
+  padding: 3rem 1rem;
+  text-align: center;
+}
+
+.lugares h2 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.lugares p {
+  font-size: 1.2rem;
+  margin-bottom: 2rem;
+  color: #555;
+}
+
+/* Contenedor de cada lugar */
+.lugar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 2rem 0;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  padding: 1rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.lugar:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Estilo de la imagen del lugar */
+.lugar img {
+  width: 300px;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-right: 20px;
+}
+
+/* Estilo del contenido del lugar */
+.lugar-info {
+  text-align: left;
+}
+
+.lugar-info h3 {
+  font-size: 1.8rem;
+  margin-bottom: 0.5rem;
+  color: #333;
+}
+
+.lugar-info p {
+  font-size: 1rem;
+  margin-bottom: 1rem;
+  color: #777;
+}
+
+.lugar-info a {
+  color: #f39c12;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.lugar-info a:hover {
+  text-decoration: underline;
+}
+
+/* Ajustes para dispositivos móviles */
+@media (max-width: 768px) {
+  .lugar {
+    flex-direction: column;
+    align-items: center;
+    padding: 1rem;
+  }
+
+  .lugar img {
+    width: 100%;
+    height: auto;
+  }
+
+  .lugar-info {
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .lugares h2 {
+    font-size: 2rem;
+  }
+
+  .lugares p {
+    font-size: 1rem;
+  }
+}

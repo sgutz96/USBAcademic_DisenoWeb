@@ -1,13 +1,19 @@
-﻿# Clase 5: Tailwind (Bootstrap opcional)
+﻿# Clase 5: Tailwind y Bootstrap opcional
 
 ## Objetivo de la clase
 
-En esta clase aprenderemos sobre: Tailwind (Bootstrap opcional)
+En esta clase aprenderemos sobre: Tailwind y Bootstrap para realizar una web mas agil y optima
 
 ## Proyecto en clase
-
-Hero + botones + cards en Tailwind
-
+Header (Sección de Encabezado) — (Tailwind CSS)
+Hero (Sección de Héroe con carrusel) — (Bootstrap)
+About (Sección de "Sobre Nosotros") — (Tailwind CSS)
+Products (Sección de Productos) — (Bootstrap + Tailwind CSS)
+Cards (Sección de Tarjetas) — (Bootstrap + Tailwind CSS)
+AWS (Sección de AWS) — (Bootstrap acordiones)
+Testimonios (Sección de Testimonios) — (Bootstrap + Tailwind CSS)
+Noticias (Sección de Noticias) — (Bootstrap + Tailwind CSS)
+Footer (Pie de Página) — (Bootstrap + Tailwind CSS)
 ### Pasos a seguir:
 
 1. Paso 1 - descripcion

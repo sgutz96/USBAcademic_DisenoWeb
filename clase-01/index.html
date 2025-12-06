@@ -5,147 +5,110 @@
     <!-- ========================================
          METADATOS BÁSICOS
          ======================================== -->
-
-    <!-- Codificación de caracteres - UTF-8 soporta todos los idiomas -->
-    <meta charset="UTF-8">
-
-    <!-- Viewport - importante para diseño responsive en dispositivos móviles -->
+    <meta charset="UTF-8"> <!-- Codificación UTF-8 para soportar todos los caracteres especiales y distintos idiomas -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <!-- Compatibilidad con Internet Explorer - usa el motor más reciente -->
+    <!-- Hacer la página responsiva en dispositivos móviles -->
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <!-- Asegura compatibilidad con Internet Explorer usando el motor más reciente -->
 
     <!-- ========================================
-         METADATOS PARA SEO (Optimización en Motores de Búsqueda)
+         METADATOS PARA SEO
          ======================================== -->
-
-    <!-- Descripción de la página - aparece en resultados de Google -->
     <meta name="description" content="Tutorial sobre las principales etiquetas HTML para crear una página web.">
-
-    <!-- Palabras clave - ya no es tan importante para SEO pero puede incluirse -->
     <meta name="keywords" content="HTML, tutorial, etiquetas HTML, desarrollo web, aprender HTML">
-
-    <!-- Autor de la página -->
     <meta name="author" content="Tu Nombre Aquí">
 
     <!-- ========================================
          METADATOS PARA REDES SOCIALES (Open Graph)
-         Controlan cómo se ve tu página al compartirla en Facebook, LinkedIn, etc.
          ======================================== -->
-
     <meta property="og:title" content="Tutorial de Etiquetas HTML">
     <meta property="og:description" content="Aprende a usar las principales etiquetas HTML en este tutorial completo">
     <meta property="og:image" content="https://via.placeholder.com/1200x630">
-    <meta property="og:url" content="https://www.tusitio.com">
+    <!-- Imagen compartida en redes sociales -->
+    <meta property="og:url" content="https://www.tusitio.com"> <!-- URL de tu página -->
     <meta property="og:type" content="website">
 
     <!-- ========================================
          ICONOS Y FAVICONS
          ======================================== -->
-
-    <!-- Favicon - el pequeño icono en la pestaña del navegador -->
-    <link rel="icon" href="favicon.ico" type="image/x-icon">
-
-    <!-- Favicon en formato PNG (más moderno) -->
-    <link rel="icon" href="favicon.png" type="image/png">
-
-    <!-- Apple Touch Icon - para cuando se agrega a pantalla de inicio en iOS -->
-    <link rel="apple-touch-icon" href="apple-icon.png">
-
-    <!-- ========================================
-         HOJAS DE ESTILO Y FUENTES
-         ======================================== -->
-
-    <!-- Enlace a hoja de estilos CSS externa -->
-    <!-- <link rel="stylesheet" href="estilos.css"> -->
-
-    <!-- Font Awesome - librería de iconos (comentado para este ejemplo) -->
-    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"> -->
+    <link rel="icon" href="./Assets/Logo-PlaceHolder.ico" type="image/x-icon"> <!-- Favicon tradicional -->
+    <link rel="icon" href="./Assets/Logo-PlaceHolder.png" type="image/png"> <!-- Favicon en formato PNG -->
+    <link rel="apple-touch-icon" href="./Assets/Logo-PlaceHolder.png">
+    <!-- Icono para agregar a la pantalla de inicio en dispositivos iOS -->
 
     <!-- ========================================
          TÍTULO DE LA PÁGINA
-         Aparece en la pestaña del navegador y en resultados de búsqueda
          ======================================== -->
     <title>Tutorial de Etiquetas HTML - Aprende HTML desde cero</title>
+
 </head>
 
 <body>
+
     <!-- ========================================
-         SECCIÓN 1: ENCABEZADOS (HEADINGS)
-         Los encabezados van desde h1 hasta h6
-         h1 es el más importante, h6 el menos
+         SECCIÓN 1: ENCABEZADOS (Headings)
          ======================================== -->
-    <h1>Este es un encabezado principal (h1)</h1>
-    <h2>Este es un subtítulo (h2)</h2>
-    <h3>Este es un sub-subtítulo (h3)</h3>
+    <h1>Este es un encabezado principal (h1)</h1> <!-- Encabezado de mayor nivel, usado para títulos principales -->
+    <h2>Este es un subtítulo (h2)</h2> <!-- Subtítulo de segundo nivel -->
+    <h3>Este es un sub-subtítulo (h3)</h3> <!-- Tercero en jerarquía -->
     <h4>Este es un encabezado de cuarto nivel (h4)</h4>
     <h5>Este es un encabezado de quinto nivel (h5)</h5>
     <h6>Este es un encabezado de sexto nivel (h6)</h6>
+    <!-- El más pequeño en tamaño, generalmente para títulos menores -->
 
     <!-- ========================================
          SECCIÓN 2: PÁRRAFOS
-         La etiqueta <p> define un párrafo de texto
          ======================================== -->
-    <p>Este es un párrafo de texto. Los párrafos se utilizan para agrupar contenido de texto.</p>
-    <p>Este es otro párrafo. Cada párrafo se separa automáticamente con espacio.</p>
+    <p>Este es un párrafo de texto. Los párrafos sirven para agrupar bloques de contenido textual.</p>
+    <p>Este es otro párrafo. Los párrafos se separan automáticamente con un margen.</p>
 
     <!-- ========================================
          SECCIÓN 3: ENLACES
-         La etiqueta <a> crea hipervínculos
-         El atributo href contiene la URL de destino
          ======================================== -->
     <p>
-        <a href="https://www.ejemplo.com">Visita mi página web</a>
+        <a href="https://www.ejemplo.com" target="_blank">Visita mi página web</a> <!-- Enlace a otra página web -->
     </p>
     <p>
-        <a href="https://www.google.com">Ir a Google</a>
+        <a href="https://www.google.com" target="_blank">Ir a Google</a> <!-- Enlace externo a Google -->
     </p>
 
     <!-- ========================================
          SECCIÓN 4: IMÁGENES
-         La etiqueta <img> inserta imágenes
-         src: ruta de la imagen
-         alt: descripción alternativa (accesibilidad)
          ======================================== -->
     <img src="https://via.placeholder.com/300x200" alt="Imagen de ejemplo placeholder">
-    <p>El atributo alt es importante para accesibilidad y cuando la imagen no carga.</p>
+    <!-- Imagen con URL de ejemplo -->
+    <p>El atributo <code>alt</code> es importante para accesibilidad y describe la imagen en caso de que no se cargue.
+    </p>
 
     <!-- ========================================
          SECCIÓN 5: LISTAS
          ======================================== -->
-
-    <!-- Lista ordenada: los elementos se numeran automáticamente -->
     <h2>Lista Ordenada (ol)</h2>
     <ol>
         <li>Primer ítem</li>
         <li>Segundo ítem</li>
         <li>Tercer ítem</li>
-    </ol>
+    </ol> <!-- Lista ordenada con numeración automática -->
 
-    <!-- Lista desordenada: los elementos tienen viñetas -->
     <h2>Lista Desordenada (ul)</h2>
     <ul>
         <li>Primer ítem</li>
         <li>Segundo ítem</li>
         <li>Tercer ítem</li>
-    </ul>
+    </ul> <!-- Lista desordenada con viñetas -->
 
     <!-- ========================================
          SECCIÓN 6: TABLAS
-         <table>: contenedor de la tabla
-         <tr>: fila de tabla (table row)
-         <th>: celda de encabezado (table header)
-         <td>: celda de datos (table data)
          ======================================== -->
     <h2>Tabla de Ejemplo</h2>
     <table border="1">
-        <tr>
-            <th>Nombre</th>
+        <tr> <!-- Fila de tabla -->
+            <th>Nombre</th> <!-- Celda de encabezado -->
             <th>Edad</th>
             <th>Ciudad</th>
         </tr>
         <tr>
-            <td>Ana</td>
+            <td>Ana</td> <!-- Celda de datos -->
             <td>25</td>
             <td>Madrid</td>
         </tr>
@@ -163,66 +126,53 @@
 
     <!-- ========================================
          SECCIÓN 7: FORMULARIOS
-         <form>: contenedor del formulario
-         <input>: campo de entrada
-         <label>: etiqueta descriptiva
-         <button>: botón de acción
          ======================================== -->
     <h2>Formulario de Ejemplo</h2>
-    <form action="/enviar" method="post">
+    <form action="/enviar" method="post"> <!-- Formulario con método POST para enviar datos -->
         <label for="nombre">Nombre:</label>
-        <input type="text" id="nombre" name="nombre">
+        <input type="text" id="nombre" name="nombre" required> <!-- Campo de texto -->
         <br><br>
 
         <label for="email">Email:</label>
-        <input type="email" id="email" name="email">
+        <input type="email" id="email" name="email" required> <!-- Campo de correo electrónico -->
         <br><br>
 
         <label for="edad">Edad:</label>
-        <input type="number" id="edad" name="edad">
+        <input type="number" id="edad" name="edad" required> <!-- Campo numérico -->
         <br><br>
 
-        <button type="submit">Enviar</button>
+        <button type="submit">Enviar</button> <!-- Botón para enviar el formulario -->
     </form>
 
     <!-- ========================================
          SECCIÓN 8: DIVISIONES Y SECCIONES
-         Elementos semánticos para organizar el contenido
          ======================================== -->
-
-    <!-- <div> es un contenedor genérico sin significado semántico -->
     <div>
         <h2>Esto está dentro de un div</h2>
-        <p>El div es un contenedor genérico.</p>
+        <p>El <code>div</code> es un contenedor genérico sin significado semántico.</p>
     </div>
 
-    <!-- <section> agrupa contenido relacionado temáticamente -->
     <section>
         <h2>Sección de Contenido</h2>
-        <p>Las secciones agrupan contenido relacionado.</p>
+        <p>Las secciones agrupan contenido relacionado, y deben tener un tema común.</p>
     </section>
 
-    <!-- <article> contiene contenido independiente y auto-contenido -->
     <article>
         <h2>Artículo Independiente</h2>
-        <p>Un artículo puede ser un post de blog, noticia, etc.</p>
+        <p>Un artículo puede ser una entrada de blog, una noticia, etc.</p>
     </article>
 
-    <!-- <header> define el encabezado de un documento o sección -->
     <header>
         <h2>Encabezado de Sección</h2>
-        <p>Información introductoria o de navegación.</p>
+        <p>El <code>header</code> es el encabezado que introduce una sección o documento.</p>
     </header>
 
-    <!-- <footer> define el pie de página -->
     <footer>
         <p>Pie de página - Derechos reservados 2024</p>
-    </footer>
+    </footer> <!-- El pie de página contiene información final del documento -->
 
     <!-- ========================================
          SECCIÓN 9: ESTILOS EN LÍNEA
-         Se pueden aplicar estilos directamente con el atributo style
-         Nota: No es la mejor práctica, mejor usar CSS externo
          ======================================== -->
     <h2>Estilos en línea (no recomendado para producción)</h2>
     <p style="color: red; font-size: 20px;">Este texto es rojo y grande.</p>
@@ -230,11 +180,10 @@
 
     <!-- ========================================
          SECCIÓN 10: COMENTARIOS
-         Los comentarios no se muestran en el navegador
-         Útiles para documentar el código
          ======================================== -->
     <!-- Este es un comentario y no se verá en la página -->
     <p>Este texto sí se verá en la página.</p>
+
     <!-- Los comentarios pueden ocupar
          múltiples líneas
          como este ejemplo -->
@@ -242,27 +191,16 @@
     <!-- ========================================
          SECCIÓN 11: OTROS ELEMENTOS COMUNES
          ======================================== -->
-
-    <!-- <span> es un contenedor en línea -->
     <p>Este es un texto normal con una <span>palabra dentro de span</span> en medio.</p>
-
-    <!-- <strong> define texto importante (normalmente en negrita) -->
-    <p><strong>Importante:</strong> Este texto es importante.</p>
-
-    <!-- <em> define texto enfatizado (normalmente en cursiva) -->
-    <p><em>Este texto está enfatizado.</em></p>
-
-    <!-- <br> crea un salto de línea -->
+    <!-- El <span> es un contenedor en línea -->
+    <p><strong>Importante:</strong> Este texto es importante.</p> <!-- <strong> resalta el texto en negrita -->
+    <p><em>Este texto está enfatizado.</em></p> <!-- <em> resalta el texto en cursiva -->
     <p>Esta es la primera línea.<br>Esta es la segunda línea después de un salto.</p>
-
-    <!-- <hr> crea una línea horizontal -->
+    <!-- <br> genera un salto de línea -->
     <p>Texto antes de la línea</p>
-    <hr>
+    <hr> <!-- <hr> crea una línea horizontal -->
     <p>Texto después de la línea</p>
 
-    <!-- ========================================
-         FIN DEL DOCUMENTO
-         ======================================== -->
 </body>
 
 </html>

@@ -1,0 +1,32 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+}
+
+.container {
+    margin-top: 50px;
+}
+
+#product-gallery img {
+    max-width: 100%;
+    cursor: pointer;
+}
+
+img.img-thumbnail {
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+img.img-thumbnail:hover {
+    transform: scale(1.1);
+}
+
+h1 {
+    color: #333;
+    text-transform: uppercase;
+}
+
+#price {
+    font-weight: bold;
+    color: #e67e22;
+}

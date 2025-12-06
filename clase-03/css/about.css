@@ -1,0 +1,129 @@
+/* Estilos específicos para la página sobre el blog */
+
+/* Sección de "Sobre Nosotros" */
+.sobre-nosotros {
+  padding: 3rem 1rem;
+  text-align: center;
+  background-color: #fff;
+}
+
+.sobre-nosotros h2 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.sobre-nosotros p {
+  font-size: 1.2rem;
+  color: #555;
+  margin-bottom: 2rem;
+}
+
+/* Sección de Misión y Visión */
+.mision-vision {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 3rem;
+}
+
+.mision, .vision {
+  width: 45%;
+}
+
+.mision h3, .vision h3 {
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+.mision p, .vision p {
+  font-size: 1.1rem;
+  color: #777;
+}
+
+/* Sección de Equipo */
+.equipo {
+  background-color: #f4f4f4;
+  padding: 3rem 1rem;
+  text-align: center;
+}
+
+.equipo h2 {
+  font-size: 2.5rem;
+  margin-bottom: 2rem;
+}
+
+.miembro {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 2rem;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  padding: 1rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.miembro:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+}
+
+.miembro img {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 20px;
+}
+
+.info-miembro h3 {
+  font-size: 1.6rem;
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+.info-miembro p {
+  font-size: 1rem;
+  color: #777;
+  line-height: 1.5;
+}
+
+/* Ajustes para pantallas pequeñas */
+@media (max-width: 768px) {
+  .mision-vision {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .mision, .vision {
+    width: 100%;
+    margin-bottom: 2rem;
+  }
+
+  .miembro {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .miembro img {
+    width: 120px;
+    height: 120px;
+    margin-bottom: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .sobre-nosotros h2 {
+    font-size: 2rem;
+  }
+
+  .mision h3, .vision h3 {
+    font-size: 1.5rem;
+  }
+
+  .miembro img {
+    width: 100px;
+    height: 100px;
+  }
+}

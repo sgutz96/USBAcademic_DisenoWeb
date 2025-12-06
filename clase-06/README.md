@@ -2,11 +2,11 @@
 
 ## Objetivo de la clase
 
-En esta clase aprenderemos sobre: Entrega 1 + Introduccion a JS
+En esta clase aprenderemos sobre: Refuerso de JS e implementacion en una web
 
 ## Proyecto en clase
 
-Revision landing + demo de variables y funciones
+Creacion de una landing + demo de variables y funciones
 
 ### Pasos a seguir:
 

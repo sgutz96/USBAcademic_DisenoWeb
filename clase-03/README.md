@@ -1,8 +1,8 @@
-﻿# Clase 3: Responsive + Media Queries
+﻿# Clase 3: Responsive + Media Queries + keyFrame
 
 ## Objetivo de la clase
 
-En esta clase aprenderemos sobre: Responsive + Media Queries
+En esta clase aprenderemos sobre: Responsive + Media Queries + animaciones con keyframes
 
 ## Proyecto en clase
 

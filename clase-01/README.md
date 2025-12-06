@@ -1,12 +1,12 @@
-﻿# Clase 1: Introduccion a diseno web, historia, HTML, Git y GitHub
+﻿    # Clase 1: Introduccion a diseno web, historia, HTML, Git y GitHub
 
-## Objetivo de la clase
+    ## Objetivo de la clase
 
-En esta clase aprenderemos sobre: Introduccion a diseno web, historia, HTML, Git y GitHub
+    En esta clase aprenderemos sobre: Introduccion a diseno web, historia, HTML, Git y GitHub
 
-## Proyecto en clase
+    ## Proyecto en clase
 
-Primera pagina HTML + publicacion en GitHub Pages
+    Primera pagina HTML + publicacion en GitHub Pages
 
 ### Pasos a seguir:
 

@@ -1,0 +1,196 @@
+/* =========================================
+            RESET BÁSICO
+            ========================================= */
+/* Establece márgenes y rellenos a cero para evitar inconsistencias entre navegadores */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box; /* Asegura que los tamaños se calculen incluyendo los bordes y rellenos */
+}
+
+/* =========================================
+            VARIABLES DE COLOR Y FUENTES
+            ========================================= */
+body {
+    font-family: 'Poppins', sans-serif; /* Usamos la fuente Poppins de Google Fonts */
+    line-height: 1.6; /* Espaciado entre líneas para mayor legibilidad */
+    color: #333; /* Color de texto en gris oscuro */
+}
+
+/* =========================================
+            HEADER (Navegación)
+            ========================================= */
+header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); /* Degradado de fondo en el header */
+    color: white;
+    padding: 1rem 0; /* Relleno superior e inferior */
+    position: fixed; /* Fija el header en la parte superior */
+    width: 100%; /* Asegura que el header ocupe todo el ancho */
+    top: 0; /* Alineación en la parte superior */
+    z-index: 1000; /* Asegura que el header se superponga a otros elementos */
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1); /* Sombra suave */
+}
+
+/* Navegación dentro del header */
+nav {
+    display: flex;
+    justify-content: space-between; /* Distribuye los elementos en los extremos */
+    align-items: center; /* Centra verticalmente los elementos */
+    max-width: 1200px; /* Limita el ancho máximo */
+    margin: 0 auto; /* Centra el contenido */
+    padding: 0 2rem; /* Relleno horizontal */
+}
+
+.logo {
+    font-size: 1.5rem; /* Tamaño de fuente */
+    font-weight: bold; /* Negrita */
+}
+
+/* Estilo para los enlaces en la barra de navegación */
+nav ul {
+    display: flex;
+    list-style: none; /* Quita las viñetas */
+    gap: 2rem; /* Espacio entre los elementos */
+}
+
+nav a {
+    color: white; /* Color blanco para los enlaces */
+    text-decoration: none; /* Quita el subrayado */
+    transition: opacity 0.3s; /* Transición suave para el efecto hover */
+}
+
+nav a:hover {
+    opacity: 0.8; /* Efecto de desvanecimiento cuando se pasa el ratón */
+}
+
+/* =========================================
+            SECCIÓN HERO (Principal)
+            ========================================= */
+.hero {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); /* Degradado en el fondo */
+    color: white;
+    padding: 150px 2rem 100px; /* Relleno para dar espacio */
+    text-align: center; /* Centrado del texto */
+    margin-top: 60px; /* Espacio por encima debido al header fijo */
+}
+
+.hero h1 {
+    font-size: 3rem; /* Tamaño grande para el encabezado */
+    margin-bottom: 1rem; /* Espacio debajo del encabezado */
+    animation: fadeInDown 1s; /* Animación al aparecer */
+    font-weight: 600; /* Negrita para mayor énfasis */
+}
+
+.hero p {
+    font-size: 1.2rem; /* Tamaño de fuente para el párrafo */
+    margin-bottom: 2rem; /* Espacio debajo */
+    opacity: 0.9; /* Ligera transparencia */
+}
+
+.btn {
+    display: inline-block; /* Alineación en línea */
+    padding: 15px 40px; /* Relleno */
+    background: white; /* Fondo blanco */
+    color: #667eea; /* Color del texto */
+    text-decoration: none; /* Quita subrayado */
+    border-radius: 50px; /* Bordes redondeados */
+    font-weight: bold; /* Texto en negrita */
+    transition: transform 0.3s, box-shadow 0.3s, background-color 0.3s; /* Transiciones para el efecto hover */
+}
+
+.btn:hover {
+    transform: translateY(-3px); /* Efecto de elevar el botón al pasar el ratón */
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2); /* Sombra cuando se pasa el ratón */
+    background-color: #667eea; /* Fondo de color del botón al pasar el ratón */
+    color: white; /* Cambiar el color del texto */
+}
+
+/* =========================================
+            SECCIÓN DE CARACTERÍSTICAS (Features)
+            ========================================= */
+.features {
+    max-width: 1200px;
+    margin: 80px auto; /* Espacio vertical y centrado */
+    padding: 0 2rem;
+    display: grid; /* Usamos CSS Grid para la distribución */
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Diseño responsivo */
+    gap: 2rem; /* Espacio entre las tarjetas */
+}
+
+.feature-card {
+    background: white; /* Fondo blanco */
+    padding: 2rem; /* Relleno interno */
+    border-radius: 10px; /* Bordes redondeados */
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1); /* Sombra */
+    transition: transform 0.3s; /* Transición para el efecto hover */
+    text-align: center; /* Centra el contenido */
+}
+
+.feature-card:hover {
+    transform: translateY(-10px); /* Eleva la tarjeta al pasar el ratón */
+}
+
+.feature-icon i {
+    font-size: 3rem; /* Tamaño grande para los iconos */
+    margin-bottom: 1rem; /* Espacio debajo del icono */
+    color: #667eea; /* Color del icono */
+    transition: transform 0.3s; /* Añadir una transición para el efecto hover */
+}
+
+.feature-icon i:hover {
+    transform: scale(1.2); /* Aumenta el tamaño del icono al pasar el ratón */
+}
+
+/* =========================================
+            SECCIÓN CTA (Llamada a la Acción)
+            ========================================= */
+.cta {
+    background: #f8f9fa; /* Fondo gris claro */
+    padding: 80px 2rem; /* Relleno para espaciar contenido */
+    text-align: center; /* Centrado de los elementos */
+}
+
+.cta h2 {
+    font-size: 2.5rem; /* Tamaño grande para el encabezado */
+    margin-bottom: 1rem; /* Espacio debajo */
+    color: #333; /* Color de texto */
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1); /* Sombra ligera para destacar el título */
+}
+
+.cta p {
+    font-size: 1.2rem; /* Tamaño de fuente para el texto */
+    margin-bottom: 2rem; /* Espacio debajo */
+    color: #666; /* Color gris para el texto */
+}
+
+/* =========================================
+            FOOTER
+            ========================================= */
+footer {
+    background: #333; /* Fondo oscuro */
+    color: white; /* Texto blanco */
+    text-align: center; /* Centrado del texto */
+    padding: 2rem; /* Relleno */
+}
+
+footer p {
+    margin-bottom: 1rem; /* Espacio debajo del texto */
+}
+
+.social-links {
+    display: flex;
+    justify-content: center; /* Centra los íconos */
+    gap: 1rem; /* Espacio entre los íconos */
+}
+
+.social-links a {
+    color: white; /* Color blanco para los enlaces */
+    text-decoration: none; /* Quita el subrayado */
+    font-size: 2rem; /* Tamaño de los íconos */
+    transition: transform 0.3s, color 0.3s; /* Transición suave para el cambio de color y tamaño */
+}
+
+.social-links a:hover {
+    transform: scale(1.2); /* Aumenta el tamaño del ícono al pasar el ratón */
+    color: #667eea; /* Cambia el color al pasar el ratón */
+}
