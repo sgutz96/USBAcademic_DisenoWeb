@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vue.js Sim0ple App</title>
+    <!-- Agregar Vue.js desde CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.2.47/vue.global.prod.js"></script>
+</head>
+<body>
+      
+    <div id="app">
+       <button @click="mostrarMensaje">Mostrar/Ocultar</button>
+       <p v-if="mostrar">nanananananna</p>
+       <h1 v-if="mostrar">!Batman¡</h1>
+       <p v-else="mostrar" >!Adiooos¡</p>
+    </div>
+
+    <script src="./JS/Example4.js"></script>
+</body>
+</html>
