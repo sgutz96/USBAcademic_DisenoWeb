@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Semana 02 — Fundamentos de CSS</title>
+
+  <!--
+    FORMAS DE AGREGAR CSS A UN DOCUMENTO HTML
+    ==========================================
+    1. Hoja de estilos EXTERNA (recomendada en proyectos reales):
+       <link rel="stylesheet" href="estilos.css">
+       Ventaja: reutilizable en múltiples páginas.
+
+    2. Hoja de estilos INTERNA (este archivo — ideal para aprender):
+       <style> ... </style> dentro del <head>
+       Ventaja: todo en un archivo, fácil de practicar.
+
+    3. Estilos EN LÍNEA (evitar en lo posible):
+       <p style="color: red;">...</p>
+       Desventaja: mezcla contenido con presentación, difícil de mantener.
+  -->
+
+
+  <link rel="stylesheet" href="./css/style.css">
+
+  <style>
+
+  </style>
+</head>
+
+<body>
+
+  <!-- ENCABEZADO -->
+  <header class="site-header">
+    <div class="pagina-wrapper">
+      <h1>Semana 02: Fundamentos de CSS</h1>
+      <p>Selectores · Box Model · Tipografía · Colores · Display · Position · Transiciones</p>
+    </div>
+  </header>
+
+  <div class="pagina-wrapper">
+
+    <!-- ====================================================
+         1. VARIABLES CSS
+         ==================================================== -->
+    <section class="card" id="variables">
+      <div class="card-titulo">
+        <span class="etiqueta-css">:root { }</span>
+        Variables CSS (Custom Properties)
+      </div>
+
+      <p>Las variables CSS permiten definir valores una vez y reutilizarlos en todo el documento.
+         Se declaran en <code>:root</code> con el prefijo <code>--</code> y se usan con <code>var()</code>.</p>
+
+      <pre><code>/* Declaración en :root */
+:root {
+  --color-primario: #1a3a4a;
+  --espacio-md: 1rem;
+  --fuente-titulos: 'Georgia', serif;
+}
+
+/* Uso en cualquier selector */
+h1 {
+  color: var(--color-primario);
+  margin-bottom: var(--espacio-md);
+  font-family: var(--fuente-titulos);
+}
+
+/* Con valor fallback (por si la variable no existe) */
+p { color: var(--color-texto, #333333); }</code></pre>
+
+      <div class="nota-info">
+        <strong>Ventaja principal:</strong> Si necesitas cambiar el color primario de toda la página,
+        solo modificas una línea en <code>:root</code>, no buscas en todo el CSS.
+      </div>
+    </section>
+
+
+    <!-- ====================================================
+         2. SELECTORES
+         ==================================================== -->
+    <section class="card" id="seccion-selectores">
+      <div class="card-titulo">
+        <span class="etiqueta-css">Selectores</span>
+        Tipos de selectores
+      </div>
+
+      <table class="tabla-ref">
+        <thead>
+          <tr>
+            <th>Selector</th>
+            <th>Sintaxis</th>
+            <th>Selecciona</th>
+            <th>Especificidad</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Universal</td>
+            <td><code>*</code></td>
+            <td>Todos los elementos</td>
+            <td>0</td>
+          </tr>
+          <tr>
+            <td>Elemento</td>
+            <td><code>p</code>, <code>h1</code></td>
+            <td>Todas las etiquetas de ese tipo</td>
+            <td>1</td>
+          </tr>
+          <tr>
+            <td>Clase</td>
+            <td><code>.nombre</code></td>
+            <td>Elementos con esa clase</td>
+            <td>10</td>
+          </tr>
+          <tr>
+            <td>ID</td>
+            <td><code>#nombre</code></td>
+            <td>El elemento con ese ID único</td>
+            <td>100</td>
+          </tr>
+          <tr>
+            <td>Atributo</td>
+            <td><code>[type="text"]</code></td>
+            <td>Elementos con ese atributo/valor</td>
+            <td>10</td>
+          </tr>
+          <tr>
+            <td>Descendiente</td>
+            <td><code>nav a</code></td>
+            <td>Los <code>a</code> dentro de <code>nav</code></td>
+            <td>suma</td>
+          </tr>
+          <tr>
+            <td>Hijo directo</td>
+            <td><code>ul > li</code></td>
+            <td>Solo hijos directos</td>
+            <td>suma</td>
+          </tr>
+          <tr>
+            <td>Hermano adyacente</td>
+            <td><code>h2 + p</code></td>
+            <td>El <code>p</code> inmediatamente después de <code>h2</code></td>
+            <td>suma</td>
+          </tr>
+          <tr>
+            <td>Pseudo-clase</td>
+            <td><code>:hover</code>, <code>:focus</code></td>
+            <td>Estado del elemento</td>
+            <td>10</td>
+          </tr>
+          <tr>
+            <td>Pseudo-elemento</td>
+            <td><code>::before</code>, <code>::after</code></td>
+            <td>Partes virtuales del elemento</td>
+            <td>1</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Demo — selectores en acción</h3>
+      <ul class="lista-directa" style="list-style:none; padding:0;">
+        <!-- class="lista-directa" → el CSS ".lista-directa > li" aplica a estos li -->
+        <li>Elemento con selector de hijo directo <code>.lista-directa > li</code></li>
+        <li>Los hijos heredan la regla del padre</li>
+        <li>Pero un nieto <strong>no</strong> sería seleccionado por <code>></code></li>
+      </ul>
+    </section>
+
+
+    <!-- ====================================================
+         3. BOX MODEL
+         ==================================================== -->
+    <section class="card">
+      <div class="card-titulo">
+        <span class="etiqueta-css">Box Model</span>
+        El modelo de caja
+      </div>
+
+      <p>Cada elemento HTML es una caja con 4 capas:
+         <strong>content → padding → border → margin</strong></p>
+
+      <pre><code>.caja {
+  /* CONTENT */
+  width: 220px;
+  height: 80px;
+
+  /* PADDING — espacio interior */
+  padding: 16px;                  /* 4 lados iguales */
+  padding: 10px 20px;             /* arriba/abajo | izq/der */
+  padding-top: 10px;              /* lado individual */
+
+  /* BORDER */
+  border: 2px solid #2d7d5f;
+  border-radius: 8px;             /* esquinas redondeadas */
+
+  /* MARGIN — espacio exterior */
+  margin: 16px;
+  margin: 0 auto;                 /* centrar horizontalmente */
+
+  /* Con border-box, width incluye padding + border */
+  box-sizing: border-box;
+}</code></pre>
+
+      <div style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: flex-start; margin-top: 1rem;">
+        <div class="demo-box-model">
+          box-sizing: border-box<br>
+          <small>padding y border incluidos en el width</small>
+        </div>
+        <div class="demo-box-model con-outline">
+          Con outline<br>
+          <small>no afecta al espacio del layout</small>
+        </div>
+      </div>
+
+      <div class="nota-warning" style="margin-top: 1rem;">
+        <strong>Recuerda:</strong> <code>margin: 0 auto</code> solo centra elementos <code>block</code>
+        que tienen un <code>width</code> definido. No funciona con <code>inline</code>.
+      </div>
+    </section>
+
+
+    <!-- ====================================================
+         4. TIPOGRAFÍA
+         ==================================================== -->
+    <section class="card">
+      <div class="card-titulo">
+        <span class="etiqueta-css">font-*  text-*</span>
+        Tipografía
+      </div>
+
+      <div class="demo-tipografia">
+        <p class="texto-grande">Tipografía en CSS</p>
+        <p class="texto-normal">Texto normal con <code>font-size: 1rem</code> y <code>line-height: 1.7</code>.
+           Una buena medida de legibilidad es ~65 caracteres por línea (<code>max-width: 65ch</code>).</p>
+        <p class="texto-pequeño">Texto pequeño secundario — 0.875rem (14px)</p>
+        <p class="texto-decorado">Texto con subrayado decorativo personalizado</p>
+        <p class="texto-mayusculas">Etiqueta en mayúsculas con letter-spacing</p>
+        <p class="texto-centrado">Texto centrado — <code>text-align: center</code></p>
+        <p class="texto-justificado">Texto justificado — <code>text-align: justify</code>.
+           Las palabras se distribuyen para que cada línea tenga el mismo ancho.
+           Se recomienda con <code>hyphens: auto</code> para partir sílabas correctamente.</p>
+      </div>
+
+      <table class="tabla-ref">
+        <thead><tr><th>Propiedad</th><th>Valores comunes</th><th>Efecto</th></tr></thead>
+        <tbody>
+          <tr><td><code>font-size</code></td><td><code>16px, 1rem, 1.5em, 120%</code></td><td>Tamaño de letra</td></tr>
+          <tr><td><code>font-weight</code></td><td><code>100–900, normal, bold</code></td><td>Grosor</td></tr>
+          <tr><td><code>font-style</code></td><td><code>normal, italic, oblique</code></td><td>Estilo</td></tr>
+          <tr><td><code>font-family</code></td><td><code>'Georgia', serif</code></td><td>Fuente tipográfica</td></tr>
+          <tr><td><code>line-height</code></td><td><code>1.5, 1.7, 24px</code></td><td>Interlineado</td></tr>
+          <tr><td><code>letter-spacing</code></td><td><code>0.05em, -0.02em</code></td><td>Espaciado entre letras</td></tr>
+          <tr><td><code>text-align</code></td><td><code>left, center, right, justify</code></td><td>Alineación</td></tr>
+          <tr><td><code>text-transform</code></td><td><code>uppercase, lowercase, capitalize</code></td><td>Mayúsculas/minúsculas</td></tr>
+          <tr><td><code>text-decoration</code></td><td><code>underline, none, line-through</code></td><td>Decoración</td></tr>
+        </tbody>
+      </table>
+
+      <!-- Demo de capitular con ::first-letter -->
+      <p class="capitular">
+        La letra capitular se crea con el pseudo-elemento <code>::first-letter</code>,
+        que selecciona y estiliza solo la primera letra de un párrafo sin necesidad
+        de agregar etiquetas adicionales al HTML. Es un buen ejemplo del poder
+        de los pseudo-elementos en CSS.
+      </p>
+    </section>
+
+
+    <!-- ====================================================
+         5. COLORES EN CSS
+         ==================================================== -->
+    <section class="card">
+      <div class="card-titulo">
+        <span class="etiqueta-css">color</span>
+        Formas de definir colores
+      </div>
+
+      <pre><code>/* 1. Nombre de color (solo 147 colores nombrados) */
+color: red;
+color: tomato;
+color: cornflowerblue;
+
+/* 2. Hexadecimal: #RRGGBB  o  #RGB (abreviado) */
+color: #1a3a4a;    /* completo */
+color: #fff;       /* = #ffffff (blanco) */
+color: #1a3a4aaa;  /* con alpha (transparencia) */
+
+/* 3. RGB */
+color: rgb(26, 58, 74);
+color: rgb(26 58 74);          /* sintaxis moderna sin coma */
+
+/* 4. RGBA — con transparencia */
+color: rgba(26, 58, 74, 0.5);  /* 0=transparente, 1=sólido */
+
+/* 5. HSL — Matiz, Saturación, Luminosidad */
+color: hsl(200, 48%, 20%);
+
+/* 6. HSLA — con transparencia */
+color: hsla(200, 48%, 20%, 0.5);</code></pre>
+
+      <h3>Paleta de esta página</h3>
+      <div class="paleta-grid">
+        <!-- Cada tarjeta muestra cómo se ve el color y su código -->
+
+        <div class="muestra-color">
+          <div class="bloque" style="background: #1a3a4a;"></div>
+          <div class="info"><strong>Primario</strong>#1a3a4a<br>rgb(26,58,74)</div>
+        </div>
+
+        <div class="muestra-color">
+          <div class="bloque" style="background: #2d7d5f;"></div>
+          <div class="info"><strong>Secundario</strong>#2d7d5f<br>hsl(155,47%,33%)</div>
+        </div>
+
+        <div class="muestra-color">
+          <div class="bloque" style="background: #e8a020;"></div>
+          <div class="info"><strong>Acento</strong>#e8a020<br>rgb(232,160,32)</div>
+        </div>
+
+        <div class="muestra-color">
+          <div class="bloque" style="background: #f4f1ec;"></div>
+          <div class="info"><strong>Fondo</strong>#f4f1ec<br>hsl(40,27%,94%)</div>
+        </div>
+
+        <div class="muestra-color">
+          <div class="bloque" style="background: rgba(26,58,74,0.2);"></div>
+          <div class="info"><strong>Con alpha</strong>rgba(26,58,74, 0.2)<br>20% opacidad</div>
+        </div>
+
+        <div class="muestra-color">
+          <div class="bloque" style="background: linear-gradient(135deg, #1a3a4a, #2d7d5f);"></div>
+          <div class="info"><strong>Gradiente</strong>linear-gradient()<br>entre dos colores</div>
+        </div>
+      </div>
+
+      <div class="nota-info">
+        <strong>Tip:</strong> Para la <strong>accesibilidad</strong>, el contraste entre texto y fondo
+        debe ser al menos 4.5:1 (WCAG AA). Usa herramientas como
+        <a href="https://webaim.org/resources/contrastchecker/" target="_blank" rel="noopener noreferrer">WebAIM Contrast Checker</a>.
+      </div>
+    </section>
+
+
+    <!-- ====================================================
+         6. DISPLAY
+         ==================================================== -->
+    <section class="card">
+      <div class="card-titulo">
+        <span class="etiqueta-css">display</span>
+        Comportamiento en el flujo
+      </div>
+
+      <div class="demo-display">
+        <!-- display: block -->
+        <div class="display-block">display: block — ocupa todo el ancho</div>
+        <div class="display-block">Otro bloque — empieza en nueva línea</div>
+
+        <!-- display: inline -->
+        <p style="margin-bottom: 1rem;">
+          Texto normal con
+          <span class="display-inline">display: inline</span>
+          dentro de un párrafo.
+          <span class="display-inline">Otro inline</span>
+          convive en la misma línea.
+        </p>
+
+        <!-- display: inline-block -->
+        <p>
+          <span class="display-inline-block">inline-block</span>
+          <span class="display-inline-block">inline-block</span>
+          <span class="display-inline-block">inline-block</span>
+        </p>
+      </div>
+
+      <table class="tabla-ref">
+        <thead><tr><th>Valor</th><th>Comportamiento</th><th>Acepta width/height</th></tr></thead>
+        <tbody>
+          <tr><td><code>block</code></td><td>Ocupa todo el ancho, nueva línea</td><td>Sí</td></tr>
+          <tr><td><code>inline</code></td><td>Solo el ancho de su contenido, misma línea</td><td>No</td></tr>
+          <tr><td><code>inline-block</code></td><td>Misma línea pero acepta dimensiones</td><td>Sí</td></tr>
+          <tr><td><code>none</code></td><td>No se muestra, no ocupa espacio</td><td>—</td></tr>
+          <tr><td><code>flex</code></td><td>Contenedor flexible (Semana 03)</td><td>Sí</td></tr>
+          <tr><td><code>grid</code></td><td>Contenedor de cuadrícula (Semana 04)</td><td>Sí</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+
+    <!-- ====================================================
+         7. POSITION
+         ==================================================== -->
+    <section class="card">
+      <div class="card-titulo">
+        <span class="etiqueta-css">position</span>
+        Posicionamiento de elementos
+      </div>
+
+      <div class="pos-sticky-demo">
+        <strong>position: sticky</strong> → el elemento fluye normalmente hasta que el scroll
+        lo llevaría fuera de la pantalla; entonces se "pega" al viewport.
+        Ejemplo: <code>position: sticky; top: 0;</code> para barras de navegación.
+      </div>
+
+      <div class="demo-position">
+        <!-- Contexto: .demo-position tiene position: relative -->
+        <div class="pos-static">
+          <strong>static</strong> (defecto)
+        </div>
+        <div class="pos-relative">
+          <strong>relative</strong><br>
+          <small>top:10px left:20px</small>
+        </div>
+        <div class="pos-absolute">
+          absolute → top:16px right:16px
+        </div>
+      </div>
+
+      <pre><code>/* Valores de position */
+position: static;    /* defecto — flujo normal */
+position: relative;  /* se mueve desde su posición original */
+position: absolute;  /* relativo al ancestro con position != static */
+position: fixed;     /* relativo al viewport, no se mueve al hacer scroll */
+position: sticky;    /* híbrido: flujo normal + se pega al scroll */
+
+/* Propiedades de desplazamiento (requieren position != static) */
+top: 20px;
+right: 0;
+bottom: 10px;
+left: 50%;
+
+/* z-index: capa de apilamiento */
+z-index: 10;    /* mayor número = más al frente */</code></pre>
+    </section>
+
+
+    <!-- ====================================================
+         8. PSEUDO-CLASES Y PSEUDO-ELEMENTOS
+         ==================================================== -->
+    <section class="card">
+      <div class="card-titulo">
+        <span class="etiqueta-css">: y ::</span>
+        Pseudo-clases y pseudo-elementos
+      </div>
+
+      <h3>Tabla con :nth-child() y :hover</h3>
+      <p>Pasa el cursor sobre las filas para ver el efecto hover.</p>
+      <table class="tabla-demo">
+        <thead>
+          <tr><th>Propiedad</th><th>Descripción</th><th>Categoría</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>color</code></td><td>Color del texto</td><td><span class="badge badge-azul">Texto</span></td></tr>
+          <tr><td><code>background</code></td><td>Color o imagen de fondo</td><td><span class="badge badge-verde">Fondo</span></td></tr>
+          <tr><td><code>margin</code></td><td>Espacio exterior</td><td><span class="badge badge-ambar">Box Model</span></td></tr>
+          <tr><td><code>padding</code></td><td>Espacio interior</td><td><span class="badge badge-ambar">Box Model</span></td></tr>
+          <tr><td><code>border</code></td><td>Contorno del elemento</td><td><span class="badge badge-ambar">Box Model</span></td></tr>
+          <tr><td><code>font-size</code></td><td>Tamaño de letra</td><td><span class="badge badge-azul">Texto</span></td></tr>
+          <tr><td><code>display</code></td><td>Tipo de caja</td><td><span class="badge badge-rojo">Layout</span></td></tr>
+          <tr><td><code>position</code></td><td>Tipo de posicionamiento</td><td><span class="badge badge-rojo">Layout</span></td></tr>
+        </tbody>
+      </table>
+
+      <h3>Lista con ::before personalizado</h3>
+      <ul class="lista-estilizada">
+        <li>Primer elemento (tiene border-top extra con :first-child)</li>
+        <li>Segundo elemento con flecha creada por ::before</li>
+        <li>Tercer elemento</li>
+        <li>Último elemento (tiene border-bottom extra con :last-child)</li>
+      </ul>
+    </section>
+
+
+    <!-- ====================================================
+         9. TRANSICIONES Y BOTONES
+         ==================================================== -->
+    <section class="card">
+      <div class="card-titulo">
+        <span class="etiqueta-css">transition  transform</span>
+        Transiciones y transformaciones
+      </div>
+
+      <p>Pasa el cursor sobre los botones para ver las transiciones:</p>
+
+      <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem;">
+        <button class="btn">Botón principal</button>
+        <button class="btn btn-outline">Botón outline</button>
+        <button class="btn btn-acento">Botón acento</button>
+      </div>
+
+      <pre><code>.btn {
+  transition: background-color 0.25s ease,
+              transform 0.15s ease,
+              box-shadow 0.25s ease;
+}
+
+.btn:hover {
+  transform: translateY(-2px);  /* sube 2px */
+  box-shadow: 0 4px 12px rgba(0,0,0,0.10);
+}
+
+/* Funciones de timing:
+   ease        → lento al inicio y al final (defecto)
+   linear      → velocidad constante
+   ease-in     → lento al inicio
+   ease-out    → lento al final
+   ease-in-out → lento en ambos extremos
+   cubic-bezier(x1,y1,x2,y2) → curva personalizada
+*/</code></pre>
+
+      <h3>Transformaciones 2D</h3>
+      <div style="display:flex; gap:1rem; flex-wrap:wrap;">
+        <div style="width:80px;height:80px;background:#d4ede4;border:2px solid #2d7d5f;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:0.75rem;text-align:center;transform:rotate(10deg);">rotate(10deg)</div>
+        <div style="width:80px;height:80px;background:#fde8c0;border:2px solid #e8a020;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:0.75rem;text-align:center;transform:scale(1.2);">scale(1.2)</div>
+        <div style="width:80px;height:80px;background:#d4e4f4;border:2px solid #1a6aaa;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:0.75rem;text-align:center;transform:skewX(10deg);">skewX(10deg)</div>
+        <div style="width:80px;height:80px;background:#fdd4d4;border:2px solid #aa2020;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:0.75rem;text-align:center;transform:translateX(20px);">translateX(20px)</div>
+      </div>
+    </section>
+
+
+    <!-- ====================================================
+         10. OVERFLOW
+         ==================================================== -->
+    <section class="card">
+      <div class="card-titulo">
+        <span class="etiqueta-css">overflow</span>
+        Control del desbordamiento
+      </div>
+
+      <div class="demo-overflow">
+        <div>
+          <p class="texto-mayusculas" style="margin-bottom:0.25rem;">visible (defecto)</p>
+          <div class="caja-overflow overflow-visible">
+            Este texto es más largo que la caja y se DESBORDA hacia afuera sin recortarse.
+          </div>
+        </div>
+        <div>
+          <p class="texto-mayusculas" style="margin-bottom:0.25rem;">hidden</p>
+          <div class="caja-overflow overflow-hidden">
+            Este texto es más largo que la caja pero se RECORTA y no se ve lo que sobra.
+          </div>
+        </div>
+        <div>
+          <p class="texto-mayusculas" style="margin-bottom:0.25rem;">scroll</p>
+          <div class="caja-overflow overflow-scroll">
+            Este texto es más largo que la caja y aparece un SCROLLBAR para desplazarse,
+            aunque el contenido no desborde.
+          </div>
+        </div>
+        <div>
+          <p class="texto-mayusculas" style="margin-bottom:0.25rem;">auto</p>
+          <div class="caja-overflow overflow-auto">
+            Este texto es más largo y el scrollbar aparece SOLO si el contenido desborda.
+            Es el más recomendado en general.
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ====================================================
+         11. ESPECIFICIDAD (DEMO)
+         ==================================================== -->
+    <section class="card">
+      <div class="card-titulo">
+        <span class="etiqueta-css">Cascada</span>
+        Especificidad en acción
+      </div>
+
+      <p>El selector más específico gana la competencia de estilos:</p>
+
+      <!-- El color final depende de qué regla gana la cascada -->
+      <p>Este párrafo usa la regla general de <code>p</code> → color oscuro.</p>
+      <p class="texto-verde">Con clase <code>.texto-verde</code> → color verde.</p>
+      <p class="texto-verde" id="forzado-rojo">Con ID <code>#forzado-rojo</code> → color rojo (ID gana a clase).</p>
+
+      <pre><code>/* Especificidad: 1 */
+p { color: #1e1e1e; }
+
+/* Especificidad: 10 — gana sobre "p" */
+.texto-verde { color: #1a6a3a; }
+
+/* Especificidad: 11 (elemento + clase) */
+p.texto-verde { font-style: italic; }
+
+/* Especificidad: 100 — gana sobre todo */
+#forzado-rojo { color: #aa2020; }
+
+/* !important — solo en emergencias */
+.error { color: red !important; }</code></pre>
+    </section>
+
+
+    <!-- ====================================================
+         12. REFERENCIA RÁPIDA
+         ==================================================== -->
+    <section class="card">
+      <div class="card-titulo">
+        <span class="etiqueta-css">Referencia</span>
+        Propiedades CSS más usadas
+      </div>
+
+      <table class="tabla-ref">
+        <thead><tr><th>Propiedad</th><th>Ejemplo</th><th>Qué hace</th></tr></thead>
+        <tbody>
+          <tr><td><code>color</code></td><td><code>color: #1a3a4a</code></td><td>Color del texto</td></tr>
+          <tr><td><code>background-color</code></td><td><code>background-color: #f4f1ec</code></td><td>Fondo sólido</td></tr>
+          <tr><td><code>background</code></td><td><code>background: linear-gradient(...)</code></td><td>Fondo (shorthand)</td></tr>
+          <tr><td><code>width / height</code></td><td><code>width: 300px</code></td><td>Dimensiones</td></tr>
+          <tr><td><code>max-width</code></td><td><code>max-width: 65ch</code></td><td>Ancho máximo</td></tr>
+          <tr><td><code>margin</code></td><td><code>margin: 0 auto</code></td><td>Espacio exterior</td></tr>
+          <tr><td><code>padding</code></td><td><code>padding: 1rem 2rem</code></td><td>Espacio interior</td></tr>
+          <tr><td><code>border</code></td><td><code>border: 1px solid #ccc</code></td><td>Contorno</td></tr>
+          <tr><td><code>border-radius</code></td><td><code>border-radius: 8px</code></td><td>Esquinas redondeadas</td></tr>
+          <tr><td><code>box-shadow</code></td><td><code>box-shadow: 0 4px 12px rgba(0,0,0,0.1)</code></td><td>Sombra</td></tr>
+          <tr><td><code>opacity</code></td><td><code>opacity: 0.5</code></td><td>Transparencia (0–1)</td></tr>
+          <tr><td><code>cursor</code></td><td><code>cursor: pointer</code></td><td>Icono del cursor</td></tr>
+          <tr><td><code>transition</code></td><td><code>transition: all 0.3s ease</code></td><td>Animación de cambios</td></tr>
+          <tr><td><code>transform</code></td><td><code>transform: rotate(5deg)</code></td><td>Transformación 2D/3D</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+  </div><!-- /.pagina-wrapper -->
+
+  <!-- PIE DE PÁGINA -->
+  <footer class="site-footer">
+    <p>Diseño Web · Semana 02 · Fundamentos de CSS &copy; 2025</p>
+    <p style="margin-top:0.25rem; font-size:0.8rem;">
+      Recursos: <a href="https://developer.mozilla.org/es/docs/Web/CSS" target="_blank" rel="noopener noreferrer" style="color:#a8d8c0;">MDN CSS</a>
+      &nbsp;|&nbsp;
+      <a href="https://css-tricks.com" target="_blank" rel="noopener noreferrer" style="color:#a8d8c0;">CSS-Tricks</a>
+    </p>
+  </footer>
+
+</body>
+</html>

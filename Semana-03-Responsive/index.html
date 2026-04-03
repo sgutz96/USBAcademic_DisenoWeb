@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clase — Diseño Responsive</title>
+
+<style>
+:root {
+  --primary: #1a3a4a;
+  --secondary: #2d7d5f;
+  --bg: #f4f1ec;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: var(--bg);
+}
+
+/* HEADER */
+header {
+  background: var(--primary);
+  color: white;
+  padding: 2rem;
+  text-align: center;
+}
+
+/* SECCIONES */
+section {
+  max-width: 900px;
+  margin: auto;
+  padding: 2rem 1rem;
+}
+
+/* CARD DEMO */
+.card {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  overflow: hidden;
+  background: white;
+}
+
+.card .img {
+  background: #ddd;
+  height: 120px;
+}
+
+.card .text {
+  padding: 1rem;
+}
+
+/* MOBILE FIRST */
+@media (min-width: 600px) {
+  .card {
+    flex-direction: row;
+  }
+
+  .card .img {
+    width: 150px;
+    height: auto;
+  }
+}
+
+/* GRID DEMO */
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+.grid div {
+  background: white;
+  padding: 1rem;
+  border: 1px solid #ccc;
+}
+
+/* BREAKPOINTS */
+@media (min-width: 600px) {
+  .grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (min-width: 900px) {
+  .grid {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+}
+
+/* CLAMP */
+h1 {
+  font-size: clamp(1.5rem, 5vw, 3rem);
+}
+
+/* BOTÓN DEMO */
+button {
+  padding: 10px 20px;
+  border: none;
+  background: var(--secondary);
+  color: white;
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>Diseño Responsive</h1>
+  <p>Mobile First · Media Queries · Unidades flexibles</p>
+</header>
+
+<section>
+  <h2>📱 1. Mobile First</h2>
+  <p>Primero diseñamos para móvil, luego mejoramos.</p>
+
+  <div class="card">
+    <div class="img"></div>
+    <div class="text">
+      <strong>Tarjeta responsive</strong>
+      <p>Cambia el tamaño de pantalla 👀</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>📏 2. Media Queries</h2>
+  <p>La grilla cambia según el tamaño:</p>
+
+  <div class="grid">
+    <div>Item 1</div>
+    <div>Item 2</div>
+    <div>Item 3</div>
+  </div>
+</section>
+
+<section>
+  <h2>📐 3. Unidades flexibles</h2>
+  <p>Este título usa <code>clamp()</code>. Cambia el tamaño de la pantalla.</p>
+</section>
+
+<section>
+  <h2>🧪 Interacción en clase</h2>
+  <button onclick="alert('Responsive funcionando 🚀')">
+    Probar botón
+  </button>
+</section>
+
+</body>
+</html>

@@ -1,0 +1,947 @@
+
+    /* ============================================================
+       SECCIÓN 0: VARIABLES CSS (CUSTOM PROPERTIES)
+       ============================================================
+       Las variables CSS permiten guardar valores y reutilizarlos.
+       Se declaran dentro de :root (elemento raíz = <html>).
+       Sintaxis: --nombre-variable: valor;
+       Uso: color: var(--nombre-variable);
+       Ventaja: cambiar UNA variable afecta toda la página.
+    */
+
+    :root {
+      /* Paleta de colores */
+      --color-primario:    #1a3a4a;   /* Azul oscuro principal */
+      --color-secundario:  #2d7d5f;   /* Verde esmeralda */
+      --color-acento:      #e8a020;   /* Amarillo ámbar */
+      --color-fondo:       #f4f1ec;   /* Beige cálido */
+      --color-superficie:  #ffffff;   /* Blanco */
+      --color-texto:       #1e1e1e;   /* Casi negro */
+      --color-texto-suave: #5a5a5a;   /* Gris oscuro */
+      --color-borde:       #d6cfc4;   /* Beige oscuro */
+
+      /* Tipografía */
+      --fuente-titulos: 'Georgia', 'Times New Roman', serif;
+      --fuente-cuerpo:  'Trebuchet MS', 'Gill Sans', sans-serif;
+      --fuente-codigo:  'Courier New', 'Lucida Console', monospace;
+
+      /* Espaciado */
+      --espacio-xs:  0.25rem;   /*  4px */
+      --espacio-sm:  0.5rem;    /*  8px */
+      --espacio-md:  1rem;      /* 16px */
+      --espacio-lg:  1.5rem;    /* 24px */
+      --espacio-xl:  2rem;      /* 32px */
+      --espacio-xxl: 3rem;      /* 48px */
+
+      /* Bordes */
+      --radio-sm: 4px;
+      --radio-md: 8px;
+      --radio-lg: 16px;
+      --radio-pill: 999px;    /* Crea forma de "pastilla" */
+
+      /* Sombras */
+      --sombra-sm: 0 1px 3px rgba(0,0,0,0.12);
+      --sombra-md: 0 4px 12px rgba(0,0,0,0.10);
+      --sombra-lg: 0 8px 24px rgba(0,0,0,0.12);
+    }
+
+
+    /* ============================================================
+       SECCIÓN 1: RESET Y ESTILOS BASE
+       ============================================================
+       Los navegadores tienen estilos por defecto que varían entre
+       ellos. El "reset" los neutraliza para partir de cero.
+    */
+
+    /* Selector universal * → aplica a TODOS los elementos */
+    * {
+      /*
+        box-sizing: border-box → el padding y border se incluyen
+        dentro del width/height declarado. Mucho más intuitivo.
+        (Ver Sección 4: Box Model)
+      */
+      box-sizing: border-box;
+      margin: 0;    /* Elimina márgenes por defecto */
+      padding: 0;   /* Elimina padding por defecto */
+    }
+
+    /*
+      Selector de ELEMENTO (o de tipo):
+      Afecta a todas las etiquetas de ese tipo.
+      Ejemplo: body { } aplica a <body>
+    */
+    body {
+      font-family: var(--fuente-cuerpo);
+      font-size: 16px;            /* Tamaño base (1rem = 16px) */
+      line-height: 1.7;           /* Interlineado: 1.7 × el tamaño de fuente */
+      color: var(--color-texto);
+      background-color: var(--color-fondo);
+    }
+
+    /* Selector de elemento — todos los párrafos */
+    p {
+      margin-bottom: var(--espacio-md);   /* Espacio debajo de cada párrafo */
+      max-width: 65ch;   /* ch = ancho del carácter '0' — limita a ~65 chars por línea */
+    }
+
+    /* Herencia: los hijos heredan propiedades del padre */
+    h1, h2, h3, h4, h5, h6 {
+      font-family: var(--fuente-titulos);
+      color: var(--color-primario);
+      line-height: 1.2;   /* Títulos con menor interlineado se ven mejor */
+      margin-bottom: var(--espacio-md);
+    }
+
+    a {
+      color: var(--color-secundario);
+      text-decoration: none;        /* Quita el subrayado por defecto */
+      border-bottom: 1px solid transparent;   /* Preparamos transición */
+      transition: border-color 0.2s ease;     /* Transición suave */
+    }
+
+    /*
+      Pseudo-clase :hover → aplica cuando el cursor está encima.
+      Otras pseudo-clases útiles:
+      :focus   → cuando el elemento tiene el foco (teclado)
+      :active  → mientras se hace clic
+      :visited → enlace ya visitado
+      :first-child / :last-child
+      :nth-child(n)
+    */
+    a:hover {
+      border-bottom-color: var(--color-secundario);
+    }
+
+    img {
+      max-width: 100%;   /* Imágenes nunca superan su contenedor */
+      display: block;    /* Elimina espacio inferior de imágenes inline */
+    }
+
+    code {
+      font-family: var(--fuente-codigo);
+      font-size: 0.875em;   /* em = relativo al tamaño del padre */
+      background-color: #e8e0f0;
+      color: #4a1a6a;
+      padding: 2px 6px;
+      border-radius: var(--radio-sm);
+    }
+
+    pre {
+      background: var(--color-primario);
+      color: #a8d8c0;
+      padding: var(--espacio-md);
+      border-radius: var(--radio-md);
+      overflow-x: auto;   /* Scroll horizontal si el código es largo */
+      font-family: var(--fuente-codigo);
+      font-size: 0.875rem;
+      line-height: 1.6;
+      margin-bottom: var(--espacio-lg);
+    }
+
+    pre code {
+      /*
+        Selector DESCENDIENTE: "pre code" → solo los <code>
+        que están DENTRO de un <pre>.
+        No afecta a <code> que estén solos en un párrafo.
+      */
+      background: none;
+      color: inherit;   /* Hereda el color del <pre> padre */
+      padding: 0;
+    }
+
+
+    /* ============================================================
+       SECCIÓN 2: LAYOUT GENERAL (estructura de página)
+       ============================================================ */
+
+    .pagina-wrapper {
+      /*
+        Selector de CLASE (.nombre):
+        Aplica a cualquier elemento que tenga class="pagina-wrapper"
+        Las clases son reutilizables (varios elementos pueden tenerla).
+      */
+      max-width: 900px;
+      margin: 0 auto;     /* auto en lados = centrar horizontalmente */
+      padding: 0 var(--espacio-md);
+    }
+
+    /* ENCABEZADO DE SITIO */
+    .site-header {
+      background-color: var(--color-primario);
+      color: #ffffff;
+      padding: var(--espacio-xl) var(--espacio-md);
+      margin-bottom: var(--espacio-xxl);
+      position: relative;    /* Contexto para elementos absolute internos */
+      overflow: hidden;
+    }
+
+    .site-header::before {
+      /*
+        Pseudo-elemento ::before → crea un elemento decorativo virtual
+        ANTES del contenido real. No existe en el HTML.
+        Requiere content: "" para mostrarse.
+        ::after hace lo mismo pero DESPUÉS del contenido.
+      */
+      content: "";
+      position: absolute;
+      top: -40px;
+      right: -40px;
+      width: 200px;
+      height: 200px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 50%;   /* 50% = círculo perfecto */
+    }
+
+    .site-header h1 {
+      /*
+        Selector DESCENDIENTE ESPECÍFICO:
+        Solo el <h1> dentro de .site-header
+        Sobrescribe la regla general de h1 de arriba.
+        Esto es la ESPECIFICIDAD en acción.
+      */
+      color: #ffffff;
+      font-size: 2.5rem;
+      margin-bottom: var(--espacio-sm);
+    }
+
+    .site-header p {
+      color: rgba(255,255,255,0.75);
+      max-width: none;   /* Anula el max-width de la regla general de p */
+    }
+
+
+    /* ============================================================
+       SECCIÓN 3: TIPOS DE SELECTORES
+       ============================================================ */
+
+    /*
+      SELECTOR DE ID (#nombre):
+      Aplica solo al elemento con id="nombre-unico".
+      Un ID debe ser ÚNICO en la página.
+      Mayor especificidad que clase.
+      Se usa poco en CSS moderno (se prefieren clases).
+    */
+    #seccion-selectores {
+      scroll-margin-top: 2rem;   /* Espacio al hacer scroll a este elemento */
+    }
+
+    /*
+      SELECTOR DE ATRIBUTO [attr]:
+      Selecciona elementos que tienen cierto atributo.
+    */
+    input[type="text"],
+    input[type="email"],
+    input[type="number"] {
+      border: 1px solid var(--color-borde);
+      border-radius: var(--radio-sm);
+      padding: var(--espacio-sm) var(--espacio-md);
+      font-family: var(--fuente-cuerpo);
+      font-size: 1rem;
+      width: 100%;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    input[type="text"]:focus,
+    input[type="email"]:focus {
+      /*
+        :focus → cuando el campo está activo (con el cursor dentro).
+        Importante para accesibilidad: nunca eliminar el outline
+        sin reemplazarlo por algo visible.
+      */
+      outline: none;   /* Quitamos el outline por defecto */
+      border-color: var(--color-secundario);
+      box-shadow: 0 0 0 3px rgba(45, 125, 95, 0.2);   /* Anillo de foco */
+    }
+
+    /*
+      SELECTOR DE HIJO DIRECTO (>):
+      ".padre > .hijo" solo selecciona hijos DIRECTOS,
+      no nietos ni descendientes más profundos.
+    */
+    .lista-directa > li {
+      border-left: 3px solid var(--color-acento);
+      padding-left: var(--espacio-md);
+      margin-bottom: var(--espacio-sm);
+    }
+
+    /*
+      SELECTOR DE HERMANO ADYACENTE (+):
+      "A + B" → selecciona B solo si viene INMEDIATAMENTE después de A.
+    */
+    h3 + p {
+      color: var(--color-texto-suave);   /* El párrafo justo tras un h3 */
+    }
+
+    /*
+      SELECTOR DE HERMANOS GENERALES (~):
+      "A ~ B" → selecciona todos los B que están después de A
+      (no necesariamente inmediatamente).
+    */
+    /* h2 ~ p { font-size: 1.05rem; }  <-- ejemplo, comentado */
+
+    /*
+      COMBINACIÓN de selectores (,):
+      La coma agrupa selectores que comparten las mismas reglas.
+    */
+    h2, h3 {
+      margin-top: var(--espacio-xl);
+    }
+
+
+    /* ============================================================
+       SECCIÓN 4: BOX MODEL
+       ============================================================
+       Cada elemento HTML es una caja rectangular con 4 capas:
+
+       ┌─────────────────────────────────────────┐
+       │              MARGIN (exterior)           │
+       │  ┌───────────────────────────────────┐  │
+       │  │           BORDER                  │  │
+       │  │  ┌─────────────────────────────┐  │  │
+       │  │  │         PADDING             │  │  │
+       │  │  │  ┌───────────────────────┐  │  │  │
+       │  │  │  │       CONTENT         │  │  │  │
+       │  │  │  │  (width × height)     │  │  │  │
+       │  │  │  └───────────────────────┘  │  │  │
+       │  │  └─────────────────────────────┘  │  │
+       │  └───────────────────────────────────┘  │
+       └─────────────────────────────────────────┘
+
+       Con box-sizing: border-box (aplicado en el reset):
+       width = content + padding + border
+       El margin siempre es exterior y no se incluye en width.
+    */
+
+    .demo-box-model {
+      display: inline-block;   /* Para que la caja se ajuste al contenido */
+      width: 220px;
+      height: 80px;
+
+      /* CONTENT: definido por width y height */
+
+      /* PADDING: espacio INTERIOR (empuja el contenido hacia adentro) */
+      padding: 16px;          /* los 4 lados iguales */
+      /* Formas de escribir padding/margin:
+         padding: 10px;              → 4 lados iguales
+         padding: 10px 20px;         → arriba/abajo | izquierda/derecha
+         padding: 10px 20px 5px;     → arriba | lados | abajo
+         padding: 10px 20px 5px 15px;→ arriba derecha abajo izquierda (horario)
+      */
+
+      /* BORDER: el contorno visible */
+      border: 2px solid var(--color-secundario);
+      border-radius: var(--radio-md);
+
+      /* MARGIN: espacio EXTERIOR (aleja el elemento de los vecinos) */
+      margin: 16px;
+
+      background-color: #d4ede4;
+      color: var(--color-primario);
+      font-size: 0.85rem;
+      text-align: center;
+      line-height: 1.3;
+
+      /* Propiedad shorthand vs longhand:
+         border: 2px solid red;
+         es equivalente a:
+         border-width: 2px;
+         border-style: solid;
+         border-color: red;
+      */
+    }
+
+    .demo-box-model.con-outline {
+      /*
+        outline: similar a border pero NO ocupa espacio en el box model.
+        No afecta al layout. Ideal para indicar foco.
+      */
+      outline: 3px dashed var(--color-acento);
+      outline-offset: 4px;   /* Espacio entre elemento y outline */
+    }
+
+
+    /* ============================================================
+       SECCIÓN 5: TIPOGRAFÍA
+       ============================================================ */
+
+    .demo-tipografia {
+      background: var(--color-superficie);
+      border: 1px solid var(--color-borde);
+      border-radius: var(--radio-lg);
+      padding: var(--espacio-xl);
+      margin-bottom: var(--espacio-xl);
+    }
+
+    .texto-grande {
+      font-size: 2rem;          /* rem = relativo al root (html) */
+      font-weight: 700;         /* 400=normal, 700=bold, 100-900 */
+      letter-spacing: -0.02em;  /* Espaciado entre letras (negativo = más junto) */
+      line-height: 1.1;
+    }
+
+    .texto-normal {
+      font-size: 1rem;
+      font-weight: 400;
+      line-height: 1.7;
+    }
+
+    .texto-pequeño {
+      font-size: 0.875rem;   /* 14px si la base es 16px */
+      font-weight: 400;
+      color: var(--color-texto-suave);
+    }
+
+    .texto-decorado {
+      text-decoration: underline;
+      text-decoration-color: var(--color-acento);
+      text-decoration-thickness: 2px;
+      text-underline-offset: 4px;   /* Distancia del subrayado al texto */
+    }
+
+    .texto-mayusculas {
+      text-transform: uppercase;    /* uppercase | lowercase | capitalize */
+      letter-spacing: 0.1em;        /* Letras espaciadas en caps se ven mejor */
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--color-secundario);
+    }
+
+    .texto-centrado  { text-align: center; }
+    .texto-derecha   { text-align: right; }
+    .texto-justificado { text-align: justify; }
+
+
+    /* ============================================================
+       SECCIÓN 6: COLORES EN CSS
+       ============================================================ */
+
+    .paleta-grid {
+      display: grid;
+      /* 
+        CSS Grid — Previa (semana 04 lo veremos a fondo):
+        grid-template-columns: repite columnas automáticamente.
+        auto-fill = cuantas quepan en el ancho disponible.
+        minmax(120px, 1fr) = mínimo 120px, máximo 1 fracción.
+      */
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: var(--espacio-md);
+      margin-bottom: var(--espacio-xl);
+    }
+
+    .muestra-color {
+      border-radius: var(--radio-md);
+      overflow: hidden;
+      border: 1px solid var(--color-borde);
+      box-shadow: var(--sombra-sm);
+    }
+
+    .muestra-color .bloque {
+      height: 70px;
+    }
+
+    .muestra-color .info {
+      padding: var(--espacio-sm);
+      background: var(--color-superficie);
+      font-size: 0.75rem;
+      line-height: 1.5;
+    }
+
+    .muestra-color .info strong {
+      display: block;
+      font-size: 0.8rem;
+      color: var(--color-primario);
+    }
+
+
+    /* ============================================================
+       SECCIÓN 7: DISPLAY (comportamiento en el flujo)
+       ============================================================
+       display controla CÓMO un elemento ocupa espacio.
+    */
+
+    .demo-display {
+      margin-bottom: var(--espacio-xl);
+    }
+
+    /* display: block → ocupa todo el ancho disponible, crea nueva línea */
+    .display-block {
+      display: block;
+      width: 100%;
+      background: #d4ede4;
+      border: 2px solid var(--color-secundario);
+      padding: var(--espacio-sm) var(--espacio-md);
+      border-radius: var(--radio-sm);
+      margin-bottom: var(--espacio-sm);
+      text-align: center;
+    }
+
+    /* display: inline → ocupa solo el espacio de su contenido */
+    /* No acepta width/height. Margin/padding solo horizontal */
+    .display-inline {
+      display: inline;
+      background: #fde8b8;
+      border: 2px solid var(--color-acento);
+      padding: 2px 8px;
+      /* border-radius no siempre aplica en inline puro */
+    }
+
+    /* display: inline-block → como inline en el flujo, pero acepta width/height */
+    .display-inline-block {
+      display: inline-block;
+      width: 120px;
+      height: 60px;
+      background: #c8dff5;
+      border: 2px solid #1a6aaa;
+      border-radius: var(--radio-sm);
+      text-align: center;
+      line-height: 60px;   /* Truco: line-height = height → centrado vertical */
+      margin: var(--espacio-sm);
+    }
+
+    /* display: none → oculta completamente, sin ocupar espacio */
+    .display-none {
+      display: none;   /* Este elemento no se verá en la página */
+    }
+
+    /* visibility: hidden → invisible pero SÍ ocupa espacio */
+    .visibility-hidden {
+      visibility: hidden;
+    }
+
+
+    /* ============================================================
+       SECCIÓN 8: POSITION
+       ============================================================
+       Controla cómo se posiciona el elemento en la página.
+    */
+
+    .demo-position {
+      position: relative;   /* Contexto para los hijos absolute */
+      height: 180px;
+      background: #f0f0e8;
+      border: 2px dashed var(--color-borde);
+      border-radius: var(--radio-md);
+      margin-bottom: var(--espacio-xl);
+    }
+
+    .pos-static {
+      /* position: static → comportamiento por defecto (flujo normal) */
+      position: static;
+      background: #e0ede0;
+      border: 2px solid var(--color-secundario);
+      padding: var(--espacio-sm);
+      border-radius: var(--radio-sm);
+      width: 160px;
+    }
+
+    .pos-relative {
+      /*
+        position: relative → se mueve RELATIVO a su posición original.
+        El espacio original se preserva (los demás elementos no lo ven moverse).
+        top/right/bottom/left lo desplazan desde su posición normal.
+      */
+      position: relative;
+      top: 10px;
+      left: 20px;
+      background: #ffe8c0;
+      border: 2px solid var(--color-acento);
+      padding: var(--espacio-sm);
+      border-radius: var(--radio-sm);
+      width: 160px;
+    }
+
+    .pos-absolute {
+      /*
+        position: absolute → sale del flujo normal.
+        Se posiciona relativo al ancestro más cercano con position != static.
+        (En este caso: .demo-position que tiene position: relative)
+        top/right/bottom/left lo ubican dentro de ese ancestro.
+      */
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: var(--color-primario);
+      color: #fff;
+      padding: var(--espacio-sm) var(--espacio-md);
+      border-radius: var(--radio-pill);
+      font-size: 0.8rem;
+    }
+
+    .pos-sticky-demo {
+      /*
+        position: sticky → flujo normal hasta cierto scroll,
+        luego se "pega" al viewport.
+        (Se muestra como nota informativa, no como sticky real aquí)
+      */
+      background: #eef4ff;
+      border: 1px solid #a8c0f0;
+      border-radius: var(--radio-sm);
+      padding: var(--espacio-sm) var(--espacio-md);
+      font-size: 0.85rem;
+      margin-bottom: var(--espacio-md);
+    }
+
+
+    /* ============================================================
+       SECCIÓN 9: ESPECIFICIDAD Y CASCADA
+       ============================================================ */
+
+    /*
+      LA CASCADA define qué regla gana cuando hay conflicto.
+      Orden de prioridad (de menor a mayor):
+
+      1. Estilos del navegador (user agent stylesheet)
+      2. Hojas de estilo externas del autor
+      3. Estilos internos (<style>)
+      4. Estilos en línea (style="...")
+      5. !important (usar solo en emergencias, evitar)
+
+      ESPECIFICIDAD (puntuación de selectores):
+      ┌─────────────────────────┬───────┐
+      │ Selector                │ Valor │
+      ├─────────────────────────┼───────┤
+      │ Estilos en línea        │ 1000  │
+      │ ID (#id)                │  100  │
+      │ Clase (.clase)          │   10  │
+      │ Pseudo-clase (:hover)   │   10  │
+      │ Atributo ([type])       │   10  │
+      │ Elemento (p, h1, div)   │    1  │
+      │ Universal (*)           │    0  │
+      └─────────────────────────┴───────┘
+
+      Si dos reglas tienen la misma especificidad,
+      GANA LA QUE ESTÁ MÁS ABAJO en el CSS.
+    */
+
+    /* Especificidad: 1 (elemento) */
+    p {
+      color: var(--color-texto);
+    }
+
+    /* Especificidad: 10 (clase) — gana sobre el selector p */
+    .texto-verde {
+      color: #1a6a3a;
+    }
+
+    /* Especificidad: 11 (elemento + clase) — gana sobre .texto-verde solo */
+    p.texto-verde {
+      font-style: italic;
+    }
+
+    /* Especificidad: 100 (ID) — gana sobre todo lo anterior */
+    #forzado-rojo {
+      color: #aa2020;
+    }
+
+
+    /* ============================================================
+       SECCIÓN 10: PSEUDO-CLASES Y PSEUDO-ELEMENTOS
+       ============================================================ */
+
+    /* :nth-child(n) → selecciona el hijo n-ésimo */
+    .tabla-demo tr:nth-child(even) {
+      background-color: #f0ede6;
+    }
+
+    .tabla-demo tr:nth-child(odd) {
+      background-color: var(--color-superficie);
+    }
+
+    .tabla-demo tr:hover {
+      background-color: #d4ede4;
+      transition: background-color 0.15s;
+    }
+
+    .tabla-demo th {
+      background-color: var(--color-primario);
+      color: #fff;
+      padding: var(--espacio-sm) var(--espacio-md);
+      text-align: left;
+      font-weight: 500;
+    }
+
+    .tabla-demo td {
+      padding: var(--espacio-sm) var(--espacio-md);
+      border-bottom: 1px solid var(--color-borde);
+    }
+
+    .tabla-demo {
+      width: 100%;
+      border-collapse: collapse;
+      border-radius: var(--radio-md);
+      overflow: hidden;
+      box-shadow: var(--sombra-sm);
+      margin-bottom: var(--espacio-xl);
+    }
+
+    /* :first-child y :last-child */
+    .lista-estilizada li:first-child {
+      border-top: 2px solid var(--color-acento);
+    }
+
+    .lista-estilizada li:last-child {
+      border-bottom: 2px solid var(--color-acento);
+      margin-bottom: 0;
+    }
+
+    .lista-estilizada {
+      list-style: none;   /* Quita las viñetas */
+      padding: 0;
+    }
+
+    .lista-estilizada li {
+      display: flex;
+      align-items: center;
+      gap: var(--espacio-sm);
+      padding: var(--espacio-sm) var(--espacio-md);
+      border-bottom: 1px solid var(--color-borde);
+    }
+
+    .lista-estilizada li::before {
+      /*
+        ::before → pseudo-elemento que inserta contenido
+        ANTES del contenido real de cada <li>.
+        Se usa para añadir iconos, bullets personalizados, etc.
+      */
+      content: "→";
+      color: var(--color-secundario);
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    /* ::first-letter → primera letra del elemento */
+    .capitular::first-letter {
+      float: left;
+      font-size: 3.5em;
+      line-height: 0.8;
+      margin-right: 0.1em;
+      color: var(--color-acento);
+      font-family: var(--fuente-titulos);
+      font-weight: 700;
+    }
+
+    /* ::selection → texto seleccionado por el usuario */
+    ::selection {
+      background-color: var(--color-acento);
+      color: var(--color-primario);
+    }
+
+
+    /* ============================================================
+       SECCIÓN 11: TRANSICIONES Y TRANSFORMACIONES BÁSICAS
+       ============================================================ */
+
+    /*
+      transition: propiedad duración función-timing retardo
+      Hace que los cambios de valor sean animados y suaves.
+    */
+    .btn {
+      display: inline-block;
+      padding: var(--espacio-sm) var(--espacio-lg);
+      background-color: var(--color-secundario);
+      color: #ffffff;
+      border: none;
+      border-radius: var(--radio-pill);
+      font-family: var(--fuente-cuerpo);
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      letter-spacing: 0.02em;
+
+      /* Transición: anima cambios en color de fondo y transform */
+      transition: background-color 0.25s ease,
+                  transform 0.15s ease,
+                  box-shadow 0.25s ease;
+    }
+
+    .btn:hover {
+      background-color: var(--color-primario);
+      /*
+        transform: aplica transformaciones 2D/3D.
+        translateY(-2px) → sube 2px (da sensación de elevación)
+        scale(1.02)       → escala al 102%
+        rotate(5deg)      → rota 5 grados
+        Se pueden combinar: transform: translateY(-2px) scale(1.02);
+      */
+      transform: translateY(-2px);
+      box-shadow: var(--sombra-md);
+    }
+
+    .btn:active {
+      transform: translateY(0);   /* Vuelve a su posición al hacer clic */
+      box-shadow: var(--sombra-sm);
+    }
+
+    .btn-outline {
+      background-color: transparent;
+      color: var(--color-secundario);
+      border: 2px solid var(--color-secundario);
+      transition: background-color 0.25s, color 0.25s, transform 0.15s;
+    }
+
+    .btn-outline:hover {
+      background-color: var(--color-secundario);
+      color: #ffffff;
+      transform: translateY(-2px);
+    }
+
+    .btn-acento {
+      background-color: var(--color-acento);
+      color: var(--color-primario);
+    }
+
+    .btn-acento:hover {
+      background-color: #c47a10;
+    }
+
+
+    /* ============================================================
+       SECCIÓN 12: OVERFLOW Y SCROLL
+       ============================================================ */
+
+    .demo-overflow {
+      display: flex;
+      gap: var(--espacio-md);
+      flex-wrap: wrap;
+      margin-bottom: var(--espacio-xl);
+    }
+
+    .caja-overflow {
+      width: 200px;
+      height: 100px;
+      border: 2px solid var(--color-borde);
+      border-radius: var(--radio-md);
+      padding: var(--espacio-sm);
+      background: var(--color-superficie);
+      font-size: 0.85rem;
+    }
+
+    .overflow-visible { overflow: visible; }   /* El contenido se desborda */
+    .overflow-hidden  { overflow: hidden; }    /* El contenido se recorta */
+    .overflow-scroll  { overflow: scroll; }    /* Siempre muestra scrollbar */
+    .overflow-auto    { overflow: auto; }      /* Scrollbar solo si necesario */
+
+
+    /* ============================================================
+       UTILIDADES GENERALES (clases helper)
+       ============================================================ */
+
+    .card {
+      background: var(--color-superficie);
+      border: 1px solid var(--color-borde);
+      border-radius: var(--radio-lg);
+      padding: var(--espacio-xl);
+      margin-bottom: var(--espacio-xl);
+      box-shadow: var(--sombra-sm);
+    }
+
+    .card-titulo {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--color-primario);
+      margin-bottom: var(--espacio-sm);
+      display: flex;
+      align-items: center;
+      gap: var(--espacio-sm);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: var(--radio-pill);
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .badge-verde  { background: #d4ede4; color: #0d4a30; }
+    .badge-azul   { background: #d4e4f4; color: #0d2a4a; }
+    .badge-ambar  { background: #fde8c0; color: #5a3000; }
+    .badge-rojo   { background: #fdd4d4; color: #5a0000; }
+
+    .etiqueta-css {
+      display: inline-block;
+      background: var(--color-primario);
+      color: #a8d8c0;
+      font-family: var(--fuente-codigo);
+      font-size: 0.75rem;
+      padding: 2px 8px;
+      border-radius: var(--radio-sm);
+      margin-bottom: var(--espacio-sm);
+    }
+
+    .separador {
+      border: none;
+      border-top: 2px solid var(--color-borde);
+      margin: var(--espacio-xxl) 0;
+    }
+
+    .nota-info {
+      background: #e8f0fe;
+      border-left: 4px solid #1a6aaa;
+      padding: var(--espacio-md) var(--espacio-lg);
+      border-radius: 0 var(--radio-md) var(--radio-md) 0;
+      font-size: 0.9rem;
+      margin-bottom: var(--espacio-lg);
+    }
+
+    .nota-warning {
+      background: #fff8e0;
+      border-left: 4px solid var(--color-acento);
+      padding: var(--espacio-md) var(--espacio-lg);
+      border-radius: 0 var(--radio-md) var(--radio-md) 0;
+      font-size: 0.9rem;
+      margin-bottom: var(--espacio-lg);
+    }
+
+    /* FOOTER */
+    .site-footer {
+      background: var(--color-primario);
+      color: rgba(255,255,255,0.7);
+      text-align: center;
+      padding: var(--espacio-xl);
+      margin-top: var(--espacio-xxl);
+      font-size: 0.875rem;
+    }
+
+    /* TABLA REFERENCIA */
+    .tabla-ref {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.875rem;
+      margin-bottom: var(--espacio-lg);
+    }
+
+    .tabla-ref th {
+      background: var(--color-primario);
+      color: #fff;
+      padding: var(--espacio-sm) var(--espacio-md);
+      text-align: left;
+    }
+
+    .tabla-ref td {
+      padding: var(--espacio-sm) var(--espacio-md);
+      border-bottom: 1px solid var(--color-borde);
+      vertical-align: top;
+    }
+
+    .tabla-ref tr:nth-child(even) td {
+      background: #f8f5f0;
+    }
+
+    .tabla-ref code {
+      white-space: nowrap;
+    }
+
+    /* MEDIA QUERY — Responsive básico (previa Semana 04) */
+    @media (max-width: 600px) {
+      /*
+        @media → regla condicional.
+        max-width: 600px → aplica cuando la pantalla tiene ≤ 600px.
+        Todo lo de adentro sobrescribe los estilos normales en móvil.
+      */
+      .site-header h1 { font-size: 1.75rem; }
+      .paleta-grid { grid-template-columns: repeat(2, 1fr); }
+    }

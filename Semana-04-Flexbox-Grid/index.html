@@ -1,0 +1,2225 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Semana 04 — Flexbox y CSS Grid</title>
+
+  <!--
+    FLEXBOX Y CSS GRID
+    ==================
+    Flexbox y CSS Grid son los dos sistemas de layout modernos de CSS.
+    Ambos resuelven el problema de distribuir elementos en una página,
+    pero cada uno está optimizado para casos de uso distintos:
+
+    FLEXBOX → Una dimensión (fila O columna)
+    CSS GRID → Dos dimensiones (filas Y columnas)
+
+    La regla general:
+    - Componentes pequeños y alineación → Flexbox
+    - Layouts de página completos       → CSS Grid
+    - En la práctica, se usan juntos
+  -->
+
+  <style>
+
+    /* ============================================================
+       VARIABLES CSS — Paleta consistente con las semanas anteriores
+       ============================================================ */
+    :root {
+      --color-primario:    #1a3a4a;
+      --color-secundario:  #2d7d5f;
+      --color-acento:      #e8a020;
+      --color-fondo:       #f4f1ec;
+      --color-superficie:  #ffffff;
+      --color-texto:       #1e1e1e;
+      --color-texto-suave: #5a5a5a;
+      --color-borde:       #d6cfc4;
+
+      --fuente-titulos: 'Georgia', 'Times New Roman', serif;
+      --fuente-cuerpo:  'Trebuchet MS', 'Gill Sans', sans-serif;
+      --fuente-codigo:  'Courier New', 'Lucida Console', monospace;
+
+      --espacio-xs:  0.25rem;
+      --espacio-sm:  0.5rem;
+      --espacio-md:  1rem;
+      --espacio-lg:  1.5rem;
+      --espacio-xl:  2rem;
+      --espacio-xxl: 3rem;
+
+      --radio-sm:   4px;
+      --radio-md:   8px;
+      --radio-lg:   16px;
+      --radio-pill: 999px;
+
+      --sombra-sm: 0 1px 3px rgba(0,0,0,0.12);
+      --sombra-md: 0 4px 12px rgba(0,0,0,0.10);
+      --sombra-lg: 0 8px 24px rgba(0,0,0,0.12);
+    }
+
+
+    /* ============================================================
+       RESET Y ESTILOS BASE
+       ============================================================ */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--fuente-cuerpo);
+      font-size: 16px;
+      line-height: 1.7;
+      color: var(--color-texto);
+      background-color: var(--color-fondo);
+    }
+
+    p {
+      margin-bottom: var(--espacio-md);
+      max-width: 65ch;
+    }
+
+    h1, h2, h3, h4 {
+      font-family: var(--fuente-titulos);
+      color: var(--color-primario);
+      line-height: 1.2;
+      margin-bottom: var(--espacio-md);
+    }
+
+    h2, h3 { margin-top: var(--espacio-xl); }
+
+    a {
+      color: var(--color-secundario);
+      text-decoration: none;
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.2s ease;
+    }
+    a:hover { border-bottom-color: var(--color-secundario); }
+
+    code {
+      font-family: var(--fuente-codigo);
+      font-size: 0.875em;
+      background-color: #e8e0f0;
+      color: #4a1a6a;
+      padding: 2px 6px;
+      border-radius: var(--radio-sm);
+    }
+
+    pre {
+      background: var(--color-primario);
+      color: #a8d8c0;
+      padding: var(--espacio-md);
+      border-radius: var(--radio-md);
+      overflow-x: auto;
+      font-family: var(--fuente-codigo);
+      font-size: 0.875rem;
+      line-height: 1.8;
+      margin-bottom: var(--espacio-lg);
+      tab-size: 2;
+    }
+
+    pre code {
+      background: none;
+      color: inherit;
+      padding: 0;
+      font-size: inherit;
+    }
+
+    ul, ol { padding-left: 1.5rem; }
+    li { margin-bottom: var(--espacio-xs); }
+
+    ::selection {
+      background-color: var(--color-acento);
+      color: var(--color-primario);
+    }
+
+
+    /* ============================================================
+       LAYOUT GENERAL
+       ============================================================ */
+    .pagina-wrapper {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 var(--espacio-md);
+    }
+
+
+    /* ============================================================
+       ENCABEZADO DE SITIO
+       ============================================================ */
+    .site-header {
+      background-color: var(--color-primario);
+      color: #ffffff;
+      padding: var(--espacio-xl) var(--espacio-md);
+      margin-bottom: var(--espacio-xxl);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .site-header::before {
+      content: "";
+      position: absolute;
+      top: -40px;
+      right: -40px;
+      width: 200px;
+      height: 200px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 50%;
+    }
+
+    .site-header::after {
+      content: "";
+      position: absolute;
+      bottom: -60px;
+      right: 60px;
+      width: 130px;
+      height: 130px;
+      background: rgba(255,255,255,0.04);
+      border-radius: 50%;
+    }
+
+    .site-header h1 {
+      color: #ffffff;
+      font-size: 2.5rem;
+      margin-bottom: var(--espacio-sm);
+    }
+
+    .site-header p {
+      color: rgba(255,255,255,0.75);
+      max-width: none;
+    }
+
+    .badge-semana {
+      display: inline-block;
+      background: var(--color-acento);
+      color: var(--color-primario);
+      font-family: var(--fuente-codigo);
+      font-size: 0.75rem;
+      font-weight: bold;
+      padding: 3px 10px;
+      border-radius: var(--radio-pill);
+      margin-bottom: var(--espacio-md);
+      letter-spacing: 0.05em;
+    }
+
+
+    /* ============================================================
+       NAVEGACIÓN INTERNA
+       ============================================================ */
+    .nav-interna {
+      background: var(--color-superficie);
+      border: 1px solid var(--color-borde);
+      border-radius: var(--radio-lg);
+      padding: var(--espacio-lg);
+      margin-bottom: var(--espacio-xxl);
+      box-shadow: var(--sombra-sm);
+    }
+
+    .nav-interna h2 {
+      font-size: 1rem;
+      margin-top: 0;
+      margin-bottom: var(--espacio-md);
+      color: var(--color-texto-suave);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-family: var(--fuente-cuerpo);
+    }
+
+    .nav-interna ul {
+      list-style: none;
+      padding: 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--espacio-sm);
+    }
+
+    .nav-interna a {
+      display: inline-block;
+      padding: var(--espacio-xs) var(--espacio-md);
+      background: var(--color-fondo);
+      border: 1px solid var(--color-borde);
+      border-radius: var(--radio-pill);
+      font-size: 0.875rem;
+      color: var(--color-primario);
+      border-bottom: none;
+      transition: background 0.2s, border-color 0.2s;
+    }
+
+    .nav-interna a:hover {
+      background: var(--color-primario);
+      color: #fff;
+      border-color: var(--color-primario);
+    }
+
+
+    /* ============================================================
+       ETIQUETA IDENTIFICADORA
+       ============================================================ */
+    .etiqueta {
+      display: inline-block;
+      background: var(--color-primario);
+      color: #ffffff;
+      font-family: var(--fuente-codigo);
+      font-size: 0.72rem;
+      padding: 2px 8px;
+      border-radius: var(--radio-sm);
+      margin-bottom: var(--espacio-sm);
+      letter-spacing: 0.03em;
+    }
+
+    .etiqueta.verde  { background: var(--color-secundario); }
+    .etiqueta.ambar  { background: var(--color-acento); color: var(--color-primario); }
+    .etiqueta.lila   { background: #5c3a8a; }
+    .etiqueta.rojo   { background: #a02020; }
+
+
+    /* ============================================================
+       SECCIÓN DE CONTENIDO
+       ============================================================ */
+    .seccion {
+      margin-bottom: var(--espacio-xxl);
+      scroll-margin-top: 2rem;
+    }
+
+    .seccion > h2 {
+      border-bottom: 2px solid var(--color-borde);
+      padding-bottom: var(--espacio-sm);
+    }
+
+
+    /* ============================================================
+       BLOQUE DE NOTA
+       ============================================================ */
+    .nota {
+      border-left: 4px solid var(--color-secundario);
+      background: #edf7f3;
+      padding: var(--espacio-md) var(--espacio-lg);
+      border-radius: 0 var(--radio-md) var(--radio-md) 0;
+      margin: var(--espacio-lg) 0;
+    }
+
+    .nota.ambar {
+      border-color: var(--color-acento);
+      background: #fdf5e6;
+    }
+
+    .nota.azul {
+      border-color: var(--color-primario);
+      background: #eef2f5;
+    }
+
+    .nota.lila {
+      border-color: #5c3a8a;
+      background: #f2eef9;
+    }
+
+    .nota p { margin-bottom: 0; }
+    .nota p + p { margin-top: var(--espacio-sm); }
+
+
+    /* ============================================================
+       TABLA DE REFERENCIA
+       ============================================================ */
+    .tabla-wrapper {
+      overflow-x: auto;
+      margin: var(--espacio-lg) 0;
+      border-radius: var(--radio-md);
+      box-shadow: var(--sombra-sm);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+      background: var(--color-superficie);
+    }
+
+    th, td {
+      border: 1px solid var(--color-borde);
+      padding: 0.6rem 1rem;
+      text-align: left;
+    }
+
+    th {
+      background-color: var(--color-primario);
+      color: #ffffff;
+      font-family: var(--fuente-titulos);
+      font-weight: normal;
+    }
+
+    tr:nth-child(even) { background-color: #f0ece6; }
+    td code { font-size: 0.8rem; }
+
+
+    /* ============================================================
+       COMPARATIVA DOS COLUMNAS
+       ============================================================ */
+    .comparativa {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: var(--espacio-md);
+      margin: var(--espacio-lg) 0;
+    }
+
+    @media (min-width: 620px) {
+      .comparativa { grid-template-columns: 1fr 1fr; }
+    }
+
+    .comparativa-item {
+      border-radius: var(--radio-md);
+      overflow: hidden;
+      border: 1px solid var(--color-borde);
+    }
+
+    .comparativa-item .cab {
+      padding: var(--espacio-sm) var(--espacio-md);
+      font-family: var(--fuente-codigo);
+      font-size: 0.8rem;
+      font-weight: bold;
+    }
+
+    .comparativa-item.flex-col .cab { background: #edf7f3; color: var(--color-secundario); }
+    .comparativa-item.grid-col .cab { background: #f2eef9; color: #5c3a8a; }
+    .comparativa-item pre { margin: 0; border-radius: 0; font-size: 0.78rem; }
+
+
+    /* ============================================================
+       SECCIÓN 1: FLEXBOX — DEMOS VISUALES
+       ============================================================
+       Flexbox (Flexible Box Layout) distribuye elementos en UNA
+       dirección: fila (row) o columna (column).
+
+       El elemento con display: flex es el "contenedor flex".
+       Sus hijos directos son los "ítems flex".
+
+       PROPIEDADES DEL CONTENEDOR:
+       - flex-direction    → dirección del eje principal
+       - justify-content  → alineación en el eje principal
+       - align-items      → alineación en el eje cruzado
+       - flex-wrap        → si los ítems se envuelven o no
+       - gap              → espacio entre ítems
+       - align-content    → alineación de filas (cuando hay wrap)
+
+       PROPIEDADES DE LOS ÍTEMS:
+       - flex-grow        → cuánto puede crecer
+       - flex-shrink      → cuánto puede encoger
+       - flex-basis       → tamaño base antes de distribuir espacio
+       - flex             → shorthand de grow/shrink/basis
+       - align-self       → sobrescribe align-items para ese ítem
+       - order            → cambia el orden visual sin cambiar el HTML
+    */
+
+    /* Contenedor base para todos los demos de Flexbox */
+    .flex-demo {
+      background: #f0ece6;
+      border: 2px dashed var(--color-borde);
+      border-radius: var(--radio-md);
+      padding: var(--espacio-sm);
+      margin: var(--espacio-md) 0;
+      min-height: 80px;
+    }
+
+    /* Ítem base para todos los demos de Flexbox */
+    .flex-item {
+      background: var(--color-primario);
+      color: #ffffff;
+      font-family: var(--fuente-codigo);
+      font-size: 0.8rem;
+      padding: var(--espacio-sm) var(--espacio-md);
+      border-radius: var(--radio-sm);
+      text-align: center;
+      min-width: 40px;
+    }
+
+    .flex-item.verde   { background: var(--color-secundario); }
+    .flex-item.ambar   { background: var(--color-acento); color: var(--color-primario); }
+    .flex-item.lila    { background: #5c3a8a; }
+    .flex-item.rojo    { background: #a02020; }
+
+    /* ── flex-direction ── */
+    .fx-row    { display: flex; flex-direction: row;    gap: var(--espacio-sm); }
+    .fx-col    { display: flex; flex-direction: column; gap: var(--espacio-sm); }
+    .fx-rowrev { display: flex; flex-direction: row-reverse; gap: var(--espacio-sm); }
+    .fx-colrev { display: flex; flex-direction: column-reverse; gap: var(--espacio-sm); }
+
+    /* ── justify-content ── */
+    .fx-jc-start   { display: flex; justify-content: flex-start;    gap: var(--espacio-sm); }
+    .fx-jc-end     { display: flex; justify-content: flex-end;      gap: var(--espacio-sm); }
+    .fx-jc-center  { display: flex; justify-content: center;        gap: var(--espacio-sm); }
+    .fx-jc-between { display: flex; justify-content: space-between; gap: var(--espacio-sm); }
+    .fx-jc-around  { display: flex; justify-content: space-around;  }
+    .fx-jc-evenly  { display: flex; justify-content: space-evenly;  }
+
+    /* ── align-items ── */
+    .fx-ai-demo {
+      display: flex;
+      align-items: center;  /* cambiado en cada demo */
+      gap: var(--espacio-sm);
+      min-height: 120px;
+    }
+
+    .flex-item.tall   { height: 80px; display: flex; align-items: center; justify-content: center; }
+    .flex-item.medium { height: 50px; display: flex; align-items: center; justify-content: center; }
+    .flex-item.short  { height: 30px; display: flex; align-items: center; justify-content: center; }
+
+    .fx-ai-start    { align-items: flex-start;  }
+    .fx-ai-end      { align-items: flex-end;    }
+    .fx-ai-center   { align-items: center;      }
+    .fx-ai-stretch  { align-items: stretch;     }
+    .fx-ai-baseline { align-items: baseline;    }
+
+    /* ── flex-wrap ── */
+    .fx-wrap {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--espacio-sm);
+    }
+
+    .fx-nowrap {
+      display: flex;
+      flex-wrap: nowrap;
+      gap: var(--espacio-sm);
+      overflow: hidden;
+    }
+
+    /* ── flex (grow / shrink / basis) ── */
+    .fx-grow-demo { display: flex; gap: var(--espacio-sm); }
+    .fx-grow-1 { flex: 1; }    /* ocupa 1 fracción del espacio libre */
+    .fx-grow-2 { flex: 2; }    /* ocupa 2 fracciones (el doble que flex:1) */
+    .fx-grow-3 { flex: 3; }    /* ocupa 3 fracciones */
+    .fx-basis  { flex: 0 0 120px; }  /* tamaño fijo, no crece ni encoge */
+
+    /* ── align-self y order ── */
+    .fx-self-demo {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--espacio-sm);
+      min-height: 110px;
+    }
+
+    .item-self-end    { align-self: flex-end; }
+    .item-self-center { align-self: center; }
+    .item-self-str    { align-self: stretch; }
+
+    .fx-order-demo { display: flex; gap: var(--espacio-sm); }
+    .order-1 { order: 1; }
+    .order-2 { order: 2; }
+    .order-3 { order: 3; }
+    .order-minus { order: -1; }  /* va antes de todos */
+
+
+    /* ============================================================
+       SECCIÓN 2: CSS GRID — DEMOS VISUALES
+       ============================================================
+       CSS Grid trabaja en DOS dimensiones: filas y columnas.
+       Es ideal para layouts de página completos.
+
+       El elemento con display: grid es el "contenedor grid".
+       Los hijos directos son los "ítems grid".
+
+       PROPIEDADES DEL CONTENEDOR:
+       - grid-template-columns → define las columnas
+       - grid-template-rows    → define las filas
+       - grid-template-areas   → nombra zonas del grid
+       - gap (row-gap/column-gap) → espacio entre celdas
+       - justify-items         → alineación horizontal de ítems
+       - align-items           → alineación vertical de ítems
+       - justify-content       → alineación del grid completo (H)
+       - align-content         → alineación del grid completo (V)
+
+       PROPIEDADES DE LOS ÍTEMS:
+       - grid-column           → columnas que ocupa el ítem
+       - grid-row              → filas que ocupa el ítem
+       - grid-area             → nombre de área a ocupar
+       - justify-self          → alineación horizontal propia
+       - align-self            → alineación vertical propia
+    */
+
+    /* Contenedor base para todos los demos de Grid */
+    .grid-demo {
+      background: #f0ece6;
+      border: 2px dashed var(--color-borde);
+      border-radius: var(--radio-md);
+      padding: var(--espacio-sm);
+      margin: var(--espacio-md) 0;
+    }
+
+    /* Ítem base para todos los demos de Grid */
+    .grid-item {
+      background: #5c3a8a;
+      color: #ffffff;
+      font-family: var(--fuente-codigo);
+      font-size: 0.8rem;
+      padding: var(--espacio-sm);
+      border-radius: var(--radio-sm);
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .grid-item.v1 { background: var(--color-primario); }
+    .grid-item.v2 { background: var(--color-secundario); }
+    .grid-item.v3 { background: var(--color-acento); color: var(--color-primario); }
+    .grid-item.v4 { background: #5c3a8a; }
+    .grid-item.v5 { background: #a02020; }
+
+    /* ── grid-template-columns ── */
+    .gd-3col { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--espacio-sm); }
+    .gd-2col { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--espacio-sm); }
+    .gd-4col { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--espacio-sm); }
+
+    .gd-mixed {
+      /*
+        Columnas de distintos tamaños mezclados:
+        - 200px → columna fija
+        - 1fr   → fracción del espacio restante
+        - 2fr   → doble fracción
+      */
+      display: grid;
+      grid-template-columns: 200px 1fr 2fr;
+      gap: var(--espacio-sm);
+    }
+
+    .gd-autofill {
+      /*
+        auto-fill: crea tantas columnas como quepan.
+        minmax(120px, 1fr): mínimo 120px, máximo 1fr.
+        Esto crea un grid RESPONSIVE sin media queries.
+      */
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: var(--espacio-sm);
+    }
+
+    .gd-autofit {
+      /*
+        auto-fit: similar a auto-fill, pero las columnas vacías
+        se colapsan (los ítems se estiran para llenar el espacio).
+        Con pocos ítems, auto-fit se ve diferente a auto-fill.
+      */
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: var(--espacio-sm);
+    }
+
+    /* ── grid-template-rows ── */
+    .gd-rows {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: 60px 100px 40px;
+      gap: var(--espacio-sm);
+    }
+
+    /* ── grid-column y grid-row (span) ── */
+    .gd-span {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: repeat(3, 60px);
+      gap: var(--espacio-sm);
+    }
+
+    /*
+      grid-column: inicio / fin
+      grid-column: span N  → ocupa N columnas desde su posición
+
+      Los números son líneas de la cuadrícula (grid lines),
+      no índices de columna. Una grilla de 4 columnas tiene 5 líneas.
+    */
+    .span-col-2  { grid-column: span 2; }
+    .span-col-3  { grid-column: span 3; }
+    .span-col-4  { grid-column: span 4; }
+    .span-row-2  { grid-row: span 2; }
+    .start-3     { grid-column: 3 / 5; }  /* desde línea 3 hasta línea 5 */
+
+    /* ── grid-template-areas ── */
+    .gd-areas {
+      /*
+        Las "áreas" son nombres que le damos a las zonas del grid.
+        Cada cadena de texto representa una fila.
+        Los puntos (.) indican celda vacía.
+
+        Esta es la técnica más visual y legible para hacer layouts.
+      */
+      display: grid;
+      grid-template-areas:
+        "header  header  header"
+        "sidebar main    main"
+        "footer  footer  footer";
+      grid-template-columns: 180px 1fr 1fr;
+      grid-template-rows: 50px 140px 50px;
+      gap: var(--espacio-sm);
+    }
+
+    /*
+      Cada ítem se asigna al área con grid-area: nombre-del-area
+      El nombre debe coincidir exactamente con lo declarado arriba.
+    */
+    .area-header  { grid-area: header;  }
+    .area-sidebar { grid-area: sidebar; }
+    .area-main    { grid-area: main;    }
+    .area-footer  { grid-area: footer;  }
+
+    .area-header  { background: var(--color-primario); }
+    .area-sidebar { background: var(--color-secundario); }
+    .area-main    { background: #5c3a8a; font-size: 0.8rem; }
+    .area-footer  { background: var(--color-acento); color: var(--color-primario); }
+
+
+    /* ============================================================
+       SECCIÓN 3: LAYOUT DE PÁGINA CON GRID + FLEXBOX
+       ============================================================
+       Un layout de página real combina Grid para la estructura
+       global y Flexbox para los componentes internos.
+    */
+
+    /* Layout completo de ejemplo */
+    .layout-ejemplo {
+      border: 2px dashed var(--color-borde);
+      border-radius: var(--radio-lg);
+      overflow: hidden;
+      margin: var(--espacio-lg) 0;
+      box-shadow: var(--sombra-md);
+    }
+
+    .layout-header {
+      background: var(--color-primario);
+      color: #fff;
+      padding: var(--espacio-sm) var(--espacio-lg);
+      display: flex;               /* FLEXBOX dentro del header */
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .layout-header .logo {
+      font-family: var(--fuente-titulos);
+      font-size: 1.1rem;
+    }
+
+    .layout-header nav {
+      display: flex;              /* FLEXBOX para la navegación */
+      gap: var(--espacio-md);
+      list-style: none;
+      padding: 0;
+    }
+
+    .layout-header nav a {
+      color: rgba(255,255,255,0.8);
+      font-size: 0.85rem;
+      border-bottom: none;
+    }
+
+    .layout-body {
+      display: grid;              /* GRID para el body principal */
+      grid-template-columns: 180px 1fr;
+      grid-template-rows: auto;
+      min-height: 200px;
+    }
+
+    .layout-sidebar {
+      background: #eef2f5;
+      padding: var(--espacio-md);
+      border-right: 1px solid var(--color-borde);
+      font-size: 0.85rem;
+    }
+
+    .layout-sidebar ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .layout-sidebar li {
+      padding: 4px 0;
+      border-bottom: 1px solid var(--color-borde);
+      color: var(--color-texto-suave);
+      font-size: 0.82rem;
+      margin-bottom: 2px;
+    }
+
+    .layout-main {
+      background: var(--color-superficie);
+      padding: var(--espacio-lg);
+    }
+
+    .layout-cards {
+      display: grid;              /* GRID para las cards internas */
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: var(--espacio-sm);
+      margin-top: var(--espacio-md);
+    }
+
+    .layout-card {
+      background: var(--color-fondo);
+      border: 1px solid var(--color-borde);
+      border-radius: var(--radio-md);
+      padding: var(--espacio-md);
+      font-size: 0.8rem;
+      display: flex;              /* FLEXBOX dentro de cada card */
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .layout-card .icono { font-size: 1.4rem; }
+    .layout-card strong { color: var(--color-primario); font-size: 0.85rem; }
+    .layout-card span   { color: var(--color-texto-suave); }
+
+    .layout-footer {
+      background: #f0ece6;
+      padding: var(--espacio-sm) var(--espacio-lg);
+      border-top: 1px solid var(--color-borde);
+      display: flex;              /* FLEXBOX para el footer */
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.8rem;
+      color: var(--color-texto-suave);
+    }
+
+
+    /* ============================================================
+       SECCIÓN 4: FLEXBOX — CASOS DE USO COMUNES
+       ============================================================ */
+
+    /* Barra de navegación clásica */
+    .demo-navbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--color-primario);
+      padding: var(--espacio-sm) var(--espacio-lg);
+      border-radius: var(--radio-md);
+      margin: var(--espacio-md) 0;
+    }
+
+    .demo-navbar .nav-logo {
+      color: #fff;
+      font-family: var(--fuente-titulos);
+      font-size: 1rem;
+    }
+
+    .demo-navbar .nav-links {
+      display: flex;
+      gap: var(--espacio-md);
+      list-style: none;
+      padding: 0;
+    }
+
+    .demo-navbar .nav-links a {
+      color: rgba(255,255,255,0.8);
+      font-size: 0.85rem;
+      border-bottom: none;
+    }
+
+    .demo-navbar .nav-btn {
+      background: var(--color-acento);
+      color: var(--color-primario);
+      padding: 4px 14px;
+      border-radius: var(--radio-pill);
+      font-size: 0.8rem;
+      font-weight: bold;
+    }
+
+    /* Tarjeta de producto (flex column) */
+    .demo-product-grid {
+      display: flex;
+      gap: var(--espacio-md);
+      flex-wrap: wrap;
+      margin: var(--espacio-md) 0;
+    }
+
+    .demo-product-card {
+      background: var(--color-superficie);
+      border: 1px solid var(--color-borde);
+      border-radius: var(--radio-lg);
+      overflow: hidden;
+      width: 180px;
+      display: flex;
+      flex-direction: column;   /* columna: imagen, texto, botón */
+      box-shadow: var(--sombra-sm);
+    }
+
+    .demo-product-card .img-placeholder {
+      height: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+    }
+
+    .demo-product-card.p1 .img-placeholder { background: #d4ede4; }
+    .demo-product-card.p2 .img-placeholder { background: #d4e4f4; }
+    .demo-product-card.p3 .img-placeholder { background: #fde8c0; }
+
+    .demo-product-card .card-info {
+      padding: var(--espacio-sm);
+      flex: 1;   /* flex: 1 hace que esta zona ocupe todo el espacio libre */
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .demo-product-card .card-info strong {
+      font-size: 0.85rem;
+      color: var(--color-primario);
+    }
+
+    .demo-product-card .card-info span {
+      font-size: 0.75rem;
+      color: var(--color-texto-suave);
+      flex: 1;  /* empuja el precio y botón hacia abajo */
+    }
+
+    .demo-product-card .card-info .precio {
+      font-family: var(--fuente-titulos);
+      color: var(--color-secundario);
+      font-size: 1rem;
+      flex: 0;
+    }
+
+    .demo-product-card .card-btn {
+      margin: 0 var(--espacio-sm) var(--espacio-sm);
+      background: var(--color-primario);
+      color: #fff;
+      border: none;
+      border-radius: var(--radio-pill);
+      padding: 4px 0;
+      font-size: 0.78rem;
+      cursor: pointer;
+      text-align: center;
+    }
+
+    /* Centrar algo perfectamente */
+    .demo-centrado {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 140px;
+      background: #f0ece6;
+      border: 2px dashed var(--color-borde);
+      border-radius: var(--radio-md);
+      margin: var(--espacio-md) 0;
+    }
+
+    .demo-centrado .caja {
+      background: var(--color-primario);
+      color: #fff;
+      padding: var(--espacio-md) var(--espacio-xl);
+      border-radius: var(--radio-md);
+      font-size: 0.9rem;
+      text-align: center;
+    }
+
+
+    /* ============================================================
+       SECCIÓN 5: CSS GRID — CASOS DE USO COMUNES
+       ============================================================ */
+
+    /* Galería de imágenes */
+    .demo-galeria {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-auto-rows: 100px;
+      gap: var(--espacio-sm);
+      margin: var(--espacio-md) 0;
+    }
+
+    .galeria-item {
+      border-radius: var(--radio-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      font-family: var(--fuente-codigo);
+      color: rgba(255,255,255,0.8);
+    }
+
+    /* Elemento que ocupa varias celdas */
+    .galeria-item.grande {
+      grid-column: span 2;
+      grid-row: span 2;
+    }
+
+    .gi-1 { background: var(--color-primario); }
+    .gi-2 { background: var(--color-secundario); }
+    .gi-3 { background: #5c3a8a; }
+    .gi-4 { background: var(--color-acento); color: rgba(0,0,0,0.5); }
+    .gi-5 { background: #a02020; }
+    .gi-6 { background: #1a6aaa; }
+    .gi-7 { background: #4a7a20; }
+
+    /* Holy Grail Layout (clásico de 3 columnas) */
+    .demo-holy-grail {
+      display: grid;
+      grid-template-areas:
+        "hg-header hg-header  hg-header"
+        "hg-left   hg-content hg-right"
+        "hg-footer hg-footer  hg-footer";
+      grid-template-columns: 120px 1fr 100px;
+      grid-template-rows: 44px 1fr 40px;
+      gap: 6px;
+      height: 260px;
+      margin: var(--espacio-md) 0;
+    }
+
+    .hg-header  { grid-area: hg-header;  background: var(--color-primario); color: #fff; }
+    .hg-left    { grid-area: hg-left;    background: #edf7f3; border: 1px solid #b8ddd0; }
+    .hg-content { grid-area: hg-content; background: var(--color-superficie); border: 1px solid var(--color-borde); }
+    .hg-right   { grid-area: hg-right;   background: #f2eef9; border: 1px solid #c8b8e8; }
+    .hg-footer  { grid-area: hg-footer;  background: #f0ece6; border-top: 1px solid var(--color-borde); }
+
+    .hg-header, .hg-left, .hg-content, .hg-right, .hg-footer {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.78rem;
+      font-family: var(--fuente-codigo);
+      color: var(--color-texto-suave);
+      border-radius: var(--radio-sm);
+    }
+
+    .hg-header { color: rgba(255,255,255,0.9); font-size: 0.85rem; }
+
+
+    /* ============================================================
+       ASIDE Y RESUMEN
+       ============================================================ */
+    .aside-resumen {
+      background: #eeedfe;
+      border-left: 4px solid var(--color-primario);
+      padding: var(--espacio-lg) var(--espacio-xl);
+      border-radius: 0 var(--radio-lg) var(--radio-lg) 0;
+      margin: var(--espacio-xxl) 0;
+    }
+
+    .aside-resumen h3 {
+      margin-top: var(--espacio-sm);
+      color: var(--color-primario);
+      font-size: 1.1rem;
+    }
+
+    .aside-resumen table {
+      margin: var(--espacio-md) 0 0;
+      font-size: 0.85rem;
+      background: transparent;
+    }
+
+    .aside-resumen th {
+      background: rgba(26,58,74,0.15);
+      color: var(--color-primario);
+    }
+
+    .aside-resumen td { border-color: rgba(26,58,74,0.15); }
+
+
+    /* ============================================================
+       PROYECTO APLICADO
+       ============================================================ */
+    .proyecto-descripcion {
+      background: var(--color-superficie);
+      border: 1px solid var(--color-borde);
+      border-radius: var(--radio-lg);
+      padding: var(--espacio-xl);
+      box-shadow: var(--sombra-md);
+      margin-bottom: var(--espacio-xl);
+    }
+
+    .checklist {
+      list-style: none;
+      padding: 0;
+      margin: var(--espacio-md) 0;
+    }
+
+    .checklist li {
+      padding: var(--espacio-sm) 0;
+      border-bottom: 1px solid var(--color-borde);
+      display: flex;
+      align-items: flex-start;
+      gap: var(--espacio-sm);
+      font-size: 0.9rem;
+    }
+
+    .checklist li:last-child { border-bottom: none; }
+
+    .check-icon {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .check-icon.done { background: var(--color-secundario); color: white; }
+    .check-icon.todo { background: var(--color-borde); color: var(--color-texto-suave); }
+
+    .criterios-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: var(--espacio-md);
+      margin: var(--espacio-lg) 0;
+    }
+
+    @media (min-width: 600px) {
+      .criterios-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    .criterio-card {
+      background: var(--color-superficie);
+      border: 1px solid var(--color-borde);
+      border-radius: var(--radio-md);
+      padding: var(--espacio-lg);
+      box-shadow: var(--sombra-sm);
+    }
+
+    .criterio-card h4 {
+      font-size: 1rem;
+      margin-top: 0;
+      margin-bottom: var(--espacio-sm);
+      display: flex;
+      align-items: center;
+      gap: var(--espacio-sm);
+    }
+
+    .criterio-card ul {
+      font-size: 0.875rem;
+      color: var(--color-texto-suave);
+    }
+
+    .criterio-puntaje {
+      display: inline-block;
+      background: var(--color-acento);
+      color: var(--color-primario);
+      font-family: var(--fuente-codigo);
+      font-size: 0.7rem;
+      font-weight: bold;
+      padding: 2px 8px;
+      border-radius: var(--radio-pill);
+      margin-left: auto;
+    }
+
+
+    /* ============================================================
+       FOOTER
+       ============================================================ */
+    .site-footer {
+      border-top: 1px solid var(--color-borde);
+      margin-top: var(--espacio-xxl);
+      padding: var(--espacio-xl) 0 var(--espacio-xxl);
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--color-texto-suave);
+    }
+
+    .site-footer .nav-semanas {
+      display: flex;
+      justify-content: center;
+      gap: var(--espacio-md);
+      flex-wrap: wrap;
+      margin-bottom: var(--espacio-lg);
+    }
+
+    .site-footer a {
+      font-size: 0.85rem;
+      color: var(--color-primario);
+      border-bottom: none;
+    }
+
+    .site-footer a:hover { text-decoration: underline; }
+
+    .site-footer a.activa {
+      background: var(--color-primario);
+      color: white;
+      padding: 3px 12px;
+      border-radius: var(--radio-pill);
+    }
+
+    /* Etiqueta de propiedad dentro del demo */
+    .prop-label {
+      font-family: var(--fuente-codigo);
+      font-size: 0.72rem;
+      background: var(--color-acento);
+      color: var(--color-primario);
+      padding: 1px 6px;
+      border-radius: var(--radio-sm);
+      display: inline-block;
+      margin-bottom: var(--espacio-xs);
+      font-weight: bold;
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <!-- ============================================================
+       ENCABEZADO DEL SITIO
+       ============================================================ -->
+  <header class="site-header">
+    <div class="pagina-wrapper">
+      <span class="badge-semana">SEMANA 04 / 12</span>
+      <h1>Flexbox y CSS Grid</h1>
+      <p>Layouts modernos con Flexbox (1D) y CSS Grid (2D)</p>
+    </div>
+  </header>
+
+
+  <div class="pagina-wrapper">
+
+    <!-- Navegación interna -->
+    <nav class="nav-interna">
+      <h2>Contenido de esta semana</h2>
+      <ul>
+        <li><a href="#intro">1. Flexbox vs Grid</a></li>
+        <li><a href="#flexbox">2. Flexbox</a></li>
+        <li><a href="#grid">3. CSS Grid</a></li>
+        <li><a href="#combinados">4. Layout combinado</a></li>
+        <li><a href="#casos">5. Casos de uso</a></li>
+        <li><a href="#proyecto">6. Proyecto Aplicado</a></li>
+      </ul>
+    </nav>
+
+
+    <!-- ============================================================
+         SECCIÓN 1: FLEXBOX VS GRID
+         ============================================================ -->
+    <section class="seccion" id="intro">
+      <span class="etiqueta verde">introducción</span>
+      <h2>1. Flexbox vs CSS Grid</h2>
+
+      <p>
+        Antes de aprender cada sistema por separado, es importante entender
+        cuándo usar cada uno. No son alternativas excluyentes: se usan juntos
+        en casi todo proyecto profesional.
+      </p>
+
+      <div class="comparativa">
+        <div class="comparativa-item flex-col">
+          <div class="cab">📦 Flexbox — Una dimensión</div>
+          <pre><code>/*
+  Ideal para:
+  - Barras de navegación
+  - Listas horizontales o verticales
+  - Alinear elementos dentro de un componente
+  - Centrar cosas (vertical + horizontal)
+  - Componentes pequeños
+
+  Piensa en Flexbox como
+  una línea de elementos.
+*/
+
+.nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}</code></pre>
+        </div>
+        <div class="comparativa-item grid-col">
+          <div class="cab">🗺 CSS Grid — Dos dimensiones</div>
+          <pre><code>/*
+  Ideal para:
+  - Layout de página completo
+  - Galerías de imágenes
+  - Dashboards con múltiples áreas
+  - Cuando necesitas controlar
+    filas Y columnas al mismo tiempo
+
+  Piensa en Grid como
+  una tabla o cuadrícula.
+*/
+
+.pagina {
+  display: grid;
+  grid-template-areas:
+    "header"
+    "main"
+    "footer";
+}</code></pre>
+        </div>
+      </div>
+
+      <div class="nota">
+        <p>
+          <strong>Regla práctica:</strong> ¿Necesitas controlar solo una dirección
+          (horizontal o vertical)? → <strong>Flexbox</strong>. ¿Necesitas controlar
+          ambas a la vez? → <strong>CSS Grid</strong>. ¿No estás seguro? En la práctica,
+          Grid para el layout exterior y Flexbox para los componentes interiores.
+        </p>
+      </div>
+    </section>
+
+
+    <!-- ============================================================
+         SECCIÓN 2: FLEXBOX
+         ============================================================ -->
+    <section class="seccion" id="flexbox">
+      <span class="etiqueta verde">flexbox</span>
+      <h2>2. Flexbox</h2>
+
+      <p>
+        Flexbox se activa con <code>display: flex</code> en el elemento contenedor.
+        A partir de ese momento, sus hijos directos se convierten en <em>ítems flex</em>
+        y pueden alinearse, distribuirse y redimensionarse de manera flexible.
+      </p>
+
+
+      <!-- flex-direction -->
+      <h3><code>flex-direction</code> — dirección del eje principal</h3>
+      <p>Define si los ítems se colocan en fila o en columna.</p>
+
+      <div class="prop-label">flex-direction: row (default)</div>
+      <div class="flex-demo fx-row">
+        <div class="flex-item">A</div>
+        <div class="flex-item verde">B</div>
+        <div class="flex-item ambar">C</div>
+      </div>
+
+      <div class="prop-label">flex-direction: row-reverse</div>
+      <div class="flex-demo fx-rowrev">
+        <div class="flex-item">A</div>
+        <div class="flex-item verde">B</div>
+        <div class="flex-item ambar">C</div>
+      </div>
+
+      <div class="prop-label">flex-direction: column</div>
+      <div class="flex-demo fx-col" style="min-height:130px">
+        <div class="flex-item">A</div>
+        <div class="flex-item verde">B</div>
+        <div class="flex-item ambar">C</div>
+      </div>
+
+      <div class="prop-label">flex-direction: column-reverse</div>
+      <div class="flex-demo fx-colrev" style="min-height:130px">
+        <div class="flex-item">A</div>
+        <div class="flex-item verde">B</div>
+        <div class="flex-item ambar">C</div>
+      </div>
+
+      <pre><code>/* flex-direction controla el eje principal */
+.contenedor {
+  display: flex;
+  flex-direction: row;           /* → izquierda a derecha (default) */
+  /* flex-direction: row-reverse;   → derecha a izquierda */
+  /* flex-direction: column;        → arriba a abajo */
+  /* flex-direction: column-reverse;→ abajo a arriba */
+}</code></pre>
+
+
+      <!-- justify-content -->
+      <h3><code>justify-content</code> — alineación en el eje principal</h3>
+      <p>Controla cómo se distribuye el espacio <em>a lo largo</em> del eje principal (en <code>row</code>: horizontal).</p>
+
+      <div class="prop-label">flex-start</div>
+      <div class="flex-demo fx-jc-start">
+        <div class="flex-item">1</div><div class="flex-item verde">2</div><div class="flex-item ambar">3</div>
+      </div>
+
+      <div class="prop-label">center</div>
+      <div class="flex-demo fx-jc-center">
+        <div class="flex-item">1</div><div class="flex-item verde">2</div><div class="flex-item ambar">3</div>
+      </div>
+
+      <div class="prop-label">flex-end</div>
+      <div class="flex-demo fx-jc-end">
+        <div class="flex-item">1</div><div class="flex-item verde">2</div><div class="flex-item ambar">3</div>
+      </div>
+
+      <div class="prop-label">space-between</div>
+      <div class="flex-demo fx-jc-between">
+        <div class="flex-item">1</div><div class="flex-item verde">2</div><div class="flex-item ambar">3</div>
+      </div>
+
+      <div class="prop-label">space-around</div>
+      <div class="flex-demo fx-jc-around">
+        <div class="flex-item">1</div><div class="flex-item verde">2</div><div class="flex-item ambar">3</div>
+      </div>
+
+      <div class="prop-label">space-evenly</div>
+      <div class="flex-demo fx-jc-evenly">
+        <div class="flex-item">1</div><div class="flex-item verde">2</div><div class="flex-item ambar">3</div>
+      </div>
+
+      <pre><code>/*
+  justify-content distribuye el espacio en el eje principal.
+  (Eje horizontal cuando flex-direction: row)
+*/
+.contenedor {
+  display: flex;
+  justify-content: flex-start;    /* elementos al inicio */
+  /* justify-content: flex-end;      elementos al final */
+  /* justify-content: center;        centrados */
+  /* justify-content: space-between; espacio entre elementos */
+  /* justify-content: space-around;  espacio alrededor */
+  /* justify-content: space-evenly;  espacio exactamente igual */
+}</code></pre>
+
+
+      <!-- align-items -->
+      <h3><code>align-items</code> — alineación en el eje cruzado</h3>
+      <p>Controla la alineación <em>perpendicular</em> al eje principal (en <code>row</code>: vertical).</p>
+
+      <div class="prop-label">align-items: flex-start</div>
+      <div class="flex-demo fx-ai-demo fx-ai-start">
+        <div class="flex-item tall">tall</div>
+        <div class="flex-item verde medium">med</div>
+        <div class="flex-item ambar short">short</div>
+      </div>
+
+      <div class="prop-label">align-items: center</div>
+      <div class="flex-demo fx-ai-demo fx-ai-center">
+        <div class="flex-item tall">tall</div>
+        <div class="flex-item verde medium">med</div>
+        <div class="flex-item ambar short">short</div>
+      </div>
+
+      <div class="prop-label">align-items: flex-end</div>
+      <div class="flex-demo fx-ai-demo fx-ai-end">
+        <div class="flex-item tall">tall</div>
+        <div class="flex-item verde medium">med</div>
+        <div class="flex-item ambar short">short</div>
+      </div>
+
+      <div class="prop-label">align-items: stretch (default)</div>
+      <div class="flex-demo fx-ai-demo fx-ai-stretch">
+        <div class="flex-item">A</div>
+        <div class="flex-item verde">B</div>
+        <div class="flex-item ambar">C</div>
+      </div>
+
+      <pre><code>/*
+  align-items controla el eje cruzado (vertical cuando flex-direction: row).
+  stretch es el valor por defecto: los ítems se estiran para llenar el contenedor.
+*/
+.contenedor {
+  display: flex;
+  align-items: stretch;     /* estira los ítems (default) */
+  /* align-items: flex-start;  al inicio del eje cruzado */
+  /* align-items: flex-end;    al final del eje cruzado */
+  /* align-items: center;      centrados en el eje cruzado */
+  /* align-items: baseline;    alineados por la línea base del texto */
+}</code></pre>
+
+
+      <!-- flex-wrap -->
+      <h3><code>flex-wrap</code> — envolver ítems</h3>
+      <p>Por defecto los ítems intentan caber en una sola línea. <code>flex-wrap: wrap</code> permite que salten a la siguiente fila.</p>
+
+      <div class="prop-label">flex-wrap: nowrap (default) — los ítems se comprimen</div>
+      <div class="flex-demo fx-nowrap">
+        <div class="flex-item" style="min-width:80px">ítem 1</div>
+        <div class="flex-item verde" style="min-width:80px">ítem 2</div>
+        <div class="flex-item ambar" style="min-width:80px">ítem 3</div>
+        <div class="flex-item lila" style="min-width:80px">ítem 4</div>
+        <div class="flex-item rojo" style="min-width:80px">ítem 5</div>
+        <div class="flex-item" style="min-width:80px">ítem 6</div>
+      </div>
+
+      <div class="prop-label">flex-wrap: wrap — los ítems saltan de línea</div>
+      <div class="flex-demo fx-wrap">
+        <div class="flex-item" style="min-width:80px">ítem 1</div>
+        <div class="flex-item verde" style="min-width:80px">ítem 2</div>
+        <div class="flex-item ambar" style="min-width:80px">ítem 3</div>
+        <div class="flex-item lila" style="min-width:80px">ítem 4</div>
+        <div class="flex-item rojo" style="min-width:80px">ítem 5</div>
+        <div class="flex-item" style="min-width:80px">ítem 6</div>
+      </div>
+
+      <pre><code>/* flex-wrap controla si los ítems se quedan en una línea o saltan */
+.contenedor {
+  display: flex;
+  flex-wrap: nowrap;    /* todos en una línea (default) */
+  /* flex-wrap: wrap;      saltan a la siguiente fila */
+  /* flex-wrap: wrap-reverse; saltan hacia arriba */
+}</code></pre>
+
+
+      <!-- flex: grow / shrink / basis -->
+      <h3><code>flex</code> — grow, shrink y basis</h3>
+      <p>
+        La propiedad <code>flex</code> es el shorthand de tres propiedades que controlan
+        cómo cada ítem crece, encoge y cuál es su tamaño base.
+      </p>
+
+      <div class="prop-label">flex: 1 | flex: 2 | flex: 3 — distribución proporcional</div>
+      <div class="flex-demo fx-grow-demo">
+        <div class="flex-item fx-grow-1">flex: 1</div>
+        <div class="flex-item verde fx-grow-2">flex: 2</div>
+        <div class="flex-item ambar fx-grow-3">flex: 3</div>
+      </div>
+
+      <div class="prop-label">flex: 0 0 120px — tamaño fijo (no crece, no encoge)</div>
+      <div class="flex-demo fx-grow-demo">
+        <div class="flex-item fx-basis">120px fijo</div>
+        <div class="flex-item verde fx-grow-1">flex: 1 (crece)</div>
+        <div class="flex-item ambar fx-basis">120px fijo</div>
+      </div>
+
+      <pre><code>/*
+  flex: grow shrink basis
+  ├── flex-grow:   cuánto puede CRECER (0 = no crece)
+  ├── flex-shrink: cuánto puede ENCOGER (0 = no encoge)
+  └── flex-basis:  tamaño BASE antes de distribuir espacio libre
+
+  Valores comunes:
+*/
+.item-igual    { flex: 1; }          /* todos iguales → flex: 1 1 0% */
+.item-doble    { flex: 2; }          /* el doble de espacio */
+.item-fijo     { flex: 0 0 200px; }  /* siempre 200px, no cambia */
+.item-auto     { flex: 1 1 auto; }   /* crece y encoge desde su tamaño natural */</code></pre>
+
+
+      <!-- align-self y order -->
+      <h3><code>align-self</code> y <code>order</code> — propiedades del ítem</h3>
+
+      <div class="prop-label">align-self — cada ítem puede sobrescribir align-items</div>
+      <div class="flex-demo fx-self-demo">
+        <div class="flex-item" style="height:50px; display:flex; align-items:center; justify-content:center;">default</div>
+        <div class="flex-item verde item-self-center" style="display:flex; align-items:center; justify-content:center; height:50px;">center</div>
+        <div class="flex-item ambar item-self-end" style="display:flex; align-items:center; justify-content:center; height:50px;">flex-end</div>
+        <div class="flex-item lila item-self-str" style="display:flex; align-items:center; justify-content:center;">stretch</div>
+      </div>
+
+      <div class="prop-label">order — cambia el orden visual sin tocar el HTML</div>
+      <div class="flex-demo fx-order-demo">
+        <div class="flex-item order-3">HTML: 1 → order: 3</div>
+        <div class="flex-item verde order-1">HTML: 2 → order: 1</div>
+        <div class="flex-item ambar order-2">HTML: 3 → order: 2</div>
+      </div>
+
+      <pre><code>/* Propiedades que van en los ÍTEMS, no en el contenedor */
+
+/* align-self sobrescribe align-items solo para ese ítem */
+.item-especial {
+  align-self: center;     /* flex-start | flex-end | center | stretch | baseline */
+}
+
+/* order cambia el orden visual (default: 0 para todos) */
+/* valores negativos van primero, positivos van al final */
+.primero-visual { order: -1; }
+.ultimo-visual  { order: 10; }
+/* Importante: no afecta el orden del DOM ni la accesibilidad */</code></pre>
+
+    </section>
+
+
+    <!-- ============================================================
+         SECCIÓN 3: CSS GRID
+         ============================================================ -->
+    <section class="seccion" id="grid">
+      <span class="etiqueta lila">css grid</span>
+      <h2>3. CSS Grid</h2>
+
+      <p>
+        CSS Grid se activa con <code>display: grid</code>. A diferencia de Flexbox,
+        permite definir una cuadrícula de <strong>filas y columnas</strong> y colocar
+        los elementos en posiciones exactas dentro de ella.
+      </p>
+
+
+      <!-- grid-template-columns -->
+      <h3><code>grid-template-columns</code> — definir columnas</h3>
+
+      <div class="prop-label">repeat(3, 1fr) — 3 columnas iguales</div>
+      <div class="grid-demo gd-3col">
+        <div class="grid-item v1">1</div><div class="grid-item v2">2</div>
+        <div class="grid-item v3">3</div><div class="grid-item v4">4</div>
+        <div class="grid-item v5">5</div><div class="grid-item v1">6</div>
+      </div>
+
+      <div class="prop-label">200px 1fr 2fr — columnas de distinto tamaño</div>
+      <div class="grid-demo gd-mixed">
+        <div class="grid-item v1">200px</div>
+        <div class="grid-item v2">1fr</div>
+        <div class="grid-item v3">2fr</div>
+      </div>
+
+      <div class="prop-label">repeat(auto-fill, minmax(120px, 1fr)) — columnas automáticas</div>
+      <div class="grid-demo gd-autofill">
+        <div class="grid-item v1">A</div><div class="grid-item v2">B</div>
+        <div class="grid-item v3">C</div><div class="grid-item v4">D</div>
+        <div class="grid-item v5">E</div>
+      </div>
+
+      <pre><code>/*
+  Formas de definir columnas:
+*/
+.grid {
+  display: grid;
+
+  /* Tres columnas fijas de 200px */
+  grid-template-columns: 200px 200px 200px;
+
+  /* Tres columnas iguales que ocupan el espacio disponible */
+  grid-template-columns: repeat(3, 1fr);
+
+  /* Columnas de distinto tamaño */
+  grid-template-columns: 200px 1fr 2fr;
+
+  /* Columnas automáticas RESPONSIVE sin media queries */
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  /*
+    auto-fill → crea tantas columnas como quepan
+    minmax(200px, 1fr) → mínimo 200px, máximo 1 fracción
+    Esto crea un grid que se adapta solo al viewport.
+  */
+}</code></pre>
+
+
+      <!-- grid-template-rows -->
+      <h3><code>grid-template-rows</code> — definir filas</h3>
+
+      <div class="prop-label">grid-template-rows: 60px 100px 40px</div>
+      <div class="grid-demo gd-rows">
+        <div class="grid-item v1">60px</div><div class="grid-item v2">60px</div><div class="grid-item v3">60px</div>
+        <div class="grid-item v2">100px</div><div class="grid-item v3">100px</div><div class="grid-item v4">100px</div>
+        <div class="grid-item v4">40px</div><div class="grid-item v5">40px</div><div class="grid-item v1">40px</div>
+      </div>
+
+      <pre><code>/*
+  grid-template-rows funciona igual que columns,
+  pero para las filas.
+*/
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: 60px 100px 40px;  /* fila 1, 2 y 3 */
+
+  /* grid-auto-rows: 80px; → todas las filas generadas automáticamente miden 80px */
+}</code></pre>
+
+
+      <!-- grid-column / grid-row span -->
+      <h3><code>grid-column</code> y <code>grid-row</code> — spanning</h3>
+      <p>
+        Un ítem puede ocupar más de una celda usando <code>span</code> o especificando
+        las líneas de inicio y fin.
+      </p>
+
+      <div class="prop-label">Ítems que ocupan varias celdas</div>
+      <div class="grid-demo gd-span">
+        <div class="grid-item v1 span-col-2">col span 2</div>
+        <div class="grid-item v2">normal</div>
+        <div class="grid-item v3">normal</div>
+        <div class="grid-item v4 span-row-2">row span 2</div>
+        <div class="grid-item v5">normal</div>
+        <div class="grid-item v1 span-col-2">col span 2</div>
+        <div class="grid-item v2 span-col-4">span 4 (toda la fila)</div>
+      </div>
+
+      <pre><code>/*
+  Los ítems pueden ocupar múltiples celdas con span.
+  Las líneas del grid se numeran desde 1.
+  Una grilla de 4 columnas tiene 5 líneas verticales (1, 2, 3, 4, 5).
+*/
+.item-ancho    { grid-column: span 2; }      /* ocupa 2 columnas */
+.item-alto     { grid-row:    span 2; }      /* ocupa 2 filas */
+
+/* Especificando líneas exactas: inicio / fin */
+.item-preciso  { grid-column: 1 / 4; }      /* de la línea 1 a la 4 (3 columnas) */
+.item-exacto   { grid-column: 2 / span 3; } /* empieza en 2, ocupa 3 columnas */
+.item-final    { grid-column: 3 / -1; }     /* de columna 3 hasta el final (-1) */</code></pre>
+
+
+      <!-- grid-template-areas -->
+      <h3><code>grid-template-areas</code> — nombrar zonas</h3>
+      <p>
+        Esta es la forma más visual y legible de crear layouts. Cada cadena de texto
+        representa una fila, y los nombres definen las áreas.
+      </p>
+
+      <div class="prop-label">Layout header / sidebar / main / footer</div>
+      <div class="grid-demo gd-areas">
+        <div class="grid-item area-header">header</div>
+        <div class="grid-item area-sidebar">sidebar</div>
+        <div class="grid-item area-main">main content</div>
+        <div class="grid-item area-footer">footer</div>
+      </div>
+
+      <pre><code>/* ── CONTENEDOR: define las áreas y el tamaño de columnas/filas ── */
+.layout {
+  display: grid;
+  grid-template-areas:
+    "header  header  header"   /* fila 1: header ocupa toda la fila */
+    "sidebar main    main"     /* fila 2: sidebar + main (2 columnas) */
+    "footer  footer  footer";  /* fila 3: footer ocupa toda la fila */
+
+  grid-template-columns: 200px 1fr 1fr;   /* ancho de cada columna */
+  grid-template-rows: 60px auto 50px;     /* alto de cada fila */
+  gap: 1rem;                              /* espacio entre áreas */
+}
+
+/* ── ÍTEMS: cada hijo se asigna a su área por nombre ── */
+.header  { grid-area: header;  }
+.sidebar { grid-area: sidebar; }
+.main    { grid-area: main;    }
+.footer  { grid-area: footer;  }
+
+/*
+  Para hacer el layout responsive, solo hay que cambiar
+  grid-template-areas en el media query:
+*/
+@media (max-width: 600px) {
+  .layout {
+    grid-template-areas:
+      "header"
+      "main"
+      "sidebar"
+      "footer";
+    grid-template-columns: 1fr;
+  }
+}</code></pre>
+
+    </section>
+
+
+    <!-- ============================================================
+         SECCIÓN 4: LAYOUT COMBINADO
+         ============================================================ -->
+    <section class="seccion" id="combinados">
+      <span class="etiqueta">layout combinado</span>
+      <h2>4. Grid + Flexbox juntos</h2>
+
+      <p>
+        En un proyecto real, <strong>Grid</strong> define la estructura general de la página
+        y <strong>Flexbox</strong> organiza los componentes internos. El siguiente ejemplo
+        muestra cómo conviven.
+      </p>
+
+      <div class="layout-ejemplo">
+        <div class="layout-header">
+          <div class="logo">MiSitio</div>
+          <ul class="layout-header nav">
+            <li><a href="#">Inicio</a></li>
+            <li><a href="#">Cursos</a></li>
+            <li><a href="#">Contacto</a></li>
+          </ul>
+        </div>
+
+        <div class="layout-body">
+          <aside class="layout-sidebar">
+            <strong style="font-size:0.78rem; color:var(--color-primario);">Menú</strong>
+            <ul>
+              <li>Dashboard</li>
+              <li>Proyectos</li>
+              <li>Calendario</li>
+              <li>Archivos</li>
+              <li>Configuración</li>
+            </ul>
+          </aside>
+
+          <main class="layout-main">
+            <p style="font-size:0.85rem; color:var(--color-texto-suave); margin-bottom:0.5rem;">
+              Contenido principal — <code>display: grid</code> para las cards
+            </p>
+            <div class="layout-cards">
+              <div class="layout-card">
+                <span class="icono">📊</span>
+                <strong>Analítica</strong>
+                <span>Ver estadísticas</span>
+              </div>
+              <div class="layout-card">
+                <span class="icono">✅</span>
+                <strong>Tareas</strong>
+                <span>12 pendientes</span>
+              </div>
+              <div class="layout-card">
+                <span class="icono">📁</span>
+                <strong>Archivos</strong>
+                <span>42 documentos</span>
+              </div>
+              <div class="layout-card">
+                <span class="icono">💬</span>
+                <strong>Mensajes</strong>
+                <span>3 nuevos</span>
+              </div>
+            </div>
+          </main>
+        </div>
+
+        <div class="layout-footer">
+          <span>© 2025 MiSitio</span>
+          <span>Diseño Web — Semana 04</span>
+        </div>
+      </div>
+
+      <pre><code>/*
+  ESTRUCTURA DE UN LAYOUT REAL
+  Grid para la página → Flexbox para los componentes
+*/
+
+/* 1. Grid en el body principal */
+.pagina {
+  display: grid;
+  grid-template-areas:
+    "header  header"
+    "sidebar main"
+    "footer  footer";
+  grid-template-columns: 200px 1fr;
+  grid-template-rows: 60px 1fr 50px;
+  min-height: 100vh;
+}
+
+/* 2. Flexbox en el header */
+.header {
+  grid-area: header;
+  display: flex;                   /* ← Flexbox aquí */
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* 3. Grid en las cards internas */
+.cards {
+  display: grid;                   /* ← Grid aquí */
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 1rem;
+}
+
+/* 4. Flexbox dentro de cada card */
+.card {
+  display: flex;                   /* ← Flexbox aquí */
+  flex-direction: column;
+  gap: 0.5rem;
+}</code></pre>
+
+    </section>
+
+
+    <!-- ============================================================
+         SECCIÓN 5: CASOS DE USO COMUNES
+         ============================================================ -->
+    <section class="seccion" id="casos">
+      <span class="etiqueta ambar">práctica</span>
+      <h2>5. Casos de uso comunes</h2>
+
+
+      <h3>Navbar con Flexbox</h3>
+      <p>El patrón más común: logo a la izquierda, links centrados o a la derecha, botón al extremo.</p>
+
+      <div class="demo-navbar">
+        <div class="nav-logo">MiMarca</div>
+        <ul class="nav-links">
+          <li><a href="#">Inicio</a></li>
+          <li><a href="#">Nosotros</a></li>
+          <li><a href="#">Servicios</a></li>
+        </ul>
+        <a href="#" class="nav-btn">Contactar</a>
+      </div>
+
+      <pre><code>/* Navbar clásica con Flexbox */
+.navbar {
+  display: flex;
+  justify-content: space-between;  /* logo | links | botón */
+  align-items: center;             /* centrado vertical */
+  padding: 1rem 2rem;
+}
+
+.nav-links {
+  display: flex;                   /* links en fila */
+  gap: 1.5rem;
+  list-style: none;
+}</code></pre>
+
+
+      <h3>Centrar perfectamente con Flexbox</h3>
+      <p>La técnica más sencilla para centrar un elemento horizontal y verticalmente.</p>
+
+      <div class="demo-centrado">
+        <div class="caja">
+          Centrado perfectamente<br>
+          <small style="opacity:0.7">justify-content: center + align-items: center</small>
+        </div>
+      </div>
+
+      <pre><code>/* La técnica de centrado más limpia en CSS moderno */
+.contenedor {
+  display: flex;
+  justify-content: center;   /* centrado horizontal */
+  align-items: center;       /* centrado vertical */
+  height: 100vh;             /* necesita altura definida */
+}
+
+/* Alternativa con place-items (shorthand) */
+.contenedor-v2 {
+  display: grid;
+  place-items: center;       /* centra en las dos dimensiones */
+  height: 100vh;
+}</code></pre>
+
+
+      <h3>Tarjetas de producto con Flexbox</h3>
+      <p>
+        El truco clave: <code>flex: 1</code> en la descripción hace que el botón
+        siempre quede al fondo, sin importar el largo del texto.
+      </p>
+
+      <div class="demo-product-grid">
+        <div class="demo-product-card p1">
+          <div class="img-placeholder">🌿</div>
+          <div class="card-info">
+            <strong>Planta Monstera</strong>
+            <span>Perfecta para interiores con luz indirecta.</span>
+            <div class="precio">$18.900</div>
+          </div>
+          <div class="card-btn">Agregar al carrito</div>
+        </div>
+        <div class="demo-product-card p2">
+          <div class="img-placeholder">📚</div>
+          <div class="card-info">
+            <strong>CSS Avanzado</strong>
+            <span>Libro digital.</span>
+            <div class="precio">$29.000</div>
+          </div>
+          <div class="card-btn">Agregar al carrito</div>
+        </div>
+        <div class="demo-product-card p3">
+          <div class="img-placeholder">☕</div>
+          <div class="card-info">
+            <strong>Café de Especialidad</strong>
+            <span>Origen único, tostado en Colombia para un sabor excepcional.</span>
+            <div class="precio">$12.500</div>
+          </div>
+          <div class="card-btn">Agregar al carrito</div>
+        </div>
+      </div>
+
+      <pre><code>/* Tarjeta con botón siempre al fondo */
+.card {
+  display: flex;
+  flex-direction: column;   /* apilado vertical */
+}
+
+.card-info {
+  flex: 1;                  /* ocupa el espacio libre → empuja el botón abajo */
+  display: flex;
+  flex-direction: column;
+}
+
+.card-descripcion {
+  flex: 1;                  /* hace que el precio quede al final de la info */
+}
+
+.card-btn {
+  /* Este botón siempre queda al fondo de la tarjeta */
+  margin-top: auto;
+}</code></pre>
+
+
+      <h3>Galería con CSS Grid</h3>
+      <p>Grid permite que ciertos elementos ocupen más de una celda, creando layouts asimétricos interesantes.</p>
+
+      <div class="grid-demo demo-galeria">
+        <div class="galeria-item gi-1 grande">★</div>
+        <div class="galeria-item gi-2">2</div>
+        <div class="galeria-item gi-3">3</div>
+        <div class="galeria-item gi-4">4</div>
+        <div class="galeria-item gi-5">5</div>
+        <div class="galeria-item gi-6">6</div>
+        <div class="galeria-item gi-7">7</div>
+      </div>
+
+      <pre><code>/* Galería con elemento destacado */
+.galeria {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-auto-rows: 100px;   /* todas las filas miden 100px por defecto */
+  gap: 0.5rem;
+}
+
+/* El elemento destacado ocupa 2 columnas y 2 filas */
+.destacado {
+  grid-column: span 2;
+  grid-row:    span 2;
+}</code></pre>
+
+
+      <h3>Holy Grail Layout con CSS Grid</h3>
+      <p>
+        El clásico layout de tres columnas (header, sidebar izquierdo, contenido central,
+        aside derecho, footer) que era muy difícil antes de Grid.
+      </p>
+
+      <div class="demo-holy-grail">
+        <div class="grid-item hg-header"><code>header</code></div>
+        <div class="grid-item hg-left"><code>left sidebar</code></div>
+        <div class="grid-item hg-content"><code>main content</code></div>
+        <div class="grid-item hg-right"><code>right aside</code></div>
+        <div class="grid-item hg-footer"><code>footer</code></div>
+      </div>
+
+      <pre><code>/* Holy Grail Layout — el layout clásico de 3 columnas */
+.pagina {
+  display: grid;
+  grid-template-areas:
+    "header  header   header"
+    "left    content  right"
+    "footer  footer   footer";
+  grid-template-columns: 160px 1fr 120px;
+  grid-template-rows: 60px 1fr 50px;
+  min-height: 100vh;
+}
+
+.header  { grid-area: header;  }
+.left    { grid-area: left;    }
+.content { grid-area: content; }
+.right   { grid-area: right;   }
+.footer  { grid-area: footer;  }
+
+/* En móvil, todo en una columna: */
+@media (max-width: 600px) {
+  .pagina {
+    grid-template-areas:
+      "header"
+      "content"
+      "left"
+      "right"
+      "footer";
+    grid-template-columns: 1fr;
+  }
+}</code></pre>
+
+    </section>
+
+
+    <!-- ============================================================
+         ASIDE: RESUMEN RÁPIDO
+         ============================================================ -->
+    <aside class="aside-resumen">
+      <span class="etiqueta">Resumen</span>
+      <h3>Cheat Sheet — Flexbox y CSS Grid</h3>
+
+      <div class="tabla-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Propiedad</th>
+              <th>Dónde va</th>
+              <th>Qué hace</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>display: flex</code></td>
+              <td>Contenedor</td>
+              <td>Activa Flexbox</td>
+            </tr>
+            <tr>
+              <td><code>flex-direction</code></td>
+              <td>Contenedor</td>
+              <td>row | column | *-reverse</td>
+            </tr>
+            <tr>
+              <td><code>justify-content</code></td>
+              <td>Contenedor</td>
+              <td>Eje principal: start/end/center/between/around/evenly</td>
+            </tr>
+            <tr>
+              <td><code>align-items</code></td>
+              <td>Contenedor</td>
+              <td>Eje cruzado: start/end/center/stretch/baseline</td>
+            </tr>
+            <tr>
+              <td><code>flex-wrap</code></td>
+              <td>Contenedor</td>
+              <td>nowrap | wrap | wrap-reverse</td>
+            </tr>
+            <tr>
+              <td><code>gap</code></td>
+              <td>Contenedor</td>
+              <td>Espacio entre ítems</td>
+            </tr>
+            <tr>
+              <td><code>flex</code></td>
+              <td>Ítem</td>
+              <td>grow shrink basis — cuánto crece/encoge</td>
+            </tr>
+            <tr>
+              <td><code>align-self</code></td>
+              <td>Ítem</td>
+              <td>Sobrescribe align-items para ese ítem</td>
+            </tr>
+            <tr>
+              <td><code>order</code></td>
+              <td>Ítem</td>
+              <td>Orden visual (default: 0)</td>
+            </tr>
+            <tr>
+              <td><code>display: grid</code></td>
+              <td>Contenedor</td>
+              <td>Activa CSS Grid</td>
+            </tr>
+            <tr>
+              <td><code>grid-template-columns</code></td>
+              <td>Contenedor</td>
+              <td>Define el número y tamaño de columnas</td>
+            </tr>
+            <tr>
+              <td><code>grid-template-rows</code></td>
+              <td>Contenedor</td>
+              <td>Define el número y tamaño de filas</td>
+            </tr>
+            <tr>
+              <td><code>grid-template-areas</code></td>
+              <td>Contenedor</td>
+              <td>Nombra zonas del grid visualmente</td>
+            </tr>
+            <tr>
+              <td><code>grid-column / grid-row</code></td>
+              <td>Ítem</td>
+              <td>Cuántas celdas ocupa el ítem</td>
+            </tr>
+            <tr>
+              <td><code>grid-area</code></td>
+              <td>Ítem</td>
+              <td>Nombre del área que ocupa</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </aside>
+
+
+    <!-- ============================================================
+         SECCIÓN 6: PROYECTO APLICADO
+         ============================================================ -->
+    <section class="seccion" id="proyecto">
+      <span class="etiqueta ambar">entregable</span>
+      <h2>6. Proyecto Aplicado</h2>
+
+      <div class="proyecto-descripcion">
+        <h3 style="margin-top: 0;">🗺 Dashboard o Portafolio con Grid + Flexbox</h3>
+        <p>
+          Construye una página con un <strong>layout completo</strong> que demuestre el uso
+          de Flexbox y CSS Grid de forma combinada. Puede ser un dashboard de administración,
+          un portafolio personal o una tienda con sección de productos.
+        </p>
+
+        <h4>Requisitos mínimos</h4>
+        <ul class="checklist">
+          <li>
+            <span class="check-icon done">✓</span>
+            Layout de página completo usando <code>grid-template-areas</code> (header, main, footer mínimo).
+          </li>
+          <li>
+            <span class="check-icon done">✓</span>
+            Navegación horizontal construida con Flexbox y <code>justify-content</code>.
+          </li>
+          <li>
+            <span class="check-icon done">✓</span>
+            Sección de tarjetas o galería usando <code>grid-template-columns: repeat(auto-fill, minmax(...))</code>.
+          </li>
+          <li>
+            <span class="check-icon todo">○</span>
+            Al menos un elemento con <code>grid-column: span N</code> o <code>grid-row: span N</code>.
+          </li>
+          <li>
+            <span class="check-icon todo">○</span>
+            Tarjetas con botón al fondo usando <code>flex-direction: column</code> y <code>flex: 1</code>.
+          </li>
+          <li>
+            <span class="check-icon todo">○</span>
+            Layout responsive: el grid cambia con un media query (de 3 columnas a 1 en móvil).
+          </li>
+          <li>
+            <span class="check-icon todo">○</span>
+            Uso de <code>gap</code> para los espacios (no margin entre ítems).
+          </li>
+        </ul>
+      </div>
+
+      <h3>Criterios de evaluación</h3>
+
+      <div class="criterios-grid">
+        <div class="criterio-card">
+          <h4>
+            📦 Flexbox
+            <span class="criterio-puntaje">25 pts</span>
+          </h4>
+          <ul>
+            <li>Navbar con <code>justify-content</code></li>
+            <li>Uso de <code>align-items</code></li>
+            <li>Tarjetas con <code>flex-direction: column</code></li>
+            <li><code>flex: 1</code> para distribución</li>
+          </ul>
+        </div>
+        <div class="criterio-card">
+          <h4>
+            🗺 CSS Grid
+            <span class="criterio-puntaje">25 pts</span>
+          </h4>
+          <ul>
+            <li>Layout con <code>grid-template-areas</code></li>
+            <li>Galería con <code>auto-fill / minmax</code></li>
+            <li>Al menos un <code>span</code> de columnas o filas</li>
+            <li>Uso correcto de <code>gap</code></li>
+          </ul>
+        </div>
+        <div class="criterio-card">
+          <h4>
+            📱 Responsive
+            <span class="criterio-puntaje">25 pts</span>
+          </h4>
+          <ul>
+            <li>Mobile First</li>
+            <li>Grid cambia en breakpoints</li>
+            <li>Navbar colapsable en móvil</li>
+          </ul>
+        </div>
+        <div class="criterio-card">
+          <h4>
+            ✨ Calidad
+            <span class="criterio-puntaje">25 pts</span>
+          </h4>
+          <ul>
+            <li>Código limpio y comentado</li>
+            <li>Uso de variables CSS</li>
+            <li>Sin uso de <code>float</code> ni <code>position</code> para el layout</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="nota">
+        <p>
+          <strong>💡 Herramientas recomendadas:</strong>
+          <a href="https://flexboxfroggy.com/#es" target="_blank" rel="noopener">Flexbox Froggy</a>
+          y <a href="https://cssgridgarden.com/#es" target="_blank" rel="noopener">Grid Garden</a>
+          son juegos interactivos para practicar. El inspector de Chrome/Firefox tiene
+          herramientas visuales para depurar Grid y Flexbox.
+        </p>
+      </div>
+
+      <div class="nota azul">
+        <p>
+          <strong>Recuerda:</strong> No uses <code>float</code> ni <code>position: absolute</code>
+          para construir el layout. Esas técnicas son de generaciones anteriores de CSS.
+          Flexbox y Grid son la forma correcta y moderna.
+        </p>
+      </div>
+
+    </section>
+
+
+    <!-- ============================================================
+         FOOTER
+         ============================================================ -->
+    <footer class="site-footer">
+      <nav class="nav-semanas">
+        <a href="semana-01-html.html">← Sem. 01 HTML</a>
+        <a href="semana-02-css.html">← Sem. 02 CSS</a>
+        <a href="semana-03-responsive.html">← Sem. 03 Responsive</a>
+        <a href="#" class="activa">Sem. 04 Flexbox/Grid</a>
+        <a href="#">Sem. 05 JS →</a>
+      </nav>
+      <address>
+        Diseño Web &bull; Semana 04 &bull;
+        <a href="mailto:docente@curso.edu">docente@curso.edu</a>
+      </address>
+      <p style="margin-top: 0.5rem;">&copy; 2025 — Ejercicio práctico de Flexbox y CSS Grid</p>
+    </footer>
+
+  </div><!-- /.pagina-wrapper -->
+
+</body>
+</html>

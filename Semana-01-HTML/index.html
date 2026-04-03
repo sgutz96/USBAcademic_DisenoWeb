@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<!-- 
+  DOCTYPE: Le dice al navegador que este documento usa HTML5.
+  Siempre debe ser la primera línea de todo archivo HTML.
+-->
+
+<html lang="es">
+<!-- 
+  <html>: Elemento raíz que envuelve todo el documento.
+  lang="es": Indica que el idioma principal del contenido es español.
+             Esto ayuda a lectores de pantalla y motores de búsqueda.
+-->
+
+<head>
+  <!-- 
+    <head>: Contiene metadatos (información SOBRE la página).
+    El contenido aquí NO se muestra visualmente en el navegador.
+  -->
+
+  <meta charset="UTF-8">
+  <!-- 
+    <meta charset>: Define la codificación de caracteres.
+    UTF-8 soporta casi todos los caracteres del mundo,
+    incluyendo tildes (á, é, í) y la ñ del español.
+  -->
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- 
+    <meta name="viewport">: Esencial para diseño responsivo (móviles).
+    width=device-width → el ancho se adapta al dispositivo.
+    initial-scale=1.0  → sin zoom inicial.
+  -->
+
+  <meta name="description" content="Mi primera página HTML - Semana 01 Diseño Web">
+  <!-- 
+    <meta name="description">: Resumen de la página.
+    Los motores de búsqueda (Google) lo usan para mostrar
+    la descripción debajo del enlace en los resultados.
+  -->
+
+  <meta name="author" content="Tu Nombre Aquí">
+  <!-- 
+    <meta name="author">: Indica quién creó la página.
+    Buena práctica de documentación.
+  -->
+
+  <title>Semana 01 - Introducción a HTML</title>
+  <!-- 
+    <title>: El texto que aparece en:
+    - La pestaña del navegador
+    - La barra de título de la ventana
+    - Los resultados de búsqueda
+    Debe ser descriptivo y único por página.
+  -->
+
+</head>
+<!-- Aquí termina el <head>. Todo lo que vemos en pantalla va en <body> -->
+
+<body>
+  <!-- 
+    <body>: Contiene TODO el contenido visible de la página:
+    textos, imágenes, tablas, formularios, etc.
+    Solo puede haber UN <body> por documento HTML.
+  -->
+
+
+  <!-- ============================================================
+       SECCIÓN 1: ENCABEZADO DEL SITIO
+       <header> es una etiqueta SEMÁNTICA (HTML5).
+       Identifica el encabezado principal de la página o sección.
+       ============================================================ -->
+  <header>
+    <span class="etiqueta">&lt;header&gt;</span>
+
+    <!-- 
+      <h1>: Encabezado de nivel 1. El más importante.
+      Solo debe usarse UNA VEZ por página (para el título principal).
+      Los motores de búsqueda le dan mucho peso al <h1>.
+    -->
+    <h1>Semana 01: Introducción a HTML</h1>
+
+    <!-- 
+      <p>: Párrafo. La unidad básica de texto en HTML.
+      El navegador añade espacio automáticamente arriba y abajo.
+    -->
+    <p>Clase de Diseño Web &mdash; Estructura y semántica de documentos HTML.</p>
+    <!-- &mdash; es una entidad HTML que representa el guión largo — -->
+  </header>
+
+
+  <!-- ============================================================
+       SECCIÓN 2: NAVEGACIÓN
+       <nav> identifica un bloque de NAVEGACIÓN (menú de enlaces).
+       ============================================================ -->
+  <nav>
+    <span class="etiqueta">&lt;nav&gt;</span>
+
+    <!-- 
+      <ul>: Lista NO ordenada (Unordered List).
+      Cada elemento va dentro de <li> (List Item).
+      Se muestra con viñetas (•) por defecto.
+    -->
+    <ul>
+      <li><a href="#textos">Textos y encabezados</a></li>
+      <!-- 
+        <a>: Anchor (enlace). El atributo href indica el destino.
+        href="#textos" → enlace interno a un elemento con id="textos"
+      -->
+      <li><a href="#listas">Listas</a></li>
+      <li><a href="#tabla">Tabla</a></li>
+      <li><a href="#multimedia">Multimedia</a></li>
+      <li><a href="#formulario">Formulario</a></li>
+    </ul>
+  </nav>
+
+
+  <!-- ============================================================
+       SECCIÓN 3: CONTENIDO PRINCIPAL
+       <main>: Contenido principal y único de la página.
+       Solo debe haber UN <main> visible por página.
+       ============================================================ -->
+  <main>
+    <span class="etiqueta">&lt;main&gt;</span>
+
+
+    <!-- ----- ARTÍCULO 1: Textos y encabezados ----- -->
+    <!-- 
+      <article>: Contenido independiente y auto-contenido.
+      Podría existir por sí solo (como un artículo de blog).
+    -->
+    <article id="textos">
+      <span class="etiqueta">&lt;article&gt;</span>
+
+      <!-- 
+        <h2>: Encabezado de nivel 2 (subtítulo).
+        La jerarquía es: h1 > h2 > h3 > h4 > h5 > h6
+        Nunca saltarse niveles (pasar de h1 a h3 directamente).
+      -->
+      <h2>1. Textos y encabezados</h2>
+
+      <!-- 
+        <section>: Agrupa contenido temáticamente relacionado.
+        Diferencia con <article>: <section> es parte de algo mayor;
+        <article> es independiente y tiene sentido por sí solo.
+      -->
+      <section>
+        <span class="etiqueta">&lt;section&gt;</span>
+
+        <h3>Jerarquía de encabezados</h3>
+        <!-- <h3>: Nivel 3, subtítulo dentro de un subtítulo -->
+
+        <h4>Encabezado h4 — cuarto nivel</h4>
+        <h5>Encabezado h5 — quinto nivel</h5>
+        <h6>Encabezado h6 — sexto nivel (el menor)</h6>
+
+        <h3>Formato de texto en línea</h3>
+
+        <p>
+          <!-- 
+            Las siguientes etiquetas son "en línea" (inline):
+            no rompen el flujo del párrafo, solo afectan
+            la parte del texto donde están aplicadas.
+          -->
+
+          El texto <strong>en negrita</strong> usa la etiqueta <code>&lt;strong&gt;</code>
+          (indica importancia semántica).
+          <!-- <strong>: negrita + significado de importancia -->
+
+          El texto <em>en cursiva</em> usa <code>&lt;em&gt;</code>
+          (énfasis semántico).
+          <!-- <em>: cursiva + significa énfasis -->
+
+          También existe <b>negrita visual</b> con <code>&lt;b&gt;</code>
+          y <i>cursiva visual</i> con <code>&lt;i&gt;</code>,
+          pero sin significado semántico.
+
+          Texto <mark>resaltado</mark> con <code>&lt;mark&gt;</code>.
+          <!-- <mark>: resaltado amarillo por defecto -->
+
+          Texto <del>tachado</del> con <code>&lt;del&gt;</code>
+          (indica contenido eliminado).
+
+          Texto <ins>subrayado/insertado</ins> con <code>&lt;ins&gt;</code>.
+
+          Subíndice: H<sub>2</sub>O &nbsp; | &nbsp; Superíndice: x<sup>2</sup>
+          <!-- 
+            <sub>: subíndice (texto pequeño abajo)
+            <sup>: superíndice (texto pequeño arriba)
+            &nbsp; = espacio que no se rompe (non-breaking space)
+          -->
+        </p>
+
+        <!-- 
+          <blockquote>: Cita larga o extracto de otra fuente.
+          cite= indica la URL de la fuente original.
+        -->
+        <blockquote cite="https://developer.mozilla.org">
+          <span class="etiqueta">&lt;blockquote&gt;</span>
+          "HTML (HyperText Markup Language) es el componente más básico de la Web.
+          Define el significado y la estructura del contenido web."
+          <!-- 
+            <cite>: el título de una obra o fuente
+            No confundir con el atributo cite= del blockquote
+          -->
+          <footer>— <cite>MDN Web Docs</cite></footer>
+        </blockquote>
+
+        <!-- 
+          <hr>: Línea horizontal (Horizontal Rule).
+          Etiqueta vacía: no necesita cierre.
+          Semánticamente indica un cambio temático.
+        -->
+        <hr>
+        <p>
+          El código se escribe con la etiqueta <code>&lt;code&gt;</code>.
+          Para bloques de código multilínea se usa <code>&lt;pre&gt;</code>:
+        </p>
+
+        <!-- 
+          <pre>: Texto preformateado.
+          Respeta espacios y saltos de línea tal como se escriben.
+          Se usa junto con <code> para mostrar código fuente.
+        -->
+        <pre><code>&lt;!-- Ejemplo de estructura básica --&gt;
+&lt;html&gt;
+  &lt;head&gt; ... &lt;/head&gt;
+  &lt;body&gt; ... &lt;/body&gt;
+&lt;/html&gt;</code></pre>
+
+      </section>
+    </article>
+
+
+    <!-- ----- ARTÍCULO 2: Listas ----- -->
+    <article id="listas">
+      <span class="etiqueta">&lt;article&gt;</span>
+      <h2>2. Listas</h2>
+
+      <section>
+        <h3>Lista no ordenada — <code>&lt;ul&gt;</code></h3>
+        <!-- 
+          <ul>: Unordered List. Muestra viñetas.
+          Se usa cuando el ORDEN no importa.
+        -->
+        <ul>
+          <li>HTML — estructura y contenido</li>
+          <!-- <li>: List Item. Va dentro de ul o ol -->
+          <li>CSS — diseño y estilos visuales</li>
+          <li>JavaScript — interactividad y comportamiento</li>
+          <li>
+            Herramientas de desarrollo:
+            <!-- Lista anidada: una lista dentro de otra -->
+            <ul>
+              <li>Visual Studio Code</li>
+              <li>DevTools del navegador</li>
+            </ul>
+          </li>
+        </ul>
+
+        <h3>Lista ordenada — <code>&lt;ol&gt;</code></h3>
+        <!-- 
+          <ol>: Ordered List. Muestra números.
+          Se usa cuando el ORDEN sí importa.
+          Atributos útiles:
+          - start="5" → empezar desde el número 5
+          - reversed  → contar en reversa (3, 2, 1)
+          - type="A"  → usar letras en vez de números
+        -->
+        <ol>
+          <li>Escribir el HTML (estructura)</li>
+          <li>Aplicar CSS (estilos)</li>
+          <li>Agregar JavaScript (interactividad)</li>
+          <li>Probar en el navegador</li>
+          <li>Publicar en la web</li>
+        </ol>
+
+        <h3>Lista de definiciones — <code>&lt;dl&gt;</code></h3>
+        <!-- 
+          <dl>: Description List. Para pares término / definición.
+          <dt>: Description Term (el término)
+          <dd>: Description Details (la definición)
+        -->
+        <dl>
+          <dt><strong>HTML</strong></dt>
+          <dd>HyperText Markup Language — lenguaje de marcado para la web.</dd>
+
+          <dt><strong>Etiqueta semántica</strong></dt>
+          <dd>Etiqueta HTML cuyo nombre describe el significado del contenido
+              (ej: &lt;article&gt;, &lt;nav&gt;, &lt;footer&gt;).</dd>
+
+          <dt><strong>Atributo</strong></dt>
+          <dd>Información adicional dentro de una etiqueta de apertura
+              (ej: <code>class="..."</code>, <code>id="..."</code>).</dd>
+        </dl>
+      </section>
+    </article>
+
+
+    <!-- ----- ARTÍCULO 3: Tablas ----- -->
+    <article id="tabla">
+      <span class="etiqueta">&lt;article&gt;</span>
+      <h2>3. Tablas</h2>
+
+      <p>Las tablas son para datos tabulares (filas y columnas),
+         NO para diseñar el layout de la página.</p>
+
+      <!-- 
+        <table>: Define la tabla completa.
+        Estructura interna:
+        <thead> → cabecera de la tabla
+        <tbody> → cuerpo de datos
+        <tfoot> → pie de la tabla (opcional)
+      -->
+      <table>
+        <span class="etiqueta" style="display:block; margin-bottom:4px">&lt;table&gt;</span>
+
+        <!-- 
+          <thead>: Agrupa la(s) fila(s) de encabezado.
+          Semánticamente distingue los títulos de las columnas.
+        -->
+        <thead>
+          <tr>
+            <!-- 
+              <tr>: Table Row — una fila de la tabla.
+              <th>: Table Header — celda de encabezado (negrita y centrada por defecto).
+              scope="col" → indica que el encabezado aplica a la columna.
+            -->
+            <th scope="col">Semana</th>
+            <th scope="col">Tema</th>
+            <th scope="col">Tecnología</th>
+            <th scope="col">Estado</th>
+          </tr>
+        </thead>
+
+        <!-- 
+          <tbody>: Agrupa las filas de datos.
+          <td>: Table Data — celda normal de datos.
+        -->
+        <tbody>
+          <tr>
+            <td>01</td>
+            <td>Estructura básica y semántica</td>
+            <td>HTML5</td>
+            <!-- 
+              colspan="1" es el valor por defecto (una celda = una columna).
+              colspan="2" haría que la celda ocupe 2 columnas.
+              rowspan="2" haría que ocupe 2 filas.
+            -->
+            <td><mark>✓ Actual</mark></td>
+          </tr>
+          <tr>
+            <td>02</td>
+            <td>Diseño y estilos</td>
+            <td>CSS3</td>
+            <td>Pendiente</td>
+          </tr>
+          <tr>
+            <td>03</td>
+            <td>Interactividad</td>
+            <td>JavaScript</td>
+            <td>Pendiente</td>
+          </tr>
+          <tr>
+            <td>04</td>
+            <td>Diseño responsivo</td>
+            <td>Flexbox / Grid</td>
+            <td>Pendiente</td>
+          </tr>
+        </tbody>
+
+        <!-- 
+          <tfoot>: Pie de tabla. Opcional pero útil para
+          totales, notas o resúmenes al final.
+        -->
+        <tfoot>
+          <tr>
+            <td colspan="4" style="text-align:center; font-size:0.85rem; color:#888;">
+              <!-- colspan="4" → esta celda se extiende por las 4 columnas -->
+              Plan de estudios — Diseño Web 2025
+            </td>
+          </tr>
+        </tfoot>
+      </table>
+    </article>
+
+
+    <!-- ----- ARTÍCULO 4: Multimedia ----- -->
+    <article id="multimedia">
+      <span class="etiqueta">&lt;article&gt;</span>
+      <h2>4. Multimedia</h2>
+
+      <section>
+        <h3>Imágenes — <code>&lt;img&gt;</code></h3>
+        <!-- 
+          <img>: Etiqueta VACÍA (no tiene cierre </img>).
+          Atributos obligatorios:
+          - src   → ruta o URL de la imagen
+          - alt   → texto alternativo (IMPORTANTE para accesibilidad
+                    y SEO; aparece si la imagen no carga)
+          Atributos opcionales:
+          - width / height → dimensiones en píxeles
+          - loading="lazy" → carga diferida (mejor rendimiento)
+        -->
+        <img
+          src="https://via.placeholder.com/780x200/3c3489/ffffff?text=Imagen+de+ejemplo+(img)"
+          alt="Imagen de ejemplo con texto explicativo"
+          width="780"
+          loading="lazy"
+          style="max-width:100%; border-radius:6px;"
+        >
+
+        <!-- 
+          <figure> y <figcaption>:
+          <figure>   → contenedor semántico para una imagen (o gráfico).
+          <figcaption> → pie de imagen descriptivo.
+        -->
+        <figure style="margin: 1.5rem 0;">
+          <span class="etiqueta">&lt;figure&gt;</span>
+          <img
+            src="https://via.placeholder.com/780x160/1d9e75/ffffff?text=Imagen+dentro+de+figure"
+            alt="Ejemplo de figure con figcaption"
+            style="max-width:100%; border-radius:6px;"
+            loading="lazy"
+          >
+          <figcaption style="font-size:0.85rem; color:#888; margin-top:6px;">
+            <span class="etiqueta">&lt;figcaption&gt;</span>
+            Figura 1. Uso correcto de &lt;figure&gt; y &lt;figcaption&gt; para imágenes semánticas.
+          </figcaption>
+        </figure>
+
+        <h3>Enlace externo — <code>&lt;a&gt;</code></h3>
+        <p>
+          Visita la documentación oficial:
+          <a
+            href="https://developer.mozilla.org/es/docs/Web/HTML"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            MDN Web Docs — HTML
+          </a>
+          <!-- 
+            href="URL"              → destino del enlace
+            target="_blank"         → abrir en pestaña nueva
+            rel="noopener noreferrer" → seguridad: evita que la página
+                                      destino acceda a la página de origen
+          -->
+        </p>
+      </section>
+    </article>
+
+
+    <!-- ----- ARTÍCULO 5: Formulario ----- -->
+    <article id="formulario">
+      <span class="etiqueta">&lt;article&gt;</span>
+      <h2>5. Formulario básico</h2>
+
+      <!-- 
+        <form>: Contenedor de un formulario.
+        Atributos clave:
+        - action → URL donde se enviarán los datos
+        - method → "get" (datos en URL) o "post" (datos ocultos)
+        En HTML puro sin servidor, el formulario no procesa datos.
+        Necesitaremos JavaScript o un backend para eso.
+      -->
+      <form action="#" method="post" novalidate>
+        <span class="etiqueta">&lt;form&gt;</span>
+
+        <div style="margin-bottom: 1rem;">
+          <!-- 
+            <label>: Etiqueta descriptiva de un campo.
+            for="id_del_input" → asocia el label con su input.
+            Al hacer clic en el label, el input recibe el foco.
+            MUY importante para accesibilidad.
+          -->
+          <label for="nombre">Nombre completo:</label>
+          <br>
+          <!-- 
+            <input type="text">: Campo de texto de una sola línea.
+            Atributos útiles:
+            - id         → debe coincidir con for del <label>
+            - name       → nombre del dato al enviarse
+            - placeholder → texto de ayuda (desaparece al escribir)
+            - required    → campo obligatorio
+            - maxlength   → máximo de caracteres
+          -->
+          <input
+            type="text"
+            id="nombre"
+            name="nombre"
+            placeholder="Ej: Ana García"
+            required
+            maxlength="100"
+            style="width:100%; padding:0.5rem; margin-top:4px; box-sizing:border-box; border:1px solid #c8b89a; border-radius:4px;"
+          >
+        </div>
+
+        <div style="margin-bottom: 1rem;">
+          <label for="email">Correo electrónico:</label><br>
+          <!-- 
+            <input type="email">: Valida formato de correo.
+            El navegador muestra error automático si el formato es inválido.
+          -->
+          <input
+            type="email"
+            id="email"
+            name="email"
+            placeholder="ejemplo@correo.com"
+            required
+            style="width:100%; padding:0.5rem; margin-top:4px; box-sizing:border-box; border:1px solid #c8b89a; border-radius:4px;"
+          >
+        </div>
+
+        <div style="margin-bottom: 1rem;">
+          <label for="semana">Semana favorita:</label><br>
+          <!-- 
+            <select>: Lista desplegable.
+            <option>: Cada opción de la lista.
+            value= → el dato que se envía al servidor.
+            selected → opción seleccionada por defecto.
+          -->
+          <select
+            id="semana"
+            name="semana"
+            style="width:100%; padding:0.5rem; margin-top:4px; border:1px solid #c8b89a; border-radius:4px;"
+          >
+            <option value="">-- Selecciona una opción --</option>
+            <option value="01" selected>Semana 01 — HTML</option>
+            <option value="02">Semana 02 — CSS</option>
+            <option value="03">Semana 03 — JavaScript</option>
+          </select>
+        </div>
+
+        <div style="margin-bottom: 1rem;">
+          <label for="comentario">Comentario:</label><br>
+          <!-- 
+            <textarea>: Área de texto multilínea.
+            rows / cols → tamaño inicial visible.
+            El usuario puede redimensionarlo con el mouse.
+          -->
+          <textarea
+            id="comentario"
+            name="comentario"
+            rows="4"
+            placeholder="Escribe aquí tus preguntas o comentarios..."
+            style="width:100%; padding:0.5rem; margin-top:4px; box-sizing:border-box; border:1px solid #c8b89a; border-radius:4px; resize:vertical;"
+          ></textarea>
+        </div>
+
+        <div style="margin-bottom: 1.5rem;">
+          <!-- 
+            <input type="checkbox">: Casilla de verificación.
+            Permite seleccionar varias opciones a la vez.
+            checked → marcado por defecto.
+          -->
+          <input type="checkbox" id="acepto" name="acepto" required>
+          <label for="acepto">Acepto los términos del curso</label>
+        </div>
+
+        <!-- 
+          <button type="submit">: Botón que envía el formulario.
+          type="reset"  → reinicia todos los campos.
+          type="button" → no hace nada por defecto (para JS).
+        -->
+        <button
+          type="submit"
+          style="background:#3c3489; color:#fff; border:none; padding:0.6rem 1.5rem; border-radius:4px; cursor:pointer; font-size:1rem;"
+        >
+          Enviar formulario
+        </button>
+
+        <button
+          type="reset"
+          style="background:transparent; color:#3c3489; border:1px solid #3c3489; padding:0.6rem 1.5rem; border-radius:4px; cursor:pointer; font-size:1rem; margin-left:0.5rem;"
+        >
+          Limpiar campos
+        </button>
+
+      </form>
+    </article>
+
+  </main>
+  <!-- Aquí termina el <main> -->
+
+
+  <!-- ============================================================
+       SECCIÓN: BARRA LATERAL (ASIDE)
+       <aside>: Contenido relacionado pero secundario.
+       Típicamente: barras laterales, notas, publicidad, info extra.
+       ============================================================ -->
+  <aside style="background:#eeedfe; border-left:4px solid #3c3489; padding:1rem 1.5rem; margin:2rem 0; border-radius:0 8px 8px 0;">
+    <span class="etiqueta">&lt;aside&gt;</span>
+    <h3 style="margin-top:0.5rem;">Recuerda</h3>
+    <ul>
+      <li>Las etiquetas semánticas mejoran el <strong>SEO</strong> y la <strong>accesibilidad</strong>.</li>
+      <li>El <code>&lt;head&gt;</code> es para metadatos; el <code>&lt;body&gt;</code> para contenido visible.</li>
+      <li>Siempre incluir <code>alt</code> en las imágenes.</li>
+      <li>Asociar <code>&lt;label&gt;</code> con su <code>&lt;input&gt;</code> usando <code>for</code> e <code>id</code>.</li>
+      <li>HTML estructura el contenido; CSS le da apariencia.</li>
+    </ul>
+  </aside>
+
+
+  <!-- ============================================================
+       PIE DE PÁGINA
+       <footer>: Pie de la página o de una sección.
+       Suele contener: créditos, derechos, contacto, links legales.
+       ============================================================ -->
+  <footer>
+    <span class="etiqueta">&lt;footer&gt;</span>
+    <!-- 
+      <address>: Información de contacto del autor o dueño.
+      El navegador suele mostrarla en cursiva.
+    -->
+    <address>
+      Diseño Web &bull; Semana 01 &bull;
+      <a href="mailto:profesor@universidad.edu">profesor@universidad.edu</a>
+    </address>
+    <!-- 
+      &bull; → bullet point (•)
+      Más entidades HTML útiles:
+      &copy;  → © (copyright)
+      &reg;   → ® (marca registrada)
+      &trade; → ™ (trademark)
+      &amp;   → & (ampersand)
+      &lt;    → < (menor que)
+      &gt;    → > (mayor que)
+    -->
+    <p style="margin-top:0.5rem;">&copy; 2025 — Ejercicio práctico de HTML5</p>
+  </footer>
+
+
+</body>
+<!-- Cierre del <body>: nada debe ir después de aquí (excepto </html>) -->
+
+</html>
+<!-- 
+  Cierre del <html>: última línea del documento.
+  
+  RESUMEN DE ETIQUETAS SEMÁNTICAS USADAS:
+  ┌─────────────┬────────────────────────────────────────────┐
+  │ Etiqueta    │ Propósito                                  │
+  ├─────────────┼────────────────────────────────────────────┤
+  │ <header>    │ Encabezado de página o sección             │
+  │ <nav>       │ Menú de navegación                         │
+  │ <main>      │ Contenido principal (único por página)     │
+  │ <article>   │ Contenido independiente y auto-contenido   │
+  │ <section>   │ Agrupación temática dentro de un artículo  │
+  │ <aside>     │ Contenido relacionado pero secundario      │
+  │ <footer>    │ Pie de página o sección                    │
+  │ <figure>    │ Contenedor semántico para imagen/gráfico   │
+  │ <figcaption>│ Pie de figura                              │
+  │ <address>   │ Información de contacto                    │
+  └─────────────┴────────────────────────────────────────────┘
+-->
