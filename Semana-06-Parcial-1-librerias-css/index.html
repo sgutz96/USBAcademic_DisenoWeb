@@ -1,0 +1,1642 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Semana 06 — Librerías CSS</title>
+
+  <!--
+    LIBRERÍAS CSS: BOOTSTRAP Y TAILWIND CSS
+    =========================================
+    Una librería CSS es un conjunto de estilos predefinidos que
+    podemos usar directamente en nuestro HTML sin escribir el CSS
+    desde cero. Aceleran el desarrollo y garantizan consistencia.
+
+    Esta semana cubrimos las dos librerías más populares:
+
+    1. ¿QUÉ ES UNA LIBRERÍA CSS?
+       → Colección de clases CSS listas para usar
+       → Se incluyen vía CDN o npm
+       → Reducen el tiempo de desarrollo
+       → Garantizan compatibilidad entre navegadores
+
+    2. BOOTSTRAP 5
+       → Librería de componentes UI completos
+       → Sistema de grilla de 12 columnas
+       → Componentes: navbar, cards, modales, formularios...
+       → Clases utilitarias para spacing, color, tipografía
+       → Filosofía: "component-first"
+
+    3. TAILWIND CSS
+       → Framework de clases de utilidad ("utility-first")
+       → No hay componentes predefinidos, solo clases atómicas
+       → Altamente personalizable
+       → Filosofía: "utility-first" — compones el diseño clase a clase
+
+    4. COMPARATIVA: BOOTSTRAP VS TAILWIND
+       → Casos de uso, ventajas y desventajas de cada uno
+       → Cuándo elegir cada librería
+
+    5. OTRAS LIBRERÍAS
+       → Bulma, Foundation, Materialize, DaisyUI
+
+    6. PROYECTO APLICADO
+       → Landing page construida con Bootstrap
+       → Misma landing reconstruida con Tailwind
+  -->
+
+  <style>
+
+    /* ============================================================
+       VARIABLES CSS — Paleta consistente con las semanas anteriores
+       ============================================================ */
+    :root {
+      --color-primario:    #1a3a4a;
+      --color-secundario:  #2d7d5f;
+      --color-acento:      #e8a020;
+      --color-fondo:       #f4f1ec;
+      --color-superficie:  #ffffff;
+      --color-texto:       #1e1e1e;
+      --color-texto-suave: #5a5a5a;
+      --color-borde:       #d6cfc4;
+
+      /* Colores temáticos de las librerías */
+      --color-bootstrap:   #7952b3;   /* morado Bootstrap oficial */
+      --color-tailwind:    #06b6d4;   /* cyan Tailwind oficial */
+      --color-tailwind-dk: #0e7490;
+
+      --fuente-titulos: 'Georgia', 'Times New Roman', serif;
+      --fuente-cuerpo:  'Trebuchet MS', 'Gill Sans', sans-serif;
+      --fuente-codigo:  'Courier New', 'Lucida Console', monospace;
+
+      --espacio-xs:  0.25rem;
+      --espacio-sm:  0.5rem;
+      --espacio-md:  1rem;
+      --espacio-lg:  1.5rem;
+      --espacio-xl:  2rem;
+      --espacio-xxl: 3rem;
+
+      --radio-sm:   4px;
+      --radio-md:   8px;
+      --radio-lg:   16px;
+      --radio-pill: 999px;
+
+      --sombra-sm: 0 1px 3px rgba(0,0,0,0.12);
+      --sombra-md: 0 4px 12px rgba(0,0,0,0.10);
+      --sombra-lg: 0 8px 24px rgba(0,0,0,0.12);
+
+      --duracion-rapida: 150ms;
+      --duracion-media:  300ms;
+      --duracion-lenta:  600ms;
+      --timing-rebote:   cubic-bezier(0.34, 1.56, 0.64, 1);
+      --timing-entrada:  cubic-bezier(0.0, 0.0, 0.2, 1);
+    }
+
+
+    /* ============================================================
+       RESET Y BASE
+       ============================================================ */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--fuente-cuerpo);
+      font-size: 16px;
+      line-height: 1.7;
+      color: var(--color-texto);
+      background-color: var(--color-fondo);
+    }
+
+    p {
+      margin-bottom: var(--espacio-md);
+      max-width: 65ch;
+    }
+
+    h1, h2, h3, h4 {
+      font-family: var(--fuente-titulos);
+      color: var(--color-primario);
+      line-height: 1.2;
+      margin-bottom: var(--espacio-md);
+    }
+
+    h2, h3 { margin-top: var(--espacio-xl); }
+
+    a {
+      color: var(--color-secundario);
+      text-decoration: none;
+      border-bottom: 1px solid transparent;
+      transition: border-color var(--duracion-media) ease;
+    }
+    a:hover { border-bottom-color: var(--color-secundario); }
+
+    code {
+      font-family: var(--fuente-codigo);
+      font-size: 0.875em;
+      background-color: #ede8f5;
+      color: #5c2d91;
+      padding: 2px 6px;
+      border-radius: var(--radio-sm);
+    }
+
+    pre {
+      background: var(--color-primario);
+      color: #a8d8c0;
+      padding: var(--espacio-md);
+      border-radius: var(--radio-md);
+      overflow-x: auto;
+      font-family: var(--fuente-codigo);
+      font-size: 0.875rem;
+      line-height: 1.8;
+      margin-bottom: var(--espacio-lg);
+      tab-size: 2;
+    }
+
+    pre code {
+      background: none;
+      color: inherit;
+      padding: 0;
+      font-size: inherit;
+    }
+
+    .pre-bs { background: #2c1a4a; }
+    .pre-bs code { color: #c8a8f0; }
+
+    .pre-tw { background: #0c2030; }
+    .pre-tw code { color: #67e8f9; }
+
+    /* Resaltado de sintaxis */
+    .cls  { color: #f1fa8c; }   /* clases CSS */
+    .tag  { color: #ff79c6; }   /* etiquetas HTML */
+    .atr  { color: #8be9fd; }   /* atributos */
+    .val  { color: #f1fa8c; }   /* valores */
+    .cm   { color: #6272a4; font-style: italic; }
+
+    ul, ol { padding-left: 1.5rem; }
+    li { margin-bottom: var(--espacio-xs); }
+
+    ::selection {
+      background-color: var(--color-acento);
+      color: var(--color-primario);
+    }
+
+
+    /* ============================================================
+       LAYOUT GENERAL
+       ============================================================ */
+    .pagina-wrapper {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 var(--espacio-md);
+    }
+
+
+    /* ============================================================
+       ENCABEZADO DE SITIO
+       ============================================================ */
+    .site-header {
+      background-color: var(--color-primario);
+      color: #ffffff;
+      padding: var(--espacio-xl) var(--espacio-md);
+      margin-bottom: var(--espacio-xxl);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .site-header::before {
+      content: "";
+      position: absolute;
+      top: -40px;
+      right: -40px;
+      width: 200px;
+      height: 200px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 50%;
+    }
+
+    .site-header::after {
+      content: "";
+      position: absolute;
+      bottom: -60px;
+      right: 60px;
+      width: 130px;
+      height: 130px;
+      background: rgba(255,255,255,0.04);
+      border-radius: 50%;
+    }
+
+    .site-header h1 {
+      color: #ffffff;
+      font-size: 2.5rem;
+      margin-bottom: var(--espacio-sm);
+    }
+
+    .site-header p {
+      color: rgba(255,255,255,0.75);
+      max-width: none;
+    }
+
+    .badge-semana {
+      display: inline-block;
+      background: var(--color-acento);
+      color: var(--color-primario);
+      font-family: var(--fuente-codigo);
+      font-size: 0.75rem;
+      font-weight: bold;
+      padding: 3px 10px;
+      border-radius: var(--radio-pill);
+      margin-bottom: var(--espacio-md);
+      letter-spacing: 0.05em;
+    }
+
+
+    /* ============================================================
+       NAVEGACIÓN INTERNA
+       ============================================================ */
+    .nav-interna {
+      background: var(--color-superficie);
+      border: 1px solid var(--color-borde);
+      border-radius: var(--radio-lg);
+      padding: var(--espacio-lg);
+      margin-bottom: var(--espacio-xxl);
+      box-shadow: var(--sombra-sm);
+    }
+
+    .nav-interna h2 {
+      font-size: 1rem;
+      margin-top: 0;
+      margin-bottom: var(--espacio-md);
+      color: var(--color-texto-suave);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-family: var(--fuente-cuerpo);
+    }
+
+    .nav-interna ul {
+      list-style: none;
+      padding: 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--espacio-sm);
+    }
+
+    .nav-interna a {
+      display: inline-block;
+      padding: var(--espacio-xs) var(--espacio-md);
+      background: var(--color-fondo);
+      border: 1px solid var(--color-borde);
+      border-radius: var(--radio-pill);
+      font-size: 0.875rem;
+      color: var(--color-primario);
+      border-bottom: none;
+      transition: background var(--duracion-media), border-color var(--duracion-media), color var(--duracion-media);
+    }
+
+    .nav-interna a:hover {
+      background: var(--color-primario);
+      color: #fff;
+      border-color: var(--color-primario);
+    }
+
+
+    /* ============================================================
+       ETIQUETA IDENTIFICADORA
+       ============================================================ */
+    .etiqueta {
+      display: inline-block;
+      background: var(--color-primario);
+      color: #ffffff;
+      font-family: var(--fuente-codigo);
+      font-size: 0.72rem;
+      padding: 2px 8px;
+      border-radius: var(--radio-sm);
+      margin-bottom: var(--espacio-sm);
+      letter-spacing: 0.03em;
+    }
+
+    .etiqueta.verde     { background: var(--color-secundario); }
+    .etiqueta.ambar     { background: var(--color-acento); color: var(--color-primario); }
+    .etiqueta.lila      { background: #5c3a8a; }
+    .etiqueta.rojo      { background: #a02020; }
+    .etiqueta.bootstrap { background: var(--color-bootstrap); }
+    .etiqueta.tailwind  { background: var(--color-tailwind); color: #fff; }
+
+
+    /* ============================================================
+       SECCIÓN DE CONTENIDO
+       ============================================================ */
+    .seccion {
+      margin-bottom: var(--espacio-xxl);
+      scroll-margin-top: 2rem;
+    }
+
+    .seccion > h2 {
+      border-bottom: 2px solid var(--color-borde);
+      padding-bottom: var(--espacio-sm);
+    }
+
+
+    /* ============================================================
+       BLOQUE DE NOTA
+       ============================================================ */
+    .nota {
+      border-left: 4px solid var(--color-secundario);
+      background: #edf7f3;
+      padding: var(--espacio-md) var(--espacio-lg);
+      border-radius: 0 var(--radio-md) var(--radio-md) 0;
+      margin: var(--espacio-lg) 0;
+    }
+
+    .nota.ambar      { border-color: var(--color-acento);      background: #fdf5e6; }
+    .nota.azul       { border-color: var(--color-primario);    background: #eef2f5; }
+    .nota.lila       { border-color: #5c3a8a;                  background: #f2eef9; }
+    .nota.bootstrap  { border-color: var(--color-bootstrap);   background: #f2eef9; }
+    .nota.tailwind   { border-color: var(--color-tailwind);    background: #e6f8fb; }
+
+    .nota p { margin-bottom: 0; }
+    .nota p + p { margin-top: var(--espacio-sm); }
+
+
+    /* ============================================================
+       TABLA DE REFERENCIA
+       ============================================================ */
+    .tabla-wrapper {
+      overflow-x: auto;
+      margin: var(--espacio-lg) 0;
+      border-radius: var(--radio-md);
+      box-shadow: var(--sombra-sm);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+      background: var(--color-superficie);
+    }
+
+    th, td {
+      border: 1px solid var(--color-borde);
+      padding: 0.6rem 1rem;
+      text-align: left;
+    }
+
+    th {
+      background-color: var(--color-primario);
+      color: #ffffff;
+      font-family: var(--fuente-titulos);
+      font-weight: normal;
+    }
+
+    tr:nth-child(even) { background-color: #f0ece6; }
+    td code { font-size: 0.8rem; }
+
+
+    /* ============================================================
+       COMPARATIVA DOS COLUMNAS
+       ============================================================ */
+    .comparativa {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: var(--espacio-md);
+      margin: var(--espacio-lg) 0;
+    }
+
+    @media (min-width: 620px) {
+      .comparativa { grid-template-columns: 1fr 1fr; }
+    }
+
+    .comparativa-item {
+      border-radius: var(--radio-md);
+      overflow: hidden;
+      border: 1px solid var(--color-borde);
+    }
+
+    .comparativa-item .cab {
+      padding: var(--espacio-sm) var(--espacio-md);
+      font-family: var(--fuente-codigo);
+      font-size: 0.8rem;
+      font-weight: bold;
+    }
+
+    .comparativa-item.bs-col .cab { background: #ede8f5; color: var(--color-bootstrap); }
+    .comparativa-item.tw-col .cab { background: #e6f8fb; color: var(--color-tailwind-dk); }
+    .comparativa-item pre { margin: 0; border-radius: 0; font-size: 0.78rem; }
+
+
+    /* ============================================================
+       DEMO EMBEBIDO — iframe con librería real
+       ============================================================ */
+    .demo-wrapper {
+      background: var(--color-superficie);
+      border: 1px solid var(--color-borde);
+      border-radius: var(--radio-lg);
+      overflow: hidden;
+      margin: var(--espacio-md) 0;
+      box-shadow: var(--sombra-sm);
+    }
+
+    .demo-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--espacio-sm) var(--espacio-md);
+      border-bottom: 1px solid var(--color-borde);
+      background: var(--color-fondo);
+    }
+
+    .demo-titulo {
+      font-family: var(--fuente-codigo);
+      font-size: 0.78rem;
+      color: var(--color-texto-suave);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .demo-badge {
+      font-family: var(--fuente-codigo);
+      font-size: 0.65rem;
+      font-weight: bold;
+      padding: 1px 8px;
+      border-radius: var(--radio-pill);
+      letter-spacing: 0.04em;
+    }
+
+    .demo-badge.bs { background: var(--color-bootstrap); color: #fff; }
+    .demo-badge.tw { background: var(--color-tailwind);  color: #fff; }
+
+    .demo-frame {
+      width: 100%;
+      border: none;
+      display: block;
+      background: #fff;
+    }
+
+
+    /* ============================================================
+       TARJETAS DE LIBRERÍA (intro visual)
+       ============================================================ */
+    .lib-cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--espacio-md);
+      margin: var(--espacio-lg) 0;
+    }
+
+    @media (max-width: 540px) {
+      .lib-cards { grid-template-columns: 1fr; }
+    }
+
+    .lib-card {
+      border-radius: var(--radio-lg);
+      overflow: hidden;
+      border: 1px solid var(--color-borde);
+      box-shadow: var(--sombra-sm);
+      transition: transform var(--duracion-media) var(--timing-rebote),
+                  box-shadow var(--duracion-media) ease;
+    }
+
+    .lib-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--sombra-lg);
+    }
+
+    .lib-card-header {
+      padding: var(--espacio-lg);
+      display: flex;
+      align-items: center;
+      gap: var(--espacio-md);
+    }
+
+    .lib-card-header.bs { background: var(--color-bootstrap); color: #fff; }
+    .lib-card-header.tw { background: var(--color-tailwind-dk); color: #fff; }
+
+    .lib-logo {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--radio-md);
+      background: rgba(255,255,255,0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--fuente-titulos);
+      font-size: 1.1rem;
+      font-weight: bold;
+      color: #fff;
+      flex-shrink: 0;
+    }
+
+    .lib-card-header h3 {
+      color: #fff;
+      margin: 0 0 2px;
+      font-size: 1.1rem;
+    }
+
+    .lib-card-header p {
+      color: rgba(255,255,255,0.75);
+      font-size: 0.78rem;
+      margin: 0;
+    }
+
+    .lib-card-body {
+      background: var(--color-superficie);
+      padding: var(--espacio-md) var(--espacio-lg);
+    }
+
+    .lib-card-body ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .lib-card-body ul li {
+      font-size: 0.875rem;
+      padding: var(--espacio-xs) 0;
+      border-bottom: 1px solid var(--color-borde);
+      color: var(--color-texto);
+      display: flex;
+      gap: var(--espacio-sm);
+    }
+
+    .lib-card-body ul li:last-child { border-bottom: none; }
+
+    .li-icon { flex-shrink: 0; }
+
+
+    /* ============================================================
+       PROYECTO APLICADO
+       ============================================================ */
+    @keyframes aparecer-proyecto {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .proyecto-wrapper {
+      background: var(--color-superficie);
+      border: 1px solid var(--color-borde);
+      border-radius: var(--radio-lg);
+      overflow: hidden;
+      box-shadow: var(--sombra-lg);
+      margin: var(--espacio-xl) 0;
+      animation: aparecer-proyecto var(--duracion-lenta) var(--timing-entrada) both;
+    }
+
+    .proyecto-header {
+      background: var(--color-primario);
+      color: #fff;
+      padding: var(--espacio-lg);
+      display: flex;
+      align-items: center;
+      gap: var(--espacio-md);
+    }
+
+    .proyecto-icono {
+      width: 42px;
+      height: 42px;
+      border-radius: var(--radio-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--fuente-codigo);
+      font-weight: bold;
+      font-size: 0.85rem;
+      flex-shrink: 0;
+      color: #fff;
+    }
+
+    .py-icono-bs { background: var(--color-bootstrap); }
+    .py-icono-tw { background: var(--color-tailwind); }
+
+    .proyecto-header h3 {
+      color: #fff;
+      margin: 0;
+      font-size: 1.2rem;
+    }
+
+    .proyecto-header p {
+      color: rgba(255,255,255,0.6);
+      margin: 0;
+      font-size: 0.8rem;
+    }
+
+    /* Tabs del proyecto */
+    .proyecto-tabs {
+      display: flex;
+      border-bottom: 1px solid var(--color-borde);
+      background: var(--color-fondo);
+    }
+
+    .proyecto-tab {
+      padding: var(--espacio-sm) var(--espacio-lg);
+      font-family: var(--fuente-codigo);
+      font-size: 0.8rem;
+      color: var(--color-texto-suave);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: color var(--duracion-media), border-color var(--duracion-media);
+      background: none;
+      border-top: none;
+      border-left: none;
+      border-right: none;
+      letter-spacing: 0.04em;
+    }
+
+    .proyecto-tab:hover { color: var(--color-primario); }
+
+    .proyecto-tab.activo-bs {
+      color: var(--color-bootstrap);
+      border-bottom-color: var(--color-bootstrap);
+    }
+
+    .proyecto-tab.activo-tw {
+      color: var(--color-tailwind-dk);
+      border-bottom-color: var(--color-tailwind);
+    }
+
+    .proyecto-panel {
+      display: none;
+    }
+
+    .proyecto-panel.activo {
+      display: block;
+    }
+
+
+    /* ============================================================
+       PIE DE PÁGINA
+       ============================================================ */
+    .site-footer {
+      border-top: 1px solid var(--color-borde);
+      padding: var(--espacio-xl) var(--espacio-md);
+      margin-top: var(--espacio-xxl);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--espacio-md);
+      font-size: 0.875rem;
+      color: var(--color-texto-suave);
+    }
+
+    .footer-nav {
+      display: flex;
+      gap: var(--espacio-md);
+      flex-wrap: wrap;
+    }
+
+    .footer-nav a {
+      color: var(--color-texto-suave);
+      font-size: 0.875rem;
+      border-bottom: none;
+    }
+
+    .footer-nav a:hover { color: var(--color-primario); }
+
+
+    /* ============================================================
+       ACCESIBILIDAD
+       ============================================================ */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration:        0.01ms !important;
+        animation-iteration-count: 1      !important;
+        transition-duration:       0.01ms !important;
+      }
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <!-- ============================================================
+       ENCABEZADO DEL SITIO
+  ============================================================= -->
+  <header class="site-header">
+    <div class="pagina-wrapper">
+      <p class="badge-semana">SEMANA 06</p>
+      <h1>Librerías CSS</h1>
+      <p>Bootstrap y Tailwind CSS: componentes listos y utilidades atómicas para construir interfaces más rápido.</p>
+    </div>
+  </header>
+
+
+  <div class="pagina-wrapper">
+
+    <!-- Navegación interna -->
+    <nav class="nav-interna" aria-label="Contenido de esta página">
+      <h2>Contenido</h2>
+      <ul>
+        <li><a href="#intro">1. ¿Qué es una librería CSS?</a></li>
+        <li><a href="#bootstrap">2. Bootstrap 5</a></li>
+        <li><a href="#tailwind">3. Tailwind CSS</a></li>
+        <li><a href="#comparativa">4. Bootstrap vs Tailwind</a></li>
+        <li><a href="#otras">5. Otras librerías</a></li>
+        <li><a href="#proyecto">6. Proyecto aplicado</a></li>
+      </ul>
+    </nav>
+
+
+    <!-- ============================================================
+         SECCIÓN 1 — ¿QUÉ ES UNA LIBRERÍA CSS?
+    ============================================================= -->
+    <section class="seccion" id="intro">
+      <h2>1. ¿Qué es una librería CSS?</h2>
+
+      <p>Una <strong>librería CSS</strong> es un conjunto de estilos, componentes y utilidades predefinidas que podemos usar directamente en nuestro HTML, sin necesidad de escribir esos estilos desde cero.</p>
+
+      <p>Funcionan agregando clases específicas a los elementos HTML. La librería provee el CSS correspondiente a esas clases.</p>
+
+      <pre><code><span class="cm">&lt;!-- Sin librería: hay que escribir el CSS manualmente --&gt;</span>
+<span class="tag">&lt;button</span> <span class="atr">style</span>=<span class="val">"background:#0d6efd;color:#fff;padding:8px 16px;
+        border:none;border-radius:4px;cursor:pointer"</span><span class="tag">&gt;</span>
+  Guardar
+<span class="tag">&lt;/button&gt;</span>
+
+<span class="cm">&lt;!-- Con Bootstrap: una sola clase hace todo eso --&gt;</span>
+<span class="tag">&lt;button</span> <span class="atr">class</span>=<span class="val">"btn btn-primary"</span><span class="tag">&gt;</span>Guardar<span class="tag">&lt;/button&gt;</span>
+
+<span class="cm">&lt;!-- Con Tailwind: clases utilitarias atómicas --&gt;</span>
+<span class="tag">&lt;button</span> <span class="atr">class</span>=<span class="val">"bg-blue-600 text-white px-4 py-2 rounded cursor-pointer"</span><span class="tag">&gt;</span>
+  Guardar
+<span class="tag">&lt;/button&gt;</span></code></pre>
+
+      <h3>¿Por qué usarlas?</h3>
+      <ul>
+        <li><strong>Velocidad:</strong> componentes listos que tardarían horas en construirse desde cero</li>
+        <li><strong>Consistencia:</strong> mismos estilos en todos los navegadores y dispositivos</li>
+        <li><strong>Responsividad:</strong> sistemas de grilla y breakpoints ya implementados</li>
+        <li><strong>Comunidad:</strong> documentación extensa, ejemplos y soporte activo</li>
+      </ul>
+
+      <div class="nota ambar">
+        <p><strong>Cuándo NO usarlas:</strong> si el proyecto requiere una identidad visual muy específica y personalizada, las librerías pueden ser una restricción. En esos casos es mejor CSS propio desde cero. Conocer librerías no sustituye entender CSS — es un complemento.</p>
+      </div>
+
+      <h3>Las dos grandes librerías</h3>
+      <div class="lib-cards">
+
+        <div class="lib-card">
+          <div class="lib-card-header bs">
+            <div class="lib-logo">B</div>
+            <div>
+              <h3>Bootstrap 5</h3>
+              <p>Componentes UI listos para usar</p>
+            </div>
+          </div>
+          <div class="lib-card-body">
+            <ul>
+              <li><span class="li-icon">📦</span> Componentes completos (navbar, modal, cards…)</li>
+              <li><span class="li-icon">🏗️</span> Grilla de 12 columnas</li>
+              <li><span class="li-icon">⚡</span> Listo en minutos, sin configuración</li>
+              <li><span class="li-icon">📱</span> Responsivo por defecto</li>
+              <li><span class="li-icon">🎨</span> Apariencia consistente y reconocible</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="lib-card">
+          <div class="lib-card-header tw">
+            <div class="lib-logo">TW</div>
+            <div>
+              <h3>Tailwind CSS</h3>
+              <p>Clases utilitarias atómicas</p>
+            </div>
+          </div>
+          <div class="lib-card-body">
+            <ul>
+              <li><span class="li-icon">🧱</span> Sin componentes — solo utilidades</li>
+              <li><span class="li-icon">🎛️</span> Altamente configurable</li>
+              <li><span class="li-icon">🎨</span> Diseño completamente personalizable</li>
+              <li><span class="li-icon">📏</span> Diseño directamente en el HTML</li>
+              <li><span class="li-icon">🚀</span> Curva de aprendizaje moderada</li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- ============================================================
+         SECCIÓN 2 — BOOTSTRAP 5
+    ============================================================= -->
+    <section class="seccion" id="bootstrap">
+      <h2>2. Bootstrap 5</h2>
+
+      <p>Bootstrap es la librería CSS más usada del mundo. Fue creada por Twitter en 2011 y hoy está en su versión 5. Su filosofía es <strong>"component-first"</strong>: provee componentes completos y funcionales listos para insertar en tu HTML.</p>
+
+      <h3>Incluir Bootstrap via CDN</h3>
+      <pre class="pre-bs"><code><span class="cm">&lt;!-- CSS de Bootstrap — va en el &lt;head&gt; --&gt;</span>
+<span class="tag">&lt;link</span>
+  <span class="atr">href</span>=<span class="val">"https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"</span>
+  <span class="atr">rel</span>=<span class="val">"stylesheet"</span><span class="tag">&gt;</span>
+
+<span class="cm">&lt;!-- JS de Bootstrap — va al final del &lt;body&gt; (necesario para modales, etc.) --&gt;</span>
+<span class="tag">&lt;script</span>
+  <span class="atr">src</span>=<span class="val">"https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"</span><span class="tag">&gt;</span>
+<span class="tag">&lt;/script&gt;</span></code></pre>
+
+
+      <h3>El sistema de Grilla (Grid)</h3>
+      <p>Bootstrap divide cada fila en <strong>12 columnas</strong>. Combinando clases <code>col-*</code> puedes definir cuántas columnas ocupa cada elemento en cada tamaño de pantalla.</p>
+
+      <pre class="pre-bs"><code><span class="cm">&lt;!-- Siempre: container → row → col --&gt;</span>
+<span class="tag">&lt;div</span> <span class="atr">class</span>=<span class="val">"container"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;div</span> <span class="atr">class</span>=<span class="val">"row"</span><span class="tag">&gt;</span>
+
+    <span class="cm">&lt;!-- 6 de 12 columnas = 50% --&gt;</span>
+    <span class="tag">&lt;div</span> <span class="atr">class</span>=<span class="val">"col-6"</span><span class="tag">&gt;</span>Mitad izquierda<span class="tag">&lt;/div&gt;</span>
+    <span class="tag">&lt;div</span> <span class="atr">class</span>=<span class="val">"col-6"</span><span class="tag">&gt;</span>Mitad derecha<span class="tag">&lt;/div&gt;</span>
+
+  <span class="tag">&lt;/div&gt;</span>
+
+  <span class="tag">&lt;div</span> <span class="atr">class</span>=<span class="val">"row"</span><span class="tag">&gt;</span>
+    <span class="cm">&lt;!-- Responsive: 12 en móvil, 6 en tablet, 4 en desktop --&gt;</span>
+    <span class="tag">&lt;div</span> <span class="atr">class</span>=<span class="val">"col-12 col-md-6 col-lg-4"</span><span class="tag">&gt;</span>Tarjeta 1<span class="tag">&lt;/div&gt;</span>
+    <span class="tag">&lt;div</span> <span class="atr">class</span>=<span class="val">"col-12 col-md-6 col-lg-4"</span><span class="tag">&gt;</span>Tarjeta 2<span class="tag">&lt;/div&gt;</span>
+    <span class="tag">&lt;div</span> <span class="atr">class</span>=<span class="val">"col-12 col-md-6 col-lg-4"</span><span class="tag">&gt;</span>Tarjeta 3<span class="tag">&lt;/div&gt;</span>
+  <span class="tag">&lt;/div&gt;</span>
+<span class="tag">&lt;/div&gt;</span></code></pre>
+
+      <h3>Breakpoints de Bootstrap</h3>
+      <div class="tabla-wrapper">
+        <table>
+          <thead>
+            <tr><th>Sufijo</th><th>Nombre</th><th>Ancho mínimo</th><th>Ejemplo de clase</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>(ninguno)</td><td>xs — Extra small</td><td>0px</td><td><code>col-6</code></td></tr>
+            <tr><td><code>sm</code></td><td>Small</td><td>576px</td><td><code>col-sm-6</code></td></tr>
+            <tr><td><code>md</code></td><td>Medium</td><td>768px</td><td><code>col-md-4</code></td></tr>
+            <tr><td><code>lg</code></td><td>Large</td><td>992px</td><td><code>col-lg-3</code></td></tr>
+            <tr><td><code>xl</code></td><td>Extra large</td><td>1200px</td><td><code>col-xl-2</code></td></tr>
+            <tr><td><code>xxl</code></td><td>Extra extra large</td><td>1400px</td><td><code>col-xxl-1</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+
+      <h3>Componentes principales</h3>
+      <pre class="pre-bs"><code><span class="cm">&lt;!-- BOTONES --&gt;</span>
+<span class="tag">&lt;button</span> <span class="atr">class</span>=<span class="val">"btn btn-primary"</span><span class="tag">&gt;</span>Principal<span class="tag">&lt;/button&gt;</span>
+<span class="tag">&lt;button</span> <span class="atr">class</span>=<span class="val">"btn btn-secondary"</span><span class="tag">&gt;</span>Secundario<span class="tag">&lt;/button&gt;</span>
+<span class="tag">&lt;button</span> <span class="atr">class</span>=<span class="val">"btn btn-outline-primary"</span><span class="tag">&gt;</span>Outline<span class="tag">&lt;/button&gt;</span>
+<span class="tag">&lt;button</span> <span class="atr">class</span>=<span class="val">"btn btn-sm btn-danger"</span><span class="tag">&gt;</span>Pequeño rojo<span class="tag">&lt;/button&gt;</span>
+
+<span class="cm">&lt;!-- CARD --&gt;</span>
+<span class="tag">&lt;div</span> <span class="atr">class</span>=<span class="val">"card"</span> <span class="atr">style</span>=<span class="val">"width: 18rem"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;div</span> <span class="atr">class</span>=<span class="val">"card-body"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;h5</span> <span class="atr">class</span>=<span class="val">"card-title"</span><span class="tag">&gt;</span>Título<span class="tag">&lt;/h5&gt;</span>
+    <span class="tag">&lt;p</span>  <span class="atr">class</span>=<span class="val">"card-text"</span><span class="tag">&gt;</span>Descripción.<span class="tag">&lt;/p&gt;</span>
+    <span class="tag">&lt;a</span>  <span class="atr">href</span>=<span class="val">"#"</span> <span class="atr">class</span>=<span class="val">"btn btn-primary"</span><span class="tag">&gt;</span>Ver más<span class="tag">&lt;/a&gt;</span>
+  <span class="tag">&lt;/div&gt;</span>
+<span class="tag">&lt;/div&gt;</span>
+
+<span class="cm">&lt;!-- NAVBAR --&gt;</span>
+<span class="tag">&lt;nav</span> <span class="atr">class</span>=<span class="val">"navbar navbar-expand-lg bg-dark navbar-dark"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;div</span> <span class="atr">class</span>=<span class="val">"container"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;a</span> <span class="atr">class</span>=<span class="val">"navbar-brand"</span> <span class="atr">href</span>=<span class="val">"#"</span><span class="tag">&gt;</span>Mi Sitio<span class="tag">&lt;/a&gt;</span>
+  <span class="tag">&lt;/div&gt;</span>
+<span class="tag">&lt;/nav&gt;</span>
+
+<span class="cm">&lt;!-- CLASES DE UTILIDAD --&gt;</span>
+<span class="tag">&lt;p</span> <span class="atr">class</span>=<span class="val">"text-center text-primary mt-4 mb-2 fw-bold fs-5"</span><span class="tag">&gt;</span>
+  Centrado, azul, margen arriba, negrita
+<span class="tag">&lt;/p&gt;</span>
+<span class="tag">&lt;div</span> <span class="atr">class</span>=<span class="val">"d-flex justify-content-between align-items-center gap-3 p-3"</span><span class="tag">&gt;</span>
+  Layout flexbox con padding y gap
+<span class="tag">&lt;/div&gt;</span></code></pre>
+
+      <!-- DEMO BOOTSTRAP EN VIVO -->
+      <div class="demo-wrapper">
+        <div class="demo-header">
+          <span class="demo-titulo">▶ Demo en vivo — Componentes Bootstrap 5</span>
+          <span class="demo-badge bs">BOOTSTRAP</span>
+        </div>
+        <iframe class="demo-frame" id="frame-bs" height="460" srcdoc="
+<!DOCTYPE html>
+<html lang='es'>
+<head>
+  <meta charset='UTF-8'>
+  <meta name='viewport' content='width=device-width, initial-scale=1'>
+  <link href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css' rel='stylesheet'>
+</head>
+<body class='p-3 bg-light'>
+
+  <!-- Navbar -->
+  <nav class='navbar navbar-expand-lg navbar-dark bg-dark rounded mb-4'>
+    <div class='container-fluid'>
+      <a class='navbar-brand fw-bold' href='#'>MiSitio</a>
+      <div class='d-flex gap-2'>
+        <a href='#' class='nav-link text-white'>Inicio</a>
+        <a href='#' class='nav-link text-white'>Acerca</a>
+        <a href='#' class='nav-link text-white'>Contacto</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Botones -->
+  <div class='mb-4'>
+    <p class='text-muted small mb-2 fw-semibold text-uppercase'>Botones</p>
+    <div class='d-flex flex-wrap gap-2'>
+      <button class='btn btn-primary'>Primary</button>
+      <button class='btn btn-secondary'>Secondary</button>
+      <button class='btn btn-success'>Success</button>
+      <button class='btn btn-danger'>Danger</button>
+      <button class='btn btn-warning'>Warning</button>
+      <button class='btn btn-outline-primary'>Outline</button>
+      <button class='btn btn-sm btn-dark'>Small</button>
+    </div>
+  </div>
+
+  <!-- Grilla + Cards -->
+  <p class='text-muted small mb-2 fw-semibold text-uppercase'>Grilla + Cards</p>
+  <div class='row g-3 mb-4'>
+    <div class='col-12 col-md-4'>
+      <div class='card h-100 shadow-sm'>
+        <div class='card-body'>
+          <h5 class='card-title'>HTML</h5>
+          <p class='card-text text-muted small'>Estructura y semántica del documento web.</p>
+          <span class='badge bg-primary'>Semana 01</span>
+        </div>
+      </div>
+    </div>
+    <div class='col-12 col-md-4'>
+      <div class='card h-100 shadow-sm'>
+        <div class='card-body'>
+          <h5 class='card-title'>CSS</h5>
+          <p class='card-text text-muted small'>Estilos, layout y diseño visual.</p>
+          <span class='badge bg-success'>Semana 02</span>
+        </div>
+      </div>
+    </div>
+    <div class='col-12 col-md-4'>
+      <div class='card h-100 shadow-sm'>
+        <div class='card-body'>
+          <h5 class='card-title'>JavaScript</h5>
+          <p class='card-text text-muted small'>Comportamiento e interactividad.</p>
+          <span class='badge bg-warning text-dark'>Semana 07</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Alerts -->
+  <p class='text-muted small mb-2 fw-semibold text-uppercase'>Alertas</p>
+  <div class='alert alert-info mb-2' role='alert'>
+    <strong>Info:</strong> Bootstrap incluye alertas de varios tipos.
+  </div>
+  <div class='alert alert-success mb-4' role='alert'>
+    <strong>Éxito:</strong> Componente guardado correctamente.
+  </div>
+
+  <!-- Formulario básico -->
+  <p class='text-muted small mb-2 fw-semibold text-uppercase'>Formulario</p>
+  <div class='card shadow-sm'>
+    <div class='card-body'>
+      <div class='row g-3'>
+        <div class='col-md-6'>
+          <label class='form-label small fw-semibold'>Nombre</label>
+          <input type='text' class='form-control' placeholder='Tu nombre'>
+        </div>
+        <div class='col-md-6'>
+          <label class='form-label small fw-semibold'>Email</label>
+          <input type='email' class='form-control' placeholder='correo@ejemplo.com'>
+        </div>
+        <div class='col-12'>
+          <button class='btn btn-primary w-100'>Enviar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
+        " title="Demo Bootstrap 5"></iframe>
+      </div>
+
+      <div class="nota bootstrap">
+        <p><strong>Convención de Bootstrap:</strong> las clases siguen el patrón <code>propiedad-valor</code>. Por ejemplo: <code>text-center</code>, <code>mt-4</code> (margin-top nivel 4), <code>d-flex</code> (display flex), <code>fw-bold</code> (font-weight bold).</p>
+      </div>
+
+    </section>
+
+
+    <!-- ============================================================
+         SECCIÓN 3 — TAILWIND CSS
+    ============================================================= -->
+    <section class="seccion" id="tailwind">
+      <h2>3. Tailwind CSS</h2>
+
+      <p>Tailwind es un framework <strong>"utility-first"</strong>: en lugar de componentes predefinidos, provee cientos de clases pequeñas y atómicas que describen exactamente una propiedad CSS. El diseño se construye <em>directamente en el HTML</em>, combinando estas utilidades.</p>
+
+      <div class="nota tailwind">
+        <p><strong>Filosofía:</strong> con Tailwind no hay que inventar nombres de clases ni saltar entre archivos HTML y CSS. Todo el estilo vive en el markup. Al principio parece mucho texto en el HTML, pero el resultado es un control total del diseño sin acumulación de CSS sin usar.</p>
+      </div>
+
+      <h3>Incluir Tailwind via CDN (Play CDN)</h3>
+      <pre class="pre-tw"><code><span class="cm">&lt;!-- CDN para prototipos y aprendizaje --&gt;</span>
+<span class="tag">&lt;script</span> <span class="atr">src</span>=<span class="val">"https://cdn.tailwindcss.com"</span><span class="tag">&gt;&lt;/script&gt;</span>
+
+<span class="cm">&lt;!-- Para producción, instalar con npm y compilar --&gt;</span>
+<span class="cm">&gt; npm install tailwindcss</span>
+<span class="cm">&gt; npx tailwindcss init</span></code></pre>
+
+
+      <h3>Clases utilitarias fundamentales</h3>
+      <pre class="pre-tw"><code><span class="cm">&lt;!-- Layout --&gt;</span>
+<span class="cls">flex</span>        → display: flex
+<span class="cls">grid</span>        → display: grid
+<span class="cls">block</span>       → display: block
+<span class="cls">hidden</span>      → display: none
+<span class="cls">container</span>   → contenedor centrado con max-width
+<span class="cls">mx-auto</span>     → margin-left y right auto (centrar)
+
+<span class="cm">&lt;!-- Espaciado: escala de 0 a 96 (1 unidad = 4px) --&gt;</span>
+<span class="cls">p-4</span>         → padding: 16px (en todos los lados)
+<span class="cls">px-6</span>        → padding horizontal: 24px
+<span class="cls">py-2</span>        → padding vertical: 8px
+<span class="cls">mt-8</span>        → margin-top: 32px
+<span class="cls">mb-4</span>        → margin-bottom: 16px
+<span class="cls">gap-3</span>       → gap: 12px
+
+<span class="cm">&lt;!-- Tamaños --&gt;</span>
+<span class="cls">w-full</span>      → width: 100%
+<span class="cls">w-1/2</span>       → width: 50%
+<span class="cls">w-64</span>        → width: 256px
+<span class="cls">h-screen</span>    → height: 100vh
+<span class="cls">max-w-lg</span>    → max-width: 32rem
+
+<span class="cm">&lt;!-- Tipografía --&gt;</span>
+<span class="cls">text-sm</span>     → font-size: 14px
+<span class="cls">text-xl</span>     → font-size: 20px
+<span class="cls">text-4xl</span>    → font-size: 36px
+<span class="cls">font-bold</span>   → font-weight: 700
+<span class="cls">font-light</span>  → font-weight: 300
+<span class="cls">text-center</span> → text-align: center
+<span class="cls">leading-relaxed</span> → line-height: 1.625
+<span class="cls">tracking-wide</span>   → letter-spacing: 0.025em
+
+<span class="cm">&lt;!-- Colores (escala 100–900) --&gt;</span>
+<span class="cls">text-gray-600</span>   → color gris
+<span class="cls">bg-blue-500</span>     → background azul
+<span class="cls">border-red-300</span>  → border color rojo claro
+
+<span class="cm">&lt;!-- Bordes y sombras --&gt;</span>
+<span class="cls">rounded</span>     → border-radius: 4px
+<span class="cls">rounded-lg</span>  → border-radius: 8px
+<span class="cls">rounded-full</span>→ border-radius: 9999px
+<span class="cls">border</span>      → border-width: 1px
+<span class="cls">border-2</span>    → border-width: 2px
+<span class="cls">shadow</span>      → box-shadow suave
+<span class="cls">shadow-lg</span>   → box-shadow pronunciada
+
+<span class="cm">&lt;!-- Interactividad (hover, focus) --&gt;</span>
+<span class="cls">hover:bg-blue-600</span>    → :hover { background }
+<span class="cls">focus:ring-2</span>         → :focus { ring }
+<span class="cls">transition</span>           → transition: all 150ms
+
+<span class="cm">&lt;!-- Responsive: prefijos de breakpoint --&gt;</span>
+<span class="cls">md:flex</span>     → flex solo en pantallas ≥ 768px
+<span class="cls">lg:text-xl</span>  → text-xl solo en ≥ 1024px
+<span class="cls">sm:hidden</span>   → hidden solo en ≥ 640px</code></pre>
+
+      <!-- DEMO TAILWIND EN VIVO -->
+      <div class="demo-wrapper">
+        <div class="demo-header">
+          <span class="demo-titulo">▶ Demo en vivo — Componentes Tailwind CSS</span>
+          <span class="demo-badge tw">TAILWIND</span>
+        </div>
+        <iframe class="demo-frame" id="frame-tw" height="460" srcdoc="
+<!DOCTYPE html>
+<html lang='es'>
+<head>
+  <meta charset='UTF-8'>
+  <meta name='viewport' content='width=device-width, initial-scale=1'>
+  <script src='https://cdn.tailwindcss.com'></script>
+</head>
+<body class='bg-gray-100 p-4 font-sans text-gray-800'>
+
+  <!-- Navbar -->
+  <nav class='bg-gray-900 rounded-xl mb-6 px-5 py-3 flex justify-between items-center'>
+    <span class='text-white font-bold text-lg tracking-tight'>MiSitio</span>
+    <div class='flex gap-5'>
+      <a href='#' class='text-gray-300 hover:text-white text-sm transition'>Inicio</a>
+      <a href='#' class='text-gray-300 hover:text-white text-sm transition'>Acerca</a>
+      <a href='#' class='text-gray-300 hover:text-white text-sm transition'>Contacto</a>
+    </div>
+  </nav>
+
+  <!-- Botones -->
+  <p class='text-gray-400 text-xs font-semibold uppercase tracking-widest mb-2'>Botones</p>
+  <div class='flex flex-wrap gap-2 mb-6'>
+    <button class='bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition'>Primary</button>
+    <button class='bg-gray-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-700 transition'>Secondary</button>
+    <button class='bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-700 transition'>Success</button>
+    <button class='bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-red-700 transition'>Danger</button>
+    <button class='border border-blue-600 text-blue-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-50 transition'>Outline</button>
+    <button class='bg-gray-900 text-white px-3 py-1 rounded-lg text-xs font-medium'>Small</button>
+  </div>
+
+  <!-- Cards -->
+  <p class='text-gray-400 text-xs font-semibold uppercase tracking-widest mb-2'>Cards</p>
+  <div class='grid grid-cols-1 md:grid-cols-3 gap-4 mb-6'>
+    <div class='bg-white rounded-xl p-5 shadow-sm border border-gray-200'>
+      <h5 class='font-semibold text-gray-800 mb-1'>HTML</h5>
+      <p class='text-gray-500 text-sm mb-3'>Estructura y semántica del documento web.</p>
+      <span class='bg-blue-100 text-blue-700 text-xs font-semibold px-2 py-1 rounded-full'>Semana 01</span>
+    </div>
+    <div class='bg-white rounded-xl p-5 shadow-sm border border-gray-200'>
+      <h5 class='font-semibold text-gray-800 mb-1'>CSS</h5>
+      <p class='text-gray-500 text-sm mb-3'>Estilos, layout y diseño visual.</p>
+      <span class='bg-green-100 text-green-700 text-xs font-semibold px-2 py-1 rounded-full'>Semana 02</span>
+    </div>
+    <div class='bg-white rounded-xl p-5 shadow-sm border border-gray-200'>
+      <h5 class='font-semibold text-gray-800 mb-1'>JavaScript</h5>
+      <p class='text-gray-500 text-sm mb-3'>Comportamiento e interactividad.</p>
+      <span class='bg-yellow-100 text-yellow-700 text-xs font-semibold px-2 py-1 rounded-full'>Semana 07</span>
+    </div>
+  </div>
+
+  <!-- Alerts -->
+  <p class='text-gray-400 text-xs font-semibold uppercase tracking-widest mb-2'>Alertas</p>
+  <div class='bg-blue-50 border border-blue-200 text-blue-800 rounded-lg px-4 py-3 text-sm mb-2'>
+    <strong>Info:</strong> Tailwind construye alertas con clases utilitarias.
+  </div>
+  <div class='bg-green-50 border border-green-200 text-green-800 rounded-lg px-4 py-3 text-sm mb-6'>
+    <strong>Éxito:</strong> Componente guardado correctamente.
+  </div>
+
+  <!-- Formulario -->
+  <p class='text-gray-400 text-xs font-semibold uppercase tracking-widest mb-2'>Formulario</p>
+  <div class='bg-white rounded-xl p-5 shadow-sm border border-gray-200'>
+    <div class='grid grid-cols-1 md:grid-cols-2 gap-4'>
+      <div>
+        <label class='block text-xs font-semibold text-gray-600 mb-1'>Nombre</label>
+        <input type='text' placeholder='Tu nombre'
+          class='w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400'>
+      </div>
+      <div>
+        <label class='block text-xs font-semibold text-gray-600 mb-1'>Email</label>
+        <input type='email' placeholder='correo@ejemplo.com'
+          class='w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400'>
+      </div>
+      <div class='md:col-span-2'>
+        <button class='w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg text-sm transition'>
+          Enviar
+        </button>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
+        " title="Demo Tailwind CSS"></iframe>
+      </div>
+
+    </section>
+
+
+    <!-- ============================================================
+         SECCIÓN 4 — COMPARATIVA
+    ============================================================= -->
+    <section class="seccion" id="comparativa">
+      <h2>4. Bootstrap vs Tailwind — Comparativa</h2>
+
+      <p>Ambas librerías resuelven el mismo problema de formas muy distintas. No hay una "ganadora" — la elección depende del proyecto, el equipo y el contexto.</p>
+
+      <h3>La misma tarjeta en ambas librerías</h3>
+      <div class="comparativa">
+        <div class="comparativa-item bs-col">
+          <div class="cab">Bootstrap 5</div>
+          <pre class="pre-bs"><code><span class="tag">&lt;div</span> <span class="atr">class</span>=<span class="val">"card shadow-sm"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;div</span> <span class="atr">class</span>=<span class="val">"card-body"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;h5</span> <span class="atr">class</span>=<span class="val">"card-title"</span><span class="tag">&gt;</span>
+      Título
+    <span class="tag">&lt;/h5&gt;</span>
+    <span class="tag">&lt;p</span> <span class="atr">class</span>=<span class="val">"card-text text-muted"</span><span class="tag">&gt;</span>
+      Descripción del elemento.
+    <span class="tag">&lt;/p&gt;</span>
+    <span class="tag">&lt;a</span> <span class="atr">href</span>=<span class="val">"#"</span>
+       <span class="atr">class</span>=<span class="val">"btn btn-primary"</span><span class="tag">&gt;</span>
+      Ver más
+    <span class="tag">&lt;/a&gt;</span>
+  <span class="tag">&lt;/div&gt;</span>
+<span class="tag">&lt;/div&gt;</span></code></pre>
+        </div>
+        <div class="comparativa-item tw-col">
+          <div class="cab">Tailwind CSS</div>
+          <pre class="pre-tw"><code><span class="tag">&lt;div</span> <span class="atr">class</span>=<span class="val">"bg-white rounded-xl
+       p-5 shadow-sm border
+       border-gray-200"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;h5</span> <span class="atr">class</span>=<span class="val">"font-semibold
+          text-gray-800 mb-1"</span><span class="tag">&gt;</span>
+    Título
+  <span class="tag">&lt;/h5&gt;</span>
+  <span class="tag">&lt;p</span> <span class="atr">class</span>=<span class="val">"text-gray-500
+        text-sm mb-3"</span><span class="tag">&gt;</span>
+    Descripción del elemento.
+  <span class="tag">&lt;/p&gt;</span>
+  <span class="tag">&lt;a</span> <span class="atr">href</span>=<span class="val">"#"</span>
+     <span class="atr">class</span>=<span class="val">"bg-blue-600 text-white
+            px-4 py-2 rounded-lg
+            text-sm hover:bg-blue-700"</span><span class="tag">&gt;</span>
+    Ver más
+  <span class="tag">&lt;/a&gt;</span>
+<span class="tag">&lt;/div&gt;</span></code></pre>
+        </div>
+      </div>
+
+      <h3>Tabla de diferencias clave</h3>
+      <div class="tabla-wrapper">
+        <table>
+          <thead>
+            <tr><th>Aspecto</th><th>Bootstrap 5</th><th>Tailwind CSS</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Filosofía</td>
+              <td>Component-first</td>
+              <td>Utility-first</td>
+            </tr>
+            <tr>
+              <td>Componentes prediseñados</td>
+              <td>✅ Muchos (navbar, modal, tabs…)</td>
+              <td>❌ No — los construyes tú</td>
+            </tr>
+            <tr>
+              <td>Personalización</td>
+              <td>Limitada sin sobreescribir estilos</td>
+              <td>Total desde el principio</td>
+            </tr>
+            <tr>
+              <td>Aspecto visual</td>
+              <td>Reconocible (look Bootstrap)</td>
+              <td>Cualquier diseño es posible</td>
+            </tr>
+            <tr>
+              <td>CSS generado</td>
+              <td>~190KB (archivo completo)</td>
+              <td>Solo las clases usadas (~5–15KB)</td>
+            </tr>
+            <tr>
+              <td>Curva de aprendizaje</td>
+              <td>Baja — intuitive y documentado</td>
+              <td>Media — hay que memorizar utilidades</td>
+            </tr>
+            <tr>
+              <td>JavaScript incluido</td>
+              <td>✅ Sí (modales, dropdowns…)</td>
+              <td>❌ No — solo CSS</td>
+            </tr>
+            <tr>
+              <td>Ideal para…</td>
+              <td>Prototipos rápidos, dashboards, apps internas</td>
+              <td>Diseños personalizados, SPA, design systems</td>
+            </tr>
+            <tr>
+              <td>Compatibilidad con frameworks</td>
+              <td>Funciona con cualquiera</td>
+              <td>Excelente con React, Vue, Next.js</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="nota azul">
+        <p><strong>Regla práctica:</strong> elige <strong>Bootstrap</strong> cuando necesitas velocidad y los componentes por defecto son suficientes para el proyecto. Elige <strong>Tailwind</strong> cuando el diseño es personalizado y trabajas con un framework moderno como Vue o React.</p>
+        <p>En el mundo profesional es común que los equipos conozcan ambas y elijan según el tipo de proyecto.</p>
+      </div>
+
+    </section>
+
+
+    <!-- ============================================================
+         SECCIÓN 5 — OTRAS LIBRERÍAS
+    ============================================================= -->
+    <section class="seccion" id="otras">
+      <h2>5. Otras librerías CSS</h2>
+
+      <p>El ecosistema es amplio. Más allá de Bootstrap y Tailwind, existen librerías especializadas para distintas necesidades.</p>
+
+      <div class="tabla-wrapper">
+        <table>
+          <thead>
+            <tr><th>Librería</th><th>Filosofía</th><th>Ideal para</th><th>Particularidad</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Bulma</strong></td>
+              <td>Component-based</td>
+              <td>Proyectos sencillos</td>
+              <td>Solo CSS, sin JavaScript</td>
+            </tr>
+            <tr>
+              <td><strong>Foundation</strong></td>
+              <td>Component-based</td>
+              <td>Proyectos empresariales</td>
+              <td>Muy flexible, más complejo</td>
+            </tr>
+            <tr>
+              <td><strong>DaisyUI</strong></td>
+              <td>Componentes sobre Tailwind</td>
+              <td>Proyectos con Tailwind</td>
+              <td>Agrega componentes semánticos a Tailwind</td>
+            </tr>
+            <tr>
+              <td><strong>Materialize</strong></td>
+              <td>Material Design</td>
+              <td>Apps con estética Google</td>
+              <td>Basado en Material Design de Google</td>
+            </tr>
+            <tr>
+              <td><strong>Pico CSS</strong></td>
+              <td>Classless</td>
+              <td>Prototipos sin clases</td>
+              <td>Estiliza el HTML semántico puro</td>
+            </tr>
+            <tr>
+              <td><strong>Open Props</strong></td>
+              <td>Variables CSS</td>
+              <td>Design tokens</td>
+              <td>Solo variables CSS, sin clases</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="nota lila">
+        <p><strong>DaisyUI + Tailwind</strong> es una combinación muy popular: Tailwind para las utilidades base + DaisyUI para componentes con clases semánticas como <code>btn btn-primary</code> o <code>card</code>, pero generadas sobre Tailwind. Lo mejor de ambos mundos.</p>
+      </div>
+
+    </section>
+
+
+    <!-- ============================================================
+         SECCIÓN 6 — PROYECTO APLICADO
+    ============================================================= -->
+    <section class="seccion" id="proyecto">
+      <h2>6. Proyecto aplicado — Landing page con ambas librerías</h2>
+
+      <p>La misma landing page construida dos veces: una con Bootstrap y otra con Tailwind. Observa las diferencias en el código y en el resultado visual.</p>
+
+      <div class="nota azul">
+        <p><strong>Conceptos aplicados:</strong> grilla responsiva · navbar · hero section · cards · formulario de contacto · botones y badges · utilidades de espaciado, tipografía y color</p>
+      </div>
+
+      <div class="proyecto-wrapper">
+        <div class="proyecto-header">
+          <div class="proyecto-icono py-icono-bs">BS</div>
+          <div>
+            <h3>Landing Page — Curso Frontend</h3>
+            <p>Misma página construida con Bootstrap y Tailwind CSS</p>
+          </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="proyecto-tabs">
+          <button class="proyecto-tab activo-bs" id="tab-bs" onclick="cambiarTab('bs')">Bootstrap 5</button>
+          <button class="proyecto-tab" id="tab-tw" onclick="cambiarTab('tw')">Tailwind CSS</button>
+        </div>
+
+        <!-- Panel Bootstrap -->
+        <div class="proyecto-panel activo" id="panel-bs">
+          <iframe class="demo-frame" height="560" srcdoc="
+<!DOCTYPE html>
+<html lang='es'>
+<head>
+  <meta charset='UTF-8'>
+  <meta name='viewport' content='width=device-width, initial-scale=1'>
+  <link href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css' rel='stylesheet'>
+</head>
+<body>
+
+  <nav class='navbar navbar-expand-lg navbar-dark bg-dark px-4'>
+    <a class='navbar-brand fw-bold' href='#'>FrontendCurso</a>
+    <div class='ms-auto d-flex gap-3'>
+      <a href='#' class='nav-link text-light'>Temario</a>
+      <a href='#' class='nav-link text-light'>Sobre el curso</a>
+      <a href='#' class='btn btn-warning btn-sm text-dark fw-bold'>Inscribirse</a>
+    </div>
+  </nav>
+
+  <section class='py-5 text-white' style='background:#1a3a4a'>
+    <div class='container text-center py-4'>
+      <span class='badge bg-warning text-dark mb-3'>16 Semanas · 3 Parciales</span>
+      <h1 class='display-5 fw-bold mb-3'>Desarrollo Frontend<br>desde cero</h1>
+      <p class='lead text-white-50 mb-4'>HTML, CSS, JavaScript, Three.js, p5.js, APIs y Vue.js.<br>Construye proyectos reales paso a paso.</p>
+      <div class='d-flex gap-3 justify-content-center'>
+        <a href='#' class='btn btn-warning text-dark fw-bold px-4'>Comenzar ahora</a>
+        <a href='#' class='btn btn-outline-light px-4'>Ver temario</a>
+      </div>
+    </div>
+  </section>
+
+  <section class='py-5 bg-light'>
+    <div class='container'>
+      <h2 class='text-center mb-4 fw-bold'>Lo que aprenderás</h2>
+      <div class='row g-4'>
+        <div class='col-md-4'>
+          <div class='card h-100 border-0 shadow-sm'>
+            <div class='card-body p-4'>
+              <div class='fs-2 mb-2'>🏗️</div>
+              <h5 class='fw-bold'>HTML &amp; CSS</h5>
+              <p class='text-muted small'>Semanas 1–5. Fundamentos de la web: estructura, estilos, layout responsivo y CSS avanzado.</p>
+            </div>
+          </div>
+        </div>
+        <div class='col-md-4'>
+          <div class='card h-100 border-0 shadow-sm'>
+            <div class='card-body p-4'>
+              <div class='fs-2 mb-2'>⚡</div>
+              <h5 class='fw-bold'>JavaScript &amp; 3D</h5>
+              <p class='text-muted small'>Semanas 7–10. Programación, manipulación del DOM, Three.js y arte generativo con p5.js.</p>
+            </div>
+          </div>
+        </div>
+        <div class='col-md-4'>
+          <div class='card h-100 border-0 shadow-sm'>
+            <div class='card-body p-4'>
+              <div class='fs-2 mb-2'>🚀</div>
+              <h5 class='fw-bold'>APIs &amp; Vue.js</h5>
+              <p class='text-muted small'>Semanas 12–15. Consumo de APIs REST, Vue 3, Composition API y experiencias interactivas.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class='py-5'>
+    <div class='container'>
+      <div class='row justify-content-center'>
+        <div class='col-md-6'>
+          <h2 class='fw-bold text-center mb-4'>¿Tienes dudas?</h2>
+          <div class='mb-3'>
+            <label class='form-label fw-semibold small'>Nombre</label>
+            <input type='text' class='form-control' placeholder='Tu nombre'>
+          </div>
+          <div class='mb-3'>
+            <label class='form-label fw-semibold small'>Email</label>
+            <input type='email' class='form-control' placeholder='correo@ejemplo.com'>
+          </div>
+          <div class='mb-3'>
+            <label class='form-label fw-semibold small'>Mensaje</label>
+            <textarea class='form-control' rows='3' placeholder='Escribe tu mensaje...'></textarea>
+          </div>
+          <button class='btn btn-dark w-100 fw-bold'>Enviar mensaje</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class='bg-dark text-white text-center py-3'>
+    <small class='text-white-50'>© 2026 FrontendCurso · Propiedad de @Sgutz96</small>
+  </footer>
+
+</body>
+</html>
+          " title="Landing Bootstrap"></iframe>
+        </div>
+
+        <!-- Panel Tailwind -->
+        <div class="proyecto-panel" id="panel-tw">
+          <iframe class="demo-frame" height="560" srcdoc="
+<!DOCTYPE html>
+<html lang='es'>
+<head>
+  <meta charset='UTF-8'>
+  <meta name='viewport' content='width=device-width, initial-scale=1'>
+  <script src='https://cdn.tailwindcss.com'></script>
+</head>
+<body class='font-sans text-gray-800'>
+
+  <nav class='bg-gray-900 px-6 py-3 flex justify-between items-center'>
+    <span class='text-white font-bold text-lg'>FrontendCurso</span>
+    <div class='flex items-center gap-6'>
+      <a href='#' class='text-gray-300 hover:text-white text-sm transition'>Temario</a>
+      <a href='#' class='text-gray-300 hover:text-white text-sm transition'>Sobre el curso</a>
+      <a href='#' class='bg-yellow-400 hover:bg-yellow-300 text-gray-900 text-sm font-bold px-4 py-1.5 rounded-lg transition'>Inscribirse</a>
+    </div>
+  </nav>
+
+  <section class='bg-slate-800 text-white py-16 text-center px-4'>
+    <span class='bg-yellow-400 text-gray-900 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider mb-4 inline-block'>16 Semanas · 3 Parciales</span>
+    <h1 class='text-4xl font-bold mt-4 mb-3 leading-tight'>Desarrollo Frontend<br>desde cero</h1>
+    <p class='text-slate-400 mb-8 max-w-lg mx-auto leading-relaxed'>HTML, CSS, JavaScript, Three.js, p5.js, APIs y Vue.js. Construye proyectos reales paso a paso.</p>
+    <div class='flex gap-3 justify-center flex-wrap'>
+      <a href='#' class='bg-yellow-400 hover:bg-yellow-300 text-gray-900 font-bold px-6 py-2.5 rounded-xl transition'>Comenzar ahora</a>
+      <a href='#' class='border border-slate-500 hover:border-white text-white px-6 py-2.5 rounded-xl transition text-sm'>Ver temario</a>
+    </div>
+  </section>
+
+  <section class='py-12 bg-gray-50 px-4'>
+    <div class='max-w-4xl mx-auto'>
+      <h2 class='text-2xl font-bold text-center mb-8'>Lo que aprenderás</h2>
+      <div class='grid grid-cols-1 md:grid-cols-3 gap-5'>
+        <div class='bg-white rounded-2xl p-6 shadow-sm border border-gray-100'>
+          <div class='text-3xl mb-3'>🏗️</div>
+          <h5 class='font-bold mb-2'>HTML &amp; CSS</h5>
+          <p class='text-gray-500 text-sm leading-relaxed'>Semanas 1–5. Fundamentos de la web: estructura, estilos, layout responsivo y CSS avanzado.</p>
+        </div>
+        <div class='bg-white rounded-2xl p-6 shadow-sm border border-gray-100'>
+          <div class='text-3xl mb-3'>⚡</div>
+          <h5 class='font-bold mb-2'>JavaScript &amp; 3D</h5>
+          <p class='text-gray-500 text-sm leading-relaxed'>Semanas 7–10. Programación, DOM, Three.js y arte generativo con p5.js.</p>
+        </div>
+        <div class='bg-white rounded-2xl p-6 shadow-sm border border-gray-100'>
+          <div class='text-3xl mb-3'>🚀</div>
+          <h5 class='font-bold mb-2'>APIs &amp; Vue.js</h5>
+          <p class='text-gray-500 text-sm leading-relaxed'>Semanas 12–15. APIs REST, Vue 3, Composition API y experiencias interactivas.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class='py-12 px-4'>
+    <div class='max-w-md mx-auto'>
+      <h2 class='text-2xl font-bold text-center mb-6'>¿Tienes dudas?</h2>
+      <div class='space-y-4'>
+        <div>
+          <label class='block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1'>Nombre</label>
+          <input type='text' placeholder='Tu nombre' class='w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400'>
+        </div>
+        <div>
+          <label class='block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1'>Email</label>
+          <input type='email' placeholder='correo@ejemplo.com' class='w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400'>
+        </div>
+        <div>
+          <label class='block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1'>Mensaje</label>
+          <textarea rows='3' placeholder='Escribe tu mensaje...' class='w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400'></textarea>
+        </div>
+        <button class='w-full bg-gray-900 hover:bg-gray-700 text-white font-semibold py-3 rounded-xl transition'>Enviar mensaje</button>
+      </div>
+    </div>
+  </section>
+
+  <footer class='bg-gray-900 text-center py-4'>
+    <p class='text-gray-500 text-xs'>© 2026 FrontendCurso · Propiedad de @Sgutz96</p>
+  </footer>
+
+</body>
+</html>
+          " title="Landing Tailwind"></iframe>
+        </div>
+      </div>
+
+    </section>
+
+
+    <!-- ============================================================
+         PIE DE PÁGINA
+    ============================================================= -->
+    <footer class="site-footer">
+      <p>Semana 06 — Diseño Web · Librerías CSS</p>
+      <nav class="footer-nav" aria-label="Otras semanas">
+        <a href="semana-01-html.html">← Sem 01: HTML</a>
+        <a href="semana-02-css.html">← Sem 02: CSS</a>
+        <a href="semana-03-responsive.html">← Sem 03: Responsive</a>
+        <a href="semana-04-flexbox-grid.html">← Sem 04: Flex/Grid</a>
+        <a href="semana-05-css-avanzado.html">← Sem 05: CSS Avanzado</a>
+        <a href="semana-07-js.html">→ Sem 07: JavaScript</a>
+      </nav>
+    </footer>
+
+  </div><!-- /.pagina-wrapper -->
+
+
+  <!-- ============================================================
+       JAVASCRIPT — Tab del proyecto
+  ============================================================= -->
+  <script>
+    function cambiarTab(lib) {
+      const tabBs    = document.getElementById('tab-bs');
+      const tabTw    = document.getElementById('tab-tw');
+      const panelBs  = document.getElementById('panel-bs');
+      const panelTw  = document.getElementById('panel-tw');
+      const icono    = document.querySelector('.proyecto-icono');
+
+      if (lib === 'bs') {
+        tabBs.className   = 'proyecto-tab activo-bs';
+        tabTw.className   = 'proyecto-tab';
+        panelBs.className = 'proyecto-panel activo';
+        panelTw.className = 'proyecto-panel';
+        icono.textContent = 'BS';
+        icono.className   = 'proyecto-icono py-icono-bs';
+      } else {
+        tabTw.className   = 'proyecto-tab activo-tw';
+        tabBs.className   = 'proyecto-tab';
+        panelTw.className = 'proyecto-panel activo';
+        panelBs.className = 'proyecto-panel';
+        icono.textContent = 'TW';
+        icono.className   = 'proyecto-icono py-icono-tw';
+      }
+    }
+  </script>
+
+</body>
+</html>
