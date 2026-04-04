@@ -1,275 +1,725 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Curso Frontend — Índice</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diseño Web — Índice del Curso</title>
+    <meta name="description"
+        content="Índice del curso de Desarrollo Frontend. Accede a cada semana: HTML, CSS, JavaScript, Three.js, Vue y más.">
+    <meta name="author" content="@Sgutz96">
 
-  <!-- Google Font -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 
-  <style>
-    :root {
-      --bg: #f4f4f5;
-      --card: #ffffff;
-      --primary: #1f3a44;
-      --accent: #ff6b3d;
-      --text: #2b2b2b;
-      --muted: #6b7280;
-      --radius: 18px;
-    }
+    <style>
+        /* ============================================================
+       VARIABLES — mismas que todas las semanas
+       ============================================================ */
+        :root {
+            --color-primario: #1a3a4a;
+            --color-secundario: #2d7d5f;
+            --color-acento: #e8a020;
+            --color-fondo: #f4f1ec;
+            --color-superficie: #ffffff;
+            --color-texto: #1e1e1e;
+            --color-texto-suave: #5a5a5a;
+            --color-borde: #d6cfc4;
 
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Inter', sans-serif;
-    }
+            --fuente-titulos: 'Georgia', 'Times New Roman', serif;
+            --fuente-cuerpo: 'Trebuchet MS', 'Gill Sans', sans-serif;
+            --fuente-codigo: 'Courier New', 'Lucida Console', monospace;
 
-    body {
-      background: var(--bg);
-      color: var(--text);
-    }
+            --espacio-xs: 0.25rem;
+            --espacio-sm: 0.5rem;
+            --espacio-md: 1rem;
+            --espacio-lg: 1.5rem;
+            --espacio-xl: 2rem;
+            --espacio-xxl: 3rem;
 
-    /* HERO */
-    .hero {
-      background: linear-gradient(135deg, #1f3a44, #274c59);
-      color: white;
-      padding: 100px 20px 130px;
-      text-align: center;
-      position: relative;
-    }
+            --radio-sm: 4px;
+            --radio-md: 8px;
+            --radio-lg: 16px;
+            --radio-pill: 999px;
 
-    .hero h1 {
-      font-size: 3rem;
-      margin-bottom: 15px;
-      font-weight: 700;
-      letter-spacing: -1px;
-    }
+            --sombra-sm: 0 1px 3px rgba(0, 0, 0, 0.12);
+            --sombra-md: 0 4px 12px rgba(0, 0, 0, 0.10);
+        }
 
-    .hero p {
-      opacity: 0.9;
-      max-width: 650px;
-      margin: auto;
-      font-size: 1.1rem;
-    }
 
-    /* CONTAINER */
-    .container {
-      max-width: 1200px;
-      margin: -80px auto 60px;
-      padding: 0 20px;
-    }
+        /* ============================================================
+       RESET Y BASE
+       ============================================================ */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
-    .card-wrapper {
-      background: var(--card);
-      border-radius: var(--radius);
-      padding: 40px;
-      box-shadow: 0 25px 60px rgba(0,0,0,0.08);
-    }
+        body {
+            font-family: var(--fuente-cuerpo);
+            font-size: 16px;
+            line-height: 1.7;
+            color: var(--color-texto);
+            background-color: var(--color-fondo);
+        }
 
-    .card-wrapper h2 {
-      margin-bottom: 30px;
-      font-size: 1.8rem;
-      color: var(--primary);
-    }
+        ::selection {
+            background-color: var(--color-acento);
+            color: var(--color-primario);
+        }
 
-    /* GRID */
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 20px;
-    }
 
-    /* CARD */
-    .card {
-      background: #fafafa;
-      padding: 22px;
-      border-radius: 16px;
-      text-decoration: none;
-      color: inherit;
-      border: 1px solid #eee;
-      transition: all 0.3s ease;
-      position: relative;
-      overflow: hidden;
-    }
+        /* ============================================================
+       LAYOUT
+       ============================================================ */
+        .pagina-wrapper {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 var(--espacio-md);
+        }
 
-    .card::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(circle at top left, rgba(255,107,61,0.15), transparent 70%);
-      opacity: 0;
-      transition: 0.3s;
-    }
 
-    .card:hover::after {
-      opacity: 1;
-    }
+        /* ============================================================
+       ENCABEZADO — idéntico al de las semanas
+       ============================================================ */
+        .site-header {
+            background-color: var(--color-primario);
+            color: #ffffff;
+            padding: var(--espacio-xl) var(--espacio-md);
+            margin-bottom: var(--espacio-xxl);
+            position: relative;
+            overflow: hidden;
+        }
 
-    .card:hover {
-      transform: translateY(-8px) scale(1.02);
-      box-shadow: 0 18px 40px rgba(0,0,0,0.12);
-      border-color: var(--accent);
-    }
+        .site-header::before {
+            content: "";
+            position: absolute;
+            top: -40px;
+            right: -40px;
+            width: 200px;
+            height: 200px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 50%;
+        }
 
-    .card span {
-      font-size: 0.75rem;
-      color: var(--accent);
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
+        .site-header::after {
+            content: "";
+            position: absolute;
+            bottom: -60px;
+            right: 60px;
+            width: 130px;
+            height: 130px;
+            background: rgba(255, 255, 255, 0.04);
+            border-radius: 50%;
+        }
 
-    .card h3 {
-      margin-top: 10px;
-      font-size: 1.2rem;
-      color: var(--primary);
-    }
+        .site-header h1 {
+            font-family: var(--fuente-titulos);
+            color: #ffffff;
+            font-size: 2.5rem;
+            line-height: 1.2;
+            margin-bottom: var(--espacio-sm);
+        }
 
-    .card p {
-      margin-top: 6px;
-      font-size: 0.85rem;
-      color: var(--muted);
-    }
+        .site-header p {
+            color: rgba(255, 255, 255, 0.75);
+            font-size: 1rem;
+            max-width: 520px;
+            margin-bottom: 0;
+        }
 
-    /* FOOTER */
-    footer {
-      text-align: center;
-      padding: 30px 15px;
-      font-size: 0.9rem;
-      color: var(--muted);
-    }
+        .badge-curso {
+            display: inline-block;
+            background: var(--color-acento);
+            color: var(--color-primario);
+            font-family: var(--fuente-codigo);
+            font-size: 0.75rem;
+            font-weight: bold;
+            padding: 3px 10px;
+            border-radius: var(--radio-pill);
+            margin-bottom: var(--espacio-md);
+            letter-spacing: 0.05em;
+        }
 
-    footer strong {
-      color: var(--primary);
-    }
+        .header-meta {
+            display: flex;
+            gap: var(--espacio-xl);
+            margin-top: var(--espacio-lg);
+            flex-wrap: wrap;
+            position: relative;
+            z-index: 1;
+        }
 
-  </style>
+        .header-stat strong {
+            display: block;
+            font-family: var(--fuente-titulos);
+            font-size: 1.5rem;
+            color: var(--color-acento);
+            line-height: 1;
+        }
+
+        .header-stat span {
+            font-size: 0.72rem;
+            color: rgba(255, 255, 255, 0.5);
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            font-family: var(--fuente-codigo);
+        }
+
+
+        /* ============================================================
+       NOTA — mismo patrón que las semanas
+       ============================================================ */
+        .nota {
+            border-left: 4px solid var(--color-secundario);
+            background: #edf7f3;
+            padding: var(--espacio-md) var(--espacio-lg);
+            border-radius: 0 var(--radio-md) var(--radio-md) 0;
+            margin-bottom: var(--espacio-xxl);
+        }
+
+        .nota p {
+            font-size: 0.875rem;
+            color: var(--color-texto);
+            max-width: 65ch;
+            margin: 0;
+        }
+
+        .nota p+p {
+            margin-top: var(--espacio-sm);
+        }
+
+
+        /* ============================================================
+       BLOQUE DE MÓDULO
+       ============================================================ */
+        .modulo {
+            margin-bottom: var(--espacio-xxl);
+        }
+
+        .modulo-titulo {
+            font-family: var(--fuente-cuerpo);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--color-texto-suave);
+            margin-bottom: var(--espacio-md);
+            padding-bottom: var(--espacio-sm);
+            border-bottom: 2px solid var(--color-borde);
+        }
+
+        .modulo-titulo strong {
+            color: var(--color-primario);
+        }
+
+
+        /* ============================================================
+       GRID DE SEMANAS
+       ============================================================ */
+        .semanas-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: var(--espacio-sm);
+        }
+
+
+        /* ============================================================
+       CARD DE SEMANA — evolución directa de .nav-interna a
+       ============================================================ */
+        .semana-card {
+            display: flex;
+            flex-direction: column;
+            padding: var(--espacio-md) var(--espacio-lg);
+            background: var(--color-superficie);
+            border: 1px solid var(--color-borde);
+            border-radius: var(--radio-md);
+            text-decoration: none;
+            color: var(--color-primario);
+            box-shadow: var(--sombra-sm);
+            position: relative;
+            overflow: hidden;
+            transition:
+                background 0.2s ease,
+                border-color 0.2s ease,
+                transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+                box-shadow 0.2s ease;
+
+            /* Animación de entrada */
+            opacity: 0;
+            transform: translateY(10px);
+            animation: entradaCard 0.4s ease both;
+        }
+
+        .semana-card:hover {
+            background: var(--color-primario);
+            border-color: var(--color-primario);
+            transform: translateY(-3px);
+            box-shadow: var(--sombra-md);
+        }
+
+        @keyframes entradaCard {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Delays escalonados por módulo (reinicia en cada grid) */
+        .semanas-grid .semana-card:nth-child(1) {
+            animation-delay: 0.05s;
+        }
+
+        .semanas-grid .semana-card:nth-child(2) {
+            animation-delay: 0.10s;
+        }
+
+        .semanas-grid .semana-card:nth-child(3) {
+            animation-delay: 0.15s;
+        }
+
+        .semanas-grid .semana-card:nth-child(4) {
+            animation-delay: 0.20s;
+        }
+
+        .semanas-grid .semana-card:nth-child(5) {
+            animation-delay: 0.25s;
+        }
+
+        .semanas-grid .semana-card:nth-child(6) {
+            animation-delay: 0.30s;
+        }
+
+        /* Número / etiqueta */
+        .semana-numero {
+            font-family: var(--fuente-codigo);
+            font-size: 0.7rem;
+            color: var(--color-texto-suave);
+            letter-spacing: 0.06em;
+            margin-bottom: var(--espacio-xs);
+            transition: color 0.2s ease;
+        }
+
+        .semana-card:hover .semana-numero {
+            color: var(--color-acento);
+        }
+
+        /* Nombre */
+        .semana-nombre {
+            font-family: var(--fuente-titulos);
+            font-size: 1rem;
+            font-weight: normal;
+            color: var(--color-primario);
+            line-height: 1.3;
+            margin-bottom: var(--espacio-xs);
+            transition: color 0.2s ease;
+        }
+
+        .semana-card:hover .semana-nombre {
+            color: #ffffff;
+        }
+
+        /* Descripción */
+        .semana-desc {
+            font-size: 0.8rem;
+            color: var(--color-texto-suave);
+            line-height: 1.55;
+            margin-bottom: var(--espacio-sm);
+            flex: 1;
+            transition: color 0.2s ease;
+        }
+
+        .semana-card:hover .semana-desc {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* Tags */
+        .semana-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 1px 7px;
+            background: var(--color-fondo);
+            border: 1px solid var(--color-borde);
+            border-radius: var(--radio-pill);
+            font-family: var(--fuente-codigo);
+            font-size: 0.68rem;
+            color: var(--color-texto-suave);
+            transition:
+                background 0.2s ease,
+                color 0.2s ease,
+                border-color 0.2s ease;
+        }
+
+        .semana-card:hover .tag {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.2);
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+
+        /* ── Variante Parcial ── */
+        .semana-card.parcial {
+            background: #fdf5e6;
+            border-color: var(--color-acento);
+            border-left-width: 3px;
+        }
+
+        .semana-card.parcial .semana-numero {
+            color: #a05010;
+        }
+
+        .semana-card.parcial:hover {
+            background: var(--color-acento);
+            border-color: var(--color-acento);
+        }
+
+        .semana-card.parcial:hover .semana-nombre,
+        .semana-card.parcial:hover .semana-numero {
+            color: var(--color-primario);
+        }
+
+        .semana-card.parcial:hover .semana-desc {
+            color: rgba(26, 58, 74, 0.75);
+        }
+
+        .semana-card.parcial:hover .tag {
+            background: rgba(26, 58, 74, 0.1);
+            border-color: rgba(26, 58, 74, 0.2);
+            color: var(--color-primario);
+        }
+
+
+        /* ============================================================
+       PIE DE PÁGINA
+       ============================================================ */
+        .site-footer {
+            border-top: 1px solid var(--color-borde);
+            padding: var(--espacio-xl) var(--espacio-md);
+            margin-top: var(--espacio-xxl);
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: var(--espacio-md);
+            font-size: 0.875rem;
+            color: var(--color-texto-suave);
+        }
+
+        .footer-autor {
+            font-family: var(--fuente-codigo);
+            font-size: 0.8rem;
+        }
+
+        .footer-autor strong {
+            color: var(--color-primario);
+        }
+
+
+        /* ============================================================
+       ACCESIBILIDAD
+       ============================================================ */
+        @media (prefers-reduced-motion: reduce) {
+            .semana-card {
+                animation: none;
+                opacity: 1;
+                transform: none;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .site-header h1 {
+                font-size: 1.8rem;
+            }
+
+            .semanas-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header-meta {
+                gap: var(--espacio-lg);
+            }
+        }
+    </style>
 </head>
 
 <body>
 
-  <!-- HERO -->
-  <section class="hero">
-    <h1>Curso de Desarrollo Frontend</h1>
-    <p>
-      Explora cada semana del curso: desde HTML y CSS hasta experiencias interactivas con Three.js,
-      p5.js, APIs y Vue. Aprende construyendo proyectos reales.
-    </p>
-  </section>
+    <!-- ============================================================
+       ENCABEZADO
+  ============================================================= -->
+    <header class="site-header">
+        <div class="pagina-wrapper">
+            <p class="badge-curso">DISEÑO WEB · FRONTEND</p>
+            <h1>Curso de Desarrollo Frontend</h1>
+            <p>Materiales semanales del curso. HTML, CSS, JavaScript, Three.js, p5.js, APIs y Vue.js.</p>
+            <div class="header-meta">
+                <div class="header-stat">
+                    <strong>16</strong>
+                    <span>Semanas</span>
+                </div>
+                <div class="header-stat">
+                    <strong>3</strong>
+                    <span>Parciales</span>
+                </div>
+                <div class="header-stat">
+                    <strong>7+</strong>
+                    <span>Tecnologías</span>
+                </div>
+            </div>
+        </div>
+    </header>
 
-  <!-- CONTENT -->
-  <main class="container">
-    <div class="card-wrapper">
-      <h2>Contenido del Curso</h2>
 
-      <div class="grid">
+    <div class="pagina-wrapper">
 
-        <a class="card" href="./Semana-01-HTML/index.html">
-          <span>Semana 01</span>
-          <h3>HTML</h3>
-          <p>Estructura base de páginas web.</p>
-        </a>
+        <div class="nota">
+            <p>Haz clic en cualquier semana para acceder a sus materiales, ejercicios y proyecto aplicado.</p>
+            <p>Las semanas marcadas con <strong>Parcial</strong> corresponden a evaluaciones integradoras del módulo.
+            </p>
+        </div>
 
-        <a class="card" href="./Semana-02-CSS/index.html">
-          <span>Semana 02</span>
-          <h3>CSS</h3>
-          <p>Estilos, box model y tipografía.</p>
-        </a>
 
-        <a class="card" href="./Semana-03-Responsive/index.html">
-          <span>Semana 03</span>
-          <h3>Responsive</h3>
-          <p>Diseño adaptable a dispositivos.</p>
-        </a>
+        <!-- ============================================================
+         MÓDULO 1 — Fundamentos HTML & CSS
+    ============================================================= -->
+        <section class="modulo">
+            <p class="modulo-titulo"><strong>Módulo 1</strong> — Fundamentos HTML &amp; CSS · Semanas 01 – 06</p>
+            <div class="semanas-grid">
 
-        <a class="card" href="./Semana-04-Flexbox-Grid/index.html">
-          <span>Semana 04</span>
-          <h3>Flexbox & Grid</h3>
-          <p>Layouts modernos con CSS.</p>
-        </a>
+                <a class="semana-card" href="./Semana-01-HTML/index.html">
+                    <span class="semana-numero">Semana 01</span>
+                    <h2 class="semana-nombre">Introducción a HTML</h2>
+                    <p class="semana-desc">Estructura semántica, etiquetas esenciales, formularios y la anatomía del
+                        documento web.</p>
+                    <div class="semana-tags">
+                        <span class="tag">semántica</span>
+                        <span class="tag">etiquetas</span>
+                        <span class="tag">formularios</span>
+                    </div>
+                </a>
 
-        <a class="card" href="./Semana-05-CSS-Avanzado/index.html">
-          <span>Semana 05</span>
-          <h3>CSS Avanzado</h3>
-          <p>Animaciones y efectos.</p>
-        </a>
+                <a class="semana-card" href="Semana-02-CSS/index.html">
+                    <span class="semana-numero">Semana 02</span>
+                    <h2 class="semana-nombre">Fundamentos de CSS</h2>
+                    <p class="semana-desc">Selectores, modelo de caja, tipografía, colores y los primeros estilos
+                        visuales.</p>
+                    <div class="semana-tags">
+                        <span class="tag">selectores</span>
+                        <span class="tag">box model</span>
+                        <span class="tag">color</span>
+                    </div>
+                </a>
 
-        <a class="card" href="./Semana-06-Parcial-1-librerias-css/index.html">
-          <span>Semana 06</span>
-          <h3>Parcial 1</h3>
-          <p>Evaluación + librerías CSS.</p>
-        </a>
+                <a class="semana-card" href="Semana-03-Responsive/index.html">
+                    <span class="semana-numero">Semana 03</span>
+                    <h2 class="semana-nombre">Diseño Responsivo</h2>
+                    <p class="semana-desc">Media queries, viewport, unidades relativas y estrategia mobile-first para
+                        cualquier pantalla.</p>
+                    <div class="semana-tags">
+                        <span class="tag">media queries</span>
+                        <span class="tag">mobile-first</span>
+                        <span class="tag">rem / em</span>
+                    </div>
+                </a>
 
-        <a class="card" href="./Semana-07-JS/index.html">
-          <span>Semana 07</span>
-          <h3>JavaScript</h3>
-          <p>Fundamentos del lenguaje.</p>
-        </a>
+                <a class="semana-card" href="Semana-04-Flexbox-Grid/index.html">
+                    <span class="semana-numero">Semana 04</span>
+                    <h2 class="semana-nombre">Flexbox &amp; CSS Grid</h2>
+                    <p class="semana-desc">Sistemas de layout modernos: distribución flexible en una dimensión y grillas
+                        de dos ejes.</p>
+                    <div class="semana-tags">
+                        <span class="tag">flexbox</span>
+                        <span class="tag">css grid</span>
+                        <span class="tag">layout</span>
+                    </div>
+                </a>
 
-        <a class="card" href="./Semana-08-ThreeJS/index.html">
-          <span>Semana 08</span>
-          <h3>Three.js</h3>
-          <p>Introducción a gráficos 3D.</p>
-        </a>
+                <a class="semana-card" href="Semana-05-CSS-Avanzado/index.html">
+                    <span class="semana-numero">Semana 05</span>
+                    <h2 class="semana-nombre">CSS Avanzado</h2>
+                    <p class="semana-desc">Variables CSS, pseudo-clases, pseudo-elementos, transiciones, animaciones y
+                        efectos visuales.</p>
+                    <div class="semana-tags">
+                        <span class="tag">variables</span>
+                        <span class="tag">@keyframes</span>
+                        <span class="tag">transform</span>
+                    </div>
+                </a>
 
-        <a class="card" href="./Semana-09-ThreeJS-Web/index.html">
-          <span>Semana 09</span>
-          <h3>Three.js Web</h3>
-          <p>Integración en web.</p>
-        </a>
+                <a class="semana-card parcial" href="Semana-06-Parcial-1-librerias-css/index.html">
+                    <span class="semana-numero">Semana 06 · Parcial 1</span>
+                    <h2 class="semana-nombre">Librerías CSS</h2>
+                    <p class="semana-desc">Evaluación integradora. Proyecto con Bootstrap, Tailwind y otros frameworks
+                        de estilos.</p>
+                    <div class="semana-tags">
+                        <span class="tag">evaluación</span>
+                        <span class="tag">bootstrap</span>
+                        <span class="tag">tailwind</span>
+                    </div>
+                </a>
 
-        <a class="card" href="./Semana-10-p5js/index.html">
-          <span>Semana 10</span>
-          <h3>p5.js</h3>
-          <p>Arte generativo.</p>
-        </a>
+            </div>
+        </section>
 
-        <a class="card" href="./Semana-11-Parcial-2/index.html">
-          <span>Semana 11</span>
-          <h3>Parcial 2</h3>
-          <p>Evaluación intermedia.</p>
-        </a>
 
-        <a class="card" href="./Semana-12-APIs/index.html">
-          <span>Semana 12</span>
-          <h3>APIs</h3>
-          <p>Consumo de datos externos.</p>
-        </a>
+        <!-- ============================================================
+         MÓDULO 2 — JavaScript & Gráficos
+    ============================================================= -->
+        <section class="modulo">
+            <p class="modulo-titulo"><strong>Módulo 2</strong> — JavaScript &amp; Gráficos · Semanas 07 – 11</p>
+            <div class="semanas-grid">
 
-        <a class="card" href="./Semana-13-Vue-Intro/index.html">
-          <span>Semana 13</span>
-          <h3>Vue Intro</h3>
-          <p>Primeros pasos con Vue.</p>
-        </a>
+                <a class="semana-card" href="Semana-07-JS/index.html">
+                    <span class="semana-numero">Semana 07</span>
+                    <h2 class="semana-nombre">Introducción a JavaScript</h2>
+                    <p class="semana-desc">Variables, tipos de datos, funciones, estructuras de control, DOM y manejo de
+                        eventos.</p>
+                    <div class="semana-tags">
+                        <span class="tag">variables</span>
+                        <span class="tag">funciones</span>
+                        <span class="tag">DOM</span>
+                        <span class="tag">eventos</span>
+                    </div>
+                </a>
 
-        <a class="card" href="./Semana-14-Vue/index.html">
-          <span>Semana 14</span>
-          <h3>Vue</h3>
-          <p>Componentes y reactividad.</p>
-        </a>
+                <a class="semana-card" href="Semana-08-ThreeJS/index.html">
+                    <span class="semana-numero">Semana 08</span>
+                    <h2 class="semana-nombre">Three.js — Intro 3D</h2>
+                    <p class="semana-desc">Escenas, cámaras, geometrías, materiales y luces. Primeros pasos con WebGL en
+                        el navegador.</p>
+                    <div class="semana-tags">
+                        <span class="tag">three.js</span>
+                        <span class="tag">webgl</span>
+                        <span class="tag">3d</span>
+                    </div>
+                </a>
 
-        <a class="card" href="./Semana-15-Experiencias-Interactivas/index.html">
-          <span>Semana 15</span>
-          <h3>Experiencias</h3>
-          <p>Interacción avanzada.</p>
-        </a>
+                <a class="semana-card" href="Semana-09-ThreeJS-Web/index.html">
+                    <span class="semana-numero">Semana 09</span>
+                    <h2 class="semana-nombre">Three.js en la Web</h2>
+                    <p class="semana-desc">Integración de escenas 3D en páginas reales: scroll, interactividad y efectos
+                        avanzados.</p>
+                    <div class="semana-tags">
+                        <span class="tag">three.js</span>
+                        <span class="tag">scroll</span>
+                        <span class="tag">interacción</span>
+                    </div>
+                </a>
 
-        <a class="card" href="./Semana-16-Parcial-Final/index.html">
-          <span>Semana 16</span>
-          <h3>Final</h3>
-          <p>Proyecto final del curso.</p>
-        </a>
+                <a class="semana-card" href="Semana-10-p5js/index.html">
+                    <span class="semana-numero">Semana 10</span>
+                    <h2 class="semana-nombre">Arte Creativo con p5.js</h2>
+                    <p class="semana-desc">Programación creativa, generative art, canvas y visualizaciones interactivas
+                        con p5.js.</p>
+                    <div class="semana-tags">
+                        <span class="tag">p5.js</span>
+                        <span class="tag">canvas</span>
+                        <span class="tag">generative</span>
+                    </div>
+                </a>
 
-      </div>
-    </div>
-  </main>
+                <a class="semana-card parcial" href="Semana-11-Parcial-2/index.html">
+                    <span class="semana-numero">Semana 11 · Parcial 2</span>
+                    <h2 class="semana-nombre">Visualización con D3.js</h2>
+                    <p class="semana-desc">Introducción y uso de D3.js para la creación de visualizaciones de datos
+                        interactivas y dinámicas en la web.</p>
+                    <div class="semana-tags">
+                        <span class="tag">visualización</span>
+                        <span class="tag">javascript</span>
+                        <span class="tag">d3.js</span>
+                    </div>
+                </a>
 
-  <!-- FOOTER -->
-  <footer>
-    © 2026 — Proyecto educativo | Propiedad de <strong>@Sgutz96</strong>
-  </footer>
+            </div>
+        </section>
+
+
+        <!-- ============================================================
+         MÓDULO 3 — APIs & Frameworks
+    ============================================================= -->
+        <section class="modulo">
+            <p class="modulo-titulo"><strong>Módulo 3</strong> — APIs &amp; Frameworks · Semanas 12 – 16</p>
+            <div class="semanas-grid">
+
+                <a class="semana-card" href="Semana-12-APIs/index.html">
+                    <span class="semana-numero">Semana 12</span>
+                    <h2 class="semana-nombre">Consumo de APIs</h2>
+                    <p class="semana-desc">Fetch API, promesas, async/await y consumo de REST APIs para datos en tiempo
+                        real.</p>
+                    <div class="semana-tags">
+                        <span class="tag">fetch</span>
+                        <span class="tag">async/await</span>
+                        <span class="tag">REST</span>
+                    </div>
+                </a>
+
+                <a class="semana-card" href="Semana-13-Vue-Intro/index.html">
+                    <span class="semana-numero">Semana 13</span>
+                    <h2 class="semana-nombre">Introducción a Vue.js</h2>
+                    <p class="semana-desc">Reactividad, componentes, directivas y el sistema de templates del framework
+                        progresivo Vue 3.</p>
+                    <div class="semana-tags">
+                        <span class="tag">vue 3</span>
+                        <span class="tag">reactividad</span>
+                        <span class="tag">componentes</span>
+                    </div>
+                </a>
+
+                <a class="semana-card" href="Semana-14-Vue/index.html">
+                    <span class="semana-numero">Semana 14</span>
+                    <h2 class="semana-nombre">Vue.js Avanzado</h2>
+                    <p class="semana-desc">Composition API, Vue Router, Pinia para gestión de estado y construcción de
+                        SPAs completas.</p>
+                    <div class="semana-tags">
+                        <span class="tag">composition api</span>
+                        <span class="tag">router</span>
+                        <span class="tag">pinia</span>
+                    </div>
+                </a>
+
+                <a class="semana-card" href="Semana-15-Experiencias-Interactivas/index.html">
+                    <span class="semana-numero">Semana 15</span>
+                    <h2 class="semana-nombre">Experiencias Interactivas</h2>
+                    <p class="semana-desc">Integración total: animaciones, 3D, APIs y Vue para construir experiencias
+                        web memorables.</p>
+                    <div class="semana-tags">
+                        <span class="tag">integración</span>
+                        <span class="tag">gsap</span>
+                        <span class="tag">experiencias</span>
+                    </div>
+                </a>
+
+                <a class="semana-card parcial" href="Semana-16-Parcial-Final/index.html">
+                    <span class="semana-numero">Semana 16 · Parcial Final</span>
+                    <h2 class="semana-nombre">Proyecto Final</h2>
+                    <p class="semana-desc">Evaluación final integradora. Proyecto completo que demuestra todo el
+                        recorrido del curso.</p>
+                    <div class="semana-tags">
+                        <span class="tag">proyecto final</span>
+                        <span class="tag">portafolio</span>
+                        <span class="tag">presentación</span>
+                    </div>
+                </a>
+
+            </div>
+        </section>
+
+
+        <!-- ============================================================
+         PIE DE PÁGINA
+    ============================================================= -->
+        <footer class="site-footer">
+            <p>Curso de Desarrollo Frontend · USB Academic</p>
+            <p class="footer-autor">© 2026 — Propiedad de <strong>@Sgutz96</strong></p>
+        </footer>
+
+    </div><!-- /.pagina-wrapper -->
 
 </body>
+
 </html>

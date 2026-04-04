@@ -41,7 +41,8 @@ Cada semana incluye ejemplos prácticos implementados en un archivo `index.html`
 * CSS3
 * JavaScript (Vanilla)
 * Three.js
-* p5.js
+* P5.js
+* D3.js
 * Vue.js
 * APIs Web
 
