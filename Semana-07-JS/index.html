@@ -1,0 +1,2362 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Semana 07 — JavaScript</title>
+
+  <!--
+    INTRODUCCIÓN A JAVASCRIPT: VARIABLES, FUNCIONES Y DOM
+    ======================================================
+    JavaScript (JS) es el lenguaje de programación del navegador.
+    Permite agregar comportamiento e interactividad a las páginas web.
+
+    El trio fundamental del desarrollo web:
+    - HTML  → estructura y contenido
+    - CSS   → presentación y estilos
+    - JS    → comportamiento e interactividad
+
+    Esta semana cubrimos los fundamentos:
+
+    1. VARIABLES Y TIPOS DE DATOS
+       → Cómo almacenar y nombrar información
+       → var, let, const — diferencias y cuándo usar cada una
+       → Tipos: string, number, boolean, null, undefined, object, array
+
+    2. OPERADORES Y EXPRESIONES
+       → Aritméticos, comparación, lógicos, asignación
+       → Expresiones vs sentencias
+
+    3. FUNCIONES
+       → Declaraciones de función y expresiones de función
+       → Arrow functions (funciones flecha)
+       → Parámetros, argumentos y valores de retorno
+       → Scope (alcance) y closures
+
+    4. ESTRUCTURAS DE CONTROL
+       → if / else if / else
+       → switch
+       → Operador ternario
+
+    5. MANIPULACIÓN DEL DOM
+       → ¿Qué es el DOM? (Document Object Model)
+       → Seleccionar elementos: querySelector, getElementById, etc.
+       → Modificar contenido: innerHTML, textContent
+       → Modificar estilos y clases: style, classList
+       → Crear y eliminar elementos
+
+    6. EVENTOS
+       → addEventListener y tipos de eventos
+       → El objeto event
+       → Delegación de eventos
+
+    7. PROYECTO APLICADO
+       → Mini aplicación interactiva que combina todos los conceptos
+  -->
+
+  <style>
+
+    /* ============================================================
+       VARIABLES CSS — Paleta consistente con las semanas anteriores
+       ============================================================ */
+    :root {
+      --color-primario:    #1a3a4a;
+      --color-secundario:  #2d7d5f;
+      --color-acento:      #e8a020;
+      --color-fondo:       #f4f1ec;
+      --color-superficie:  #ffffff;
+      --color-texto:       #1e1e1e;
+      --color-texto-suave: #5a5a5a;
+      --color-borde:       #d6cfc4;
+
+      /* Colores semánticos para JS */
+      --color-js:          #f7df1e;   /* amarillo JS oficial */
+      --color-js-oscuro:   #323330;   /* fondo oscuro JS */
+      --color-string:      #2d7d5f;   /* verde para strings */
+      --color-number:      #1a5fa8;   /* azul para números */
+      --color-boolean:     #8a3a8a;   /* lila para booleanos */
+      --color-null:        #a02020;   /* rojo para null/undefined */
+      --color-array:       #a05010;   /* naranja para arrays */
+
+      --fuente-titulos: 'Georgia', 'Times New Roman', serif;
+      --fuente-cuerpo:  'Trebuchet MS', 'Gill Sans', sans-serif;
+      --fuente-codigo:  'Courier New', 'Lucida Console', monospace;
+
+      --espacio-xs:  0.25rem;
+      --espacio-sm:  0.5rem;
+      --espacio-md:  1rem;
+      --espacio-lg:  1.5rem;
+      --espacio-xl:  2rem;
+      --espacio-xxl: 3rem;
+
+      --radio-sm:   4px;
+      --radio-md:   8px;
+      --radio-lg:   16px;
+      --radio-pill: 999px;
+
+      --sombra-sm: 0 1px 3px rgba(0,0,0,0.12);
+      --sombra-md: 0 4px 12px rgba(0,0,0,0.10);
+      --sombra-lg: 0 8px 24px rgba(0,0,0,0.12);
+
+      --duracion-rapida: 150ms;
+      --duracion-media:  300ms;
+      --duracion-lenta:  600ms;
+      --timing-rebote:   cubic-bezier(0.34, 1.56, 0.64, 1);
+      --timing-entrada:  cubic-bezier(0.0, 0.0, 0.2, 1);
+    }
+
+
+    /* ============================================================
+       RESET Y BASE
+       ============================================================ */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--fuente-cuerpo);
+      font-size: 16px;
+      line-height: 1.7;
+      color: var(--color-texto);
+      background-color: var(--color-fondo);
+    }
+
+    p {
+      margin-bottom: var(--espacio-md);
+      max-width: 65ch;
+    }
+
+    h1, h2, h3, h4 {
+      font-family: var(--fuente-titulos);
+      color: var(--color-primario);
+      line-height: 1.2;
+      margin-bottom: var(--espacio-md);
+    }
+
+    h2, h3 { margin-top: var(--espacio-xl); }
+
+    a {
+      color: var(--color-secundario);
+      text-decoration: none;
+      border-bottom: 1px solid transparent;
+      transition: border-color var(--duracion-media) ease;
+    }
+    a:hover { border-bottom-color: var(--color-secundario); }
+
+    code {
+      font-family: var(--fuente-codigo);
+      font-size: 0.875em;
+      background-color: #e8e0f0;
+      color: #4a1a6a;
+      padding: 2px 6px;
+      border-radius: var(--radio-sm);
+    }
+
+    pre {
+      background: var(--color-js-oscuro);
+      color: #f8f8f2;
+      padding: var(--espacio-md);
+      border-radius: var(--radio-md);
+      overflow-x: auto;
+      font-family: var(--fuente-codigo);
+      font-size: 0.875rem;
+      line-height: 1.8;
+      margin-bottom: var(--espacio-lg);
+      tab-size: 2;
+      position: relative;
+    }
+
+    pre::before {
+      content: "JS";
+      position: absolute;
+      top: var(--espacio-sm);
+      right: var(--espacio-sm);
+      background: var(--color-js);
+      color: var(--color-js-oscuro);
+      font-family: var(--fuente-codigo);
+      font-size: 0.65rem;
+      font-weight: bold;
+      padding: 1px 6px;
+      border-radius: var(--radio-sm);
+      letter-spacing: 0.05em;
+    }
+
+    pre code {
+      background: none;
+      color: inherit;
+      padding: 0;
+      font-size: inherit;
+    }
+
+    /* Resaltado manual de sintaxis en bloques pre */
+    .kw  { color: #ff79c6; }   /* keywords: let, const, function, return... */
+    .str { color: #f1fa8c; }   /* strings */
+    .num { color: #bd93f9; }   /* números */
+    .fn  { color: #50fa7b; }   /* nombres de funciones */
+    .cm  { color: #6272a4; font-style: italic; } /* comentarios */
+    .op  { color: #ff79c6; }   /* operadores */
+
+    ul, ol { padding-left: 1.5rem; }
+    li { margin-bottom: var(--espacio-xs); }
+
+    ::selection {
+      background-color: var(--color-acento);
+      color: var(--color-primario);
+    }
+
+
+    /* ============================================================
+       LAYOUT GENERAL
+       ============================================================ */
+    .pagina-wrapper {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 var(--espacio-md);
+    }
+
+
+    /* ============================================================
+       ENCABEZADO DE SITIO
+       ============================================================ */
+    .site-header {
+      background-color: var(--color-js-oscuro);
+      color: #ffffff;
+      padding: var(--espacio-xl) var(--espacio-md);
+      margin-bottom: var(--espacio-xxl);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Cuadrado amarillo JS decorativo */
+    .site-header::before {
+      content: "JS";
+      position: absolute;
+      right: var(--espacio-xl);
+      top: 50%;
+      transform: translateY(-50%);
+      font-family: var(--fuente-titulos);
+      font-size: 6rem;
+      font-weight: bold;
+      color: var(--color-js);
+      opacity: 0.12;
+      line-height: 1;
+      pointer-events: none;
+    }
+
+    .site-header::after {
+      content: "";
+      position: absolute;
+      bottom: -60px;
+      left: 30px;
+      width: 150px;
+      height: 150px;
+      background: rgba(247,223,30,0.05);
+      border-radius: 50%;
+    }
+
+    .site-header h1 {
+      color: #ffffff;
+      font-size: 2.5rem;
+      margin-bottom: var(--espacio-sm);
+    }
+
+    .site-header p {
+      color: rgba(255,255,255,0.75);
+      max-width: none;
+    }
+
+    .badge-semana {
+      display: inline-block;
+      background: var(--color-js);
+      color: var(--color-js-oscuro);
+      font-family: var(--fuente-codigo);
+      font-size: 0.75rem;
+      font-weight: bold;
+      padding: 3px 10px;
+      border-radius: var(--radio-pill);
+      margin-bottom: var(--espacio-md);
+      letter-spacing: 0.05em;
+    }
+
+
+    /* ============================================================
+       NAVEGACIÓN INTERNA
+       ============================================================ */
+    .nav-interna {
+      background: var(--color-superficie);
+      border: 1px solid var(--color-borde);
+      border-radius: var(--radio-lg);
+      padding: var(--espacio-lg);
+      margin-bottom: var(--espacio-xxl);
+      box-shadow: var(--sombra-sm);
+    }
+
+    .nav-interna h2 {
+      font-size: 1rem;
+      margin-top: 0;
+      margin-bottom: var(--espacio-md);
+      color: var(--color-texto-suave);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-family: var(--fuente-cuerpo);
+    }
+
+    .nav-interna ul {
+      list-style: none;
+      padding: 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--espacio-sm);
+    }
+
+    .nav-interna a {
+      display: inline-block;
+      padding: var(--espacio-xs) var(--espacio-md);
+      background: var(--color-fondo);
+      border: 1px solid var(--color-borde);
+      border-radius: var(--radio-pill);
+      font-size: 0.875rem;
+      color: var(--color-primario);
+      border-bottom: none;
+      transition: background var(--duracion-media), border-color var(--duracion-media);
+    }
+
+    .nav-interna a:hover {
+      background: var(--color-js-oscuro);
+      color: var(--color-js);
+      border-color: var(--color-js-oscuro);
+    }
+
+
+    /* ============================================================
+       ETIQUETA IDENTIFICADORA
+       ============================================================ */
+    .etiqueta {
+      display: inline-block;
+      background: var(--color-primario);
+      color: #ffffff;
+      font-family: var(--fuente-codigo);
+      font-size: 0.72rem;
+      padding: 2px 8px;
+      border-radius: var(--radio-sm);
+      margin-bottom: var(--espacio-sm);
+      letter-spacing: 0.03em;
+    }
+
+    .etiqueta.verde  { background: var(--color-secundario); }
+    .etiqueta.ambar  { background: var(--color-acento); color: var(--color-primario); }
+    .etiqueta.lila   { background: #5c3a8a; }
+    .etiqueta.rojo   { background: #a02020; }
+    .etiqueta.js     { background: var(--color-js); color: var(--color-js-oscuro); }
+
+
+    /* ============================================================
+       SECCIÓN DE CONTENIDO
+       ============================================================ */
+    .seccion {
+      margin-bottom: var(--espacio-xxl);
+      scroll-margin-top: 2rem;
+    }
+
+    .seccion > h2 {
+      border-bottom: 2px solid var(--color-borde);
+      padding-bottom: var(--espacio-sm);
+    }
+
+
+    /* ============================================================
+       BLOQUE DE NOTA
+       ============================================================ */
+    .nota {
+      border-left: 4px solid var(--color-secundario);
+      background: #edf7f3;
+      padding: var(--espacio-md) var(--espacio-lg);
+      border-radius: 0 var(--radio-md) var(--radio-md) 0;
+      margin: var(--espacio-lg) 0;
+    }
+
+    .nota.ambar  { border-color: var(--color-acento);  background: #fdf5e6; }
+    .nota.azul   { border-color: var(--color-primario); background: #eef2f5; }
+    .nota.lila   { border-color: #5c3a8a;              background: #f2eef9; }
+    .nota.rojo   { border-color: #a02020;              background: #fdf0f0; }
+    .nota.js     { border-color: var(--color-js);      background: #fdfbe6; }
+
+    .nota p { margin-bottom: 0; }
+    .nota p + p { margin-top: var(--espacio-sm); }
+
+
+    /* ============================================================
+       TABLA DE REFERENCIA
+       ============================================================ */
+    .tabla-wrapper {
+      overflow-x: auto;
+      margin: var(--espacio-lg) 0;
+      border-radius: var(--radio-md);
+      box-shadow: var(--sombra-sm);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+      background: var(--color-superficie);
+    }
+
+    th, td {
+      border: 1px solid var(--color-borde);
+      padding: 0.6rem 1rem;
+      text-align: left;
+    }
+
+    th {
+      background-color: var(--color-js-oscuro);
+      color: var(--color-js);
+      font-family: var(--fuente-titulos);
+      font-weight: normal;
+    }
+
+    tr:nth-child(even) { background-color: #f0ece6; }
+    td code { font-size: 0.8rem; }
+
+
+    /* ============================================================
+       COMPARATIVA DOS COLUMNAS
+       ============================================================ */
+    .comparativa {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: var(--espacio-md);
+      margin: var(--espacio-lg) 0;
+    }
+
+    @media (min-width: 620px) {
+      .comparativa { grid-template-columns: 1fr 1fr; }
+    }
+
+    .comparativa-item {
+      border-radius: var(--radio-md);
+      overflow: hidden;
+      border: 1px solid var(--color-borde);
+    }
+
+    .comparativa-item .cab {
+      padding: var(--espacio-sm) var(--espacio-md);
+      font-family: var(--fuente-codigo);
+      font-size: 0.8rem;
+      font-weight: bold;
+    }
+
+    .comparativa-item.bueno .cab { background: #edf7f3; color: var(--color-secundario); }
+    .comparativa-item.malo  .cab { background: #fdf0f0; color: #a02020; }
+    .comparativa-item pre { margin: 0; border-radius: 0; font-size: 0.78rem; }
+    .comparativa-item pre::before { display: none; }
+
+
+    /* ============================================================
+       SECCIÓN 1: DEMOS DE TIPOS DE DATOS
+       ============================================================ */
+    .tipos-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: var(--espacio-sm);
+      margin: var(--espacio-md) 0;
+    }
+
+    .tipo-chip {
+      border-radius: var(--radio-md);
+      padding: var(--espacio-md);
+      font-family: var(--fuente-codigo);
+      font-size: 0.85rem;
+      border: 1px solid rgba(0,0,0,0.1);
+    }
+
+    .tipo-chip .tipo-nombre {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      opacity: 0.8;
+      margin-bottom: var(--espacio-xs);
+    }
+
+    .tipo-chip .tipo-valor {
+      font-size: 1rem;
+      font-weight: bold;
+    }
+
+    .tipo-string  { background: #e8f5f0; color: var(--color-string); }
+    .tipo-number  { background: #e8f0fa; color: var(--color-number); }
+    .tipo-boolean { background: #f2eef9; color: var(--color-boolean); }
+    .tipo-null    { background: #fdf0f0; color: var(--color-null); }
+    .tipo-undef   { background: #fdf0f0; color: var(--color-null); }
+    .tipo-array   { background: #fdf5e6; color: var(--color-array); }
+    .tipo-object  { background: #f0ece6; color: var(--color-primario); }
+
+
+    /* ============================================================
+       SECCIÓN 2: DEMO LET / CONST / VAR
+       ============================================================ */
+    .let-const-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: var(--espacio-md);
+      margin: var(--espacio-md) 0;
+    }
+
+    .let-const-card {
+      border-radius: var(--radio-md);
+      overflow: hidden;
+      border: 1px solid var(--color-borde);
+      box-shadow: var(--sombra-sm);
+    }
+
+    .let-const-card .lcc-header {
+      padding: var(--espacio-sm) var(--espacio-md);
+      font-family: var(--fuente-codigo);
+      font-size: 1.1rem;
+      font-weight: bold;
+      color: #fff;
+    }
+
+    .lcc-let   .lcc-header { background: #1a5fa8; }
+    .lcc-const .lcc-header { background: var(--color-secundario); }
+    .lcc-var   .lcc-header { background: #8a6a00; }
+
+    .let-const-card ul {
+      padding: var(--espacio-md) var(--espacio-md) var(--espacio-md) 2rem;
+      font-size: 0.875rem;
+      background: var(--color-superficie);
+    }
+
+    .let-const-card ul li { margin-bottom: var(--espacio-xs); }
+
+
+    /* ============================================================
+       SECCIÓN 3: DEMOS INTERACTIVOS
+       ============================================================ */
+
+    /* --- Demo general para interacciones --- */
+    .demo-box {
+      background: var(--color-superficie);
+      border: 1px solid var(--color-borde);
+      border-radius: var(--radio-lg);
+      padding: var(--espacio-lg);
+      margin: var(--espacio-md) 0;
+      box-shadow: var(--sombra-sm);
+    }
+
+    .demo-box h4 {
+      font-family: var(--fuente-codigo);
+      font-size: 0.8rem;
+      color: var(--color-texto-suave);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-top: 0;
+      margin-bottom: var(--espacio-md);
+      padding-bottom: var(--espacio-sm);
+      border-bottom: 1px solid var(--color-borde);
+    }
+
+    /* Botones de demo */
+    .btn-demo {
+      display: inline-block;
+      padding: var(--espacio-sm) var(--espacio-lg);
+      background: var(--color-primario);
+      color: #fff;
+      border: none;
+      border-radius: var(--radio-pill);
+      font-family: var(--fuente-codigo);
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: background var(--duracion-media) ease,
+                  transform  var(--duracion-media) var(--timing-rebote);
+    }
+
+    .btn-demo:hover {
+      background: var(--color-secundario);
+      transform: translateY(-2px);
+    }
+
+    .btn-demo:active { transform: translateY(1px); }
+
+    .btn-demo.ambar {
+      background: var(--color-acento);
+      color: var(--color-primario);
+    }
+    .btn-demo.ambar:hover { background: #c88010; color: #fff; }
+
+    .btn-demo.rojo {
+      background: #a02020;
+    }
+    .btn-demo.rojo:hover { background: #c02020; }
+
+    .btn-demo.lila {
+      background: #5c3a8a;
+    }
+    .btn-demo.lila:hover { background: #7a4aaa; }
+
+    .btn-fila {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--espacio-sm);
+      margin-bottom: var(--espacio-md);
+    }
+
+    /* Output / consola simulada */
+    .output-consola {
+      background: var(--color-js-oscuro);
+      border-radius: var(--radio-md);
+      padding: var(--espacio-md);
+      font-family: var(--fuente-codigo);
+      font-size: 0.85rem;
+      min-height: 60px;
+      color: #f8f8f2;
+      position: relative;
+    }
+
+    .output-consola::before {
+      content: "▶ consola";
+      position: absolute;
+      top: var(--espacio-xs);
+      right: var(--espacio-sm);
+      font-size: 0.65rem;
+      color: rgba(255,255,255,0.3);
+      letter-spacing: 0.05em;
+    }
+
+    .output-linea {
+      padding: 1px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .output-linea:last-child { border-bottom: none; }
+
+    .out-string  { color: #f1fa8c; }
+    .out-number  { color: #bd93f9; }
+    .out-boolean { color: #ff79c6; }
+    .out-null    { color: #ff5555; }
+    .out-objeto  { color: #8be9fd; }
+    .out-error   { color: #ff5555; font-style: italic; }
+    .out-log     { color: #f8f8f2; }
+
+    /* Input de formulario en demos */
+    .input-demo {
+      padding: var(--espacio-sm) var(--espacio-md);
+      border: 2px solid var(--color-borde);
+      border-radius: var(--radio-md);
+      font-family: var(--fuente-cuerpo);
+      font-size: 0.9rem;
+      background: var(--color-fondo);
+      color: var(--color-texto);
+      outline: none;
+      transition: border-color var(--duracion-media);
+      width: 100%;
+    }
+
+    .input-demo:focus {
+      border-color: var(--color-secundario);
+      box-shadow: 0 0 0 3px rgba(45,125,95,0.2);
+    }
+
+    .input-row {
+      display: flex;
+      gap: var(--espacio-sm);
+      margin-bottom: var(--espacio-md);
+      flex-wrap: wrap;
+    }
+
+    .input-row .input-demo { flex: 1; min-width: 120px; }
+
+
+    /* ============================================================
+       SECCIÓN 4: DOM TREE VISUAL
+       ============================================================ */
+    .dom-tree {
+      background: var(--color-superficie);
+      border: 1px solid var(--color-borde);
+      border-radius: var(--radio-md);
+      padding: var(--espacio-lg);
+      margin: var(--espacio-md) 0;
+      font-family: var(--fuente-codigo);
+      font-size: 0.85rem;
+    }
+
+    .dom-node {
+      position: relative;
+      padding-left: 1.5rem;
+      color: var(--color-primario);
+    }
+
+    .dom-node::before {
+      content: "├─";
+      position: absolute;
+      left: 0;
+      color: var(--color-borde);
+    }
+
+    .dom-node:last-child::before { content: "└─"; }
+
+    .dom-node > .dom-node { padding-left: 2rem; }
+
+    .dom-tag  { color: #1a5fa8; font-weight: bold; }
+    .dom-attr { color: var(--color-secundario); }
+    .dom-text { color: var(--color-array); font-style: italic; }
+    .dom-root { padding-left: 0; font-weight: bold; margin-bottom: var(--espacio-sm); }
+    .dom-root::before { display: none; }
+
+
+    /* ============================================================
+       SECCIÓN 5: DEMO DE MANIPULACIÓN DOM
+       ============================================================ */
+    .dom-demo-zona {
+      border: 2px dashed var(--color-borde);
+      border-radius: var(--radio-md);
+      padding: var(--espacio-md);
+      margin: var(--espacio-md) 0;
+      min-height: 60px;
+      background: var(--color-fondo);
+      transition: background var(--duracion-media);
+    }
+
+    .dom-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--espacio-sm) var(--espacio-md);
+      background: var(--color-superficie);
+      border: 1px solid var(--color-borde);
+      border-radius: var(--radio-md);
+      margin-bottom: var(--espacio-sm);
+      font-family: var(--fuente-cuerpo);
+      font-size: 0.9rem;
+      animation: entradaItem var(--duracion-lenta) var(--timing-entrada) both;
+      transition: opacity var(--duracion-media), transform var(--duracion-media);
+    }
+
+    @keyframes entradaItem {
+      from { opacity: 0; transform: translateX(-16px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+
+    .dom-item.salida {
+      opacity: 0;
+      transform: translateX(16px);
+    }
+
+    .dom-item-eliminar {
+      background: none;
+      border: none;
+      color: #a02020;
+      font-size: 1.1rem;
+      cursor: pointer;
+      padding: 0 var(--espacio-xs);
+      line-height: 1;
+      transition: transform var(--duracion-rapida) var(--timing-rebote);
+    }
+
+    .dom-item-eliminar:hover { transform: scale(1.3); }
+
+    .dom-empty-msg {
+      color: var(--color-texto-suave);
+      font-style: italic;
+      font-size: 0.9rem;
+      text-align: center;
+      padding: var(--espacio-md) 0;
+    }
+
+
+    /* ============================================================
+       SECCIÓN 6: DEMO DE EVENTOS
+       ============================================================ */
+    .evento-caja {
+      width: 100%;
+      height: 120px;
+      background: var(--color-fondo);
+      border: 2px dashed var(--color-borde);
+      border-radius: var(--radio-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--fuente-codigo);
+      font-size: 0.9rem;
+      color: var(--color-texto-suave);
+      cursor: pointer;
+      transition: background var(--duracion-media), border-color var(--duracion-media);
+      user-select: none;
+      margin-bottom: var(--espacio-md);
+    }
+
+    .evento-caja:hover {
+      border-color: var(--color-secundario);
+      background: #edf7f3;
+    }
+
+    .contador-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--espacio-sm);
+      background: var(--color-js-oscuro);
+      color: var(--color-js);
+      font-family: var(--fuente-codigo);
+      font-size: 1.1rem;
+      font-weight: bold;
+      padding: var(--espacio-sm) var(--espacio-lg);
+      border-radius: var(--radio-pill);
+    }
+
+    .contador-num {
+      font-size: 1.8rem;
+      line-height: 1;
+      transition: transform var(--duracion-media) var(--timing-rebote);
+    }
+
+    .contador-num.bump {
+      transform: scale(1.5);
+    }
+
+
+    /* ============================================================
+       SECCIÓN 7: PROYECTO — CALCULADORA DE PROPINAS
+       ============================================================ */
+    @keyframes aparecer-proyecto {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .proyecto-wrapper {
+      background: var(--color-superficie);
+      border: 1px solid var(--color-borde);
+      border-radius: var(--radio-lg);
+      overflow: hidden;
+      box-shadow: var(--sombra-lg);
+      margin: var(--espacio-xl) 0;
+      animation: aparecer-proyecto var(--duracion-lenta) var(--timing-entrada) both;
+    }
+
+    .proyecto-header {
+      background: var(--color-js-oscuro);
+      color: #fff;
+      padding: var(--espacio-lg);
+      display: flex;
+      align-items: center;
+      gap: var(--espacio-md);
+    }
+
+    .proyecto-header .py-icono {
+      width: 42px;
+      height: 42px;
+      background: var(--color-js);
+      color: var(--color-js-oscuro);
+      border-radius: var(--radio-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--fuente-codigo);
+      font-weight: bold;
+      font-size: 1rem;
+    }
+
+    .proyecto-header h3 {
+      color: #fff;
+      margin: 0;
+      font-size: 1.2rem;
+    }
+
+    .proyecto-header p {
+      color: rgba(255,255,255,0.6);
+      margin: 0;
+      font-size: 0.8rem;
+    }
+
+    .proyecto-body {
+      padding: var(--espacio-xl);
+    }
+
+    .campo-grupo {
+      margin-bottom: var(--espacio-lg);
+    }
+
+    .campo-grupo label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: bold;
+      color: var(--color-texto-suave);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: var(--espacio-xs);
+      font-family: var(--fuente-codigo);
+    }
+
+    .campo-numero {
+      width: 100%;
+      padding: var(--espacio-md);
+      font-size: 1.3rem;
+      font-family: var(--fuente-codigo);
+      border: 2px solid var(--color-borde);
+      border-radius: var(--radio-md);
+      background: var(--color-fondo);
+      color: var(--color-texto);
+      outline: none;
+      transition: border-color var(--duracion-media), box-shadow var(--duracion-media);
+    }
+
+    .campo-numero:focus {
+      border-color: var(--color-js);
+      box-shadow: 0 0 0 3px rgba(247,223,30,0.25);
+    }
+
+    .propina-opciones {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
+      gap: var(--espacio-sm);
+      margin-bottom: var(--espacio-sm);
+    }
+
+    .propina-btn {
+      padding: var(--espacio-sm) 0;
+      background: var(--color-fondo);
+      border: 2px solid var(--color-borde);
+      border-radius: var(--radio-md);
+      font-family: var(--fuente-codigo);
+      font-size: 1rem;
+      font-weight: bold;
+      color: var(--color-primario);
+      cursor: pointer;
+      transition: background var(--duracion-media),
+                  border-color var(--duracion-media),
+                  color var(--duracion-media),
+                  transform var(--duracion-media) var(--timing-rebote);
+      text-align: center;
+    }
+
+    .propina-btn:hover {
+      background: var(--color-primario);
+      color: #fff;
+      border-color: var(--color-primario);
+      transform: translateY(-2px);
+    }
+
+    .propina-btn.activo {
+      background: var(--color-js);
+      color: var(--color-js-oscuro);
+      border-color: var(--color-js);
+    }
+
+    .personas-control {
+      display: flex;
+      align-items: center;
+      gap: var(--espacio-md);
+    }
+
+    .btn-circular {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--color-primario);
+      color: #fff;
+      border: none;
+      font-size: 1.3rem;
+      line-height: 1;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background var(--duracion-media), transform var(--duracion-media) var(--timing-rebote);
+    }
+
+    .btn-circular:hover {
+      background: var(--color-secundario);
+      transform: scale(1.1);
+    }
+
+    .personas-num {
+      font-family: var(--fuente-codigo);
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: var(--color-primario);
+      min-width: 2rem;
+      text-align: center;
+    }
+
+    .resultado-panel {
+      background: var(--color-js-oscuro);
+      border-radius: var(--radio-lg);
+      padding: var(--espacio-xl);
+      margin-top: var(--espacio-xl);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--espacio-md);
+    }
+
+    .resultado-item {
+      text-align: center;
+    }
+
+    .resultado-label {
+      font-family: var(--fuente-codigo);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: rgba(255,255,255,0.5);
+      margin-bottom: var(--espacio-xs);
+    }
+
+    .resultado-valor {
+      font-family: var(--fuente-codigo);
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: var(--color-js);
+      transition: transform var(--duracion-media) var(--timing-rebote),
+                  color var(--duracion-media);
+    }
+
+    .resultado-valor.actualizado {
+      transform: scale(1.12);
+    }
+
+    .resultado-item.total-persona {
+      grid-column: 1 / -1;
+    }
+
+    .resultado-item.total-persona .resultado-valor {
+      font-size: 2.5rem;
+      color: #fff;
+    }
+
+
+    /* ============================================================
+       PIE DE PÁGINA
+       ============================================================ */
+    .site-footer {
+      border-top: 1px solid var(--color-borde);
+      padding: var(--espacio-xl) var(--espacio-md);
+      margin-top: var(--espacio-xxl);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--espacio-md);
+      font-size: 0.875rem;
+      color: var(--color-texto-suave);
+    }
+
+    .footer-nav {
+      display: flex;
+      gap: var(--espacio-md);
+      flex-wrap: wrap;
+    }
+
+    .footer-nav a {
+      color: var(--color-texto-suave);
+      font-size: 0.875rem;
+      border-bottom: none;
+    }
+
+    .footer-nav a:hover { color: var(--color-primario); }
+
+
+    /* ============================================================
+       ACCESIBILIDAD
+       ============================================================ */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration:        0.01ms !important;
+        animation-iteration-count: 1      !important;
+        transition-duration:       0.01ms !important;
+      }
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <!-- ============================================================
+       ENCABEZADO DEL SITIO
+  ============================================================= -->
+  <header class="site-header">
+    <div class="pagina-wrapper">
+      <p class="badge-semana">SEMANA 07</p>
+      <h1>Introducción a JavaScript</h1>
+      <p>Variables, tipos de datos, funciones, manipulación del DOM y manejo de eventos.</p>
+    </div>
+  </header>
+
+
+  <div class="pagina-wrapper">
+
+    <!-- Navegación interna -->
+    <nav class="nav-interna" aria-label="Contenido de esta página">
+      <h2>Contenido</h2>
+      <ul>
+        <li><a href="#variables">1. Variables y Tipos</a></li>
+        <li><a href="#operadores">2. Operadores</a></li>
+        <li><a href="#funciones">3. Funciones</a></li>
+        <li><a href="#control">4. Estructuras de control</a></li>
+        <li><a href="#dom">5. El DOM</a></li>
+        <li><a href="#eventos">6. Eventos</a></li>
+        <li><a href="#proyecto">7. Proyecto aplicado</a></li>
+      </ul>
+    </nav>
+
+
+    <!-- ============================================================
+         SECCIÓN 1 — VARIABLES Y TIPOS DE DATOS
+    ============================================================= -->
+    <section class="seccion" id="variables">
+      <h2>1. Variables y Tipos de datos</h2>
+
+      <p>Una <strong>variable</strong> es un contenedor con nombre que almacena un valor. En JavaScript se declaran con <code>let</code>, <code>const</code> o <code>var</code>.</p>
+
+      <pre><code><span class="cm">// Declarar una variable con let</span>
+<span class="kw">let</span> nombre = <span class="str">"Ana"</span>;
+<span class="kw">let</span> edad   = <span class="num">22</span>;
+
+<span class="cm">// Declarar una constante (no se puede reasignar)</span>
+<span class="kw">const</span> PI = <span class="num">3.14159</span>;
+
+<span class="cm">// Usar las variables</span>
+console.log(nombre);  <span class="cm">// → "Ana"</span>
+console.log(edad + <span class="num">5</span>); <span class="cm">// → 27</span></code></pre>
+
+
+      <h3>let, const y var</h3>
+
+      <div class="let-const-grid">
+        <div class="let-const-card lcc-let">
+          <div class="lcc-header">let</div>
+          <ul>
+            <li>Bloque de alcance (block scope)</li>
+            <li>Se puede reasignar</li>
+            <li>No se puede redeclarar en el mismo bloque</li>
+            <li>✅ Recomendado para valores que cambian</li>
+          </ul>
+        </div>
+        <div class="let-const-card lcc-const">
+          <div class="lcc-header">const</div>
+          <ul>
+            <li>Bloque de alcance (block scope)</li>
+            <li>No se puede reasignar</li>
+            <li>No se puede redeclarar</li>
+            <li>✅ Recomendado por defecto (la mayoría de casos)</li>
+          </ul>
+        </div>
+        <div class="let-const-card lcc-var">
+          <div class="lcc-header">var</div>
+          <ul>
+            <li>Alcance de función (function scope)</li>
+            <li>Se puede reasignar y redeclarar</li>
+            <li>Tiene hoisting (se "sube" al inicio)</li>
+            <li>⚠️ Evitar en código moderno</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="nota js">
+        <p><strong>Regla práctica:</strong> Usa <code>const</code> siempre. Cambia a <code>let</code> solo cuando necesites reasignar el valor. Nunca uses <code>var</code> en código nuevo.</p>
+      </div>
+
+
+      <h3>Tipos de datos primitivos</h3>
+      <p>JavaScript tiene 7 tipos primitivos. Los tipos se determinan automáticamente — no se declaran explícitamente.</p>
+
+      <div class="tipos-grid">
+        <div class="tipo-chip tipo-string">
+          <div class="tipo-nombre">string</div>
+          <div class="tipo-valor">"Hola, mundo"</div>
+        </div>
+        <div class="tipo-chip tipo-number">
+          <div class="tipo-nombre">number</div>
+          <div class="tipo-valor">42 / 3.14</div>
+        </div>
+        <div class="tipo-chip tipo-boolean">
+          <div class="tipo-nombre">boolean</div>
+          <div class="tipo-valor">true / false</div>
+        </div>
+        <div class="tipo-chip tipo-null">
+          <div class="tipo-nombre">null</div>
+          <div class="tipo-valor">null</div>
+        </div>
+        <div class="tipo-chip tipo-undef">
+          <div class="tipo-nombre">undefined</div>
+          <div class="tipo-valor">undefined</div>
+        </div>
+        <div class="tipo-chip tipo-array">
+          <div class="tipo-nombre">array (objeto)</div>
+          <div class="tipo-valor">[1, 2, 3]</div>
+        </div>
+        <div class="tipo-chip tipo-object">
+          <div class="tipo-nombre">object</div>
+          <div class="tipo-valor">{nombre: "Ana"}</div>
+        </div>
+      </div>
+
+      <pre><code><span class="cm">// typeof → averigua el tipo de un valor</span>
+<span class="kw">typeof</span> <span class="str">"hola"</span>      <span class="cm">// → "string"</span>
+<span class="kw">typeof</span> <span class="num">42</span>          <span class="cm">// → "number"</span>
+<span class="kw">typeof</span> <span class="kw">true</span>        <span class="cm">// → "boolean"</span>
+<span class="kw">typeof</span> <span class="kw">null</span>        <span class="cm">// → "object"  (⚠️ bug histórico de JS)</span>
+<span class="kw">typeof</span> <span class="kw">undefined</span>   <span class="cm">// → "undefined"</span>
+<span class="kw">typeof</span> []          <span class="cm">// → "object"</span>
+<span class="kw">typeof</span> {}          <span class="cm">// → "object"</span></code></pre>
+
+
+      <h3>Strings — operaciones comunes</h3>
+      <pre><code><span class="kw">const</span> texto = <span class="str">"JavaScript"</span>;
+
+texto.length;              <span class="cm">// → 10</span>
+texto.toUpperCase();       <span class="cm">// → "JAVASCRIPT"</span>
+texto.toLowerCase();       <span class="cm">// → "javascript"</span>
+texto.includes(<span class="str">"Script"</span>);  <span class="cm">// → true</span>
+texto.slice(<span class="num">0</span>, <span class="num">4</span>);        <span class="cm">// → "Java"</span>
+texto.replace(<span class="str">"Java"</span>, <span class="str">"Type"</span>); <span class="cm">// → "TypeScript"</span>
+texto.split(<span class="str">"a"</span>);          <span class="cm">// → ["J", "v", "Script"]</span>
+
+<span class="cm">// Template literals — strings con interpolación</span>
+<span class="kw">const</span> nombre = <span class="str">"Ana"</span>;
+<span class="kw">const</span> saludo = <span class="str">`Hola, ${nombre}! Tienes ${<span class="num">2024</span> - <span class="num">2002</span>} años.`</span>;
+<span class="cm">// → "Hola, Ana! Tienes 22 años."</span></code></pre>
+
+
+      <h3>Arrays — listas ordenadas</h3>
+      <pre><code><span class="kw">const</span> frutas = [<span class="str">"manzana"</span>, <span class="str">"pera"</span>, <span class="str">"uva"</span>];
+
+frutas[<span class="num">0</span>];           <span class="cm">// → "manzana" (índice empieza en 0)</span>
+frutas.length;       <span class="cm">// → 3</span>
+frutas.push(<span class="str">"kiwi"</span>); <span class="cm">// agrega al final → ["manzana","pera","uva","kiwi"]</span>
+frutas.pop();        <span class="cm">// elimina el último → ["manzana","pera","uva"]</span>
+frutas.includes(<span class="str">"pera"</span>); <span class="cm">// → true</span>
+frutas.indexOf(<span class="str">"uva"</span>);  <span class="cm">// → 2</span>
+
+<span class="cm">// Recorrer un array</span>
+frutas.forEach(<span class="kw">function</span>(<span class="fn">fruta</span>) {
+  console.log(fruta);
+});</code></pre>
+
+
+      <h3>Objetos — pares clave: valor</h3>
+      <pre><code><span class="kw">const</span> persona = {
+  nombre: <span class="str">"Ana"</span>,
+  edad:   <span class="num">22</span>,
+  activa: <span class="kw">true</span>
+};
+
+<span class="cm">// Acceder a propiedades</span>
+persona.nombre;        <span class="cm">// → "Ana"   (notación de punto)</span>
+persona[<span class="str">"edad"</span>];      <span class="cm">// → 22     (notación de corchetes)</span>
+
+<span class="cm">// Agregar o modificar</span>
+persona.ciudad = <span class="str">"Bogotá"</span>;
+persona.edad = <span class="num">23</span>;
+
+<span class="cm">// Destructuring — extraer propiedades en variables</span>
+<span class="kw">const</span> { nombre, edad } = persona;
+console.log(nombre); <span class="cm">// → "Ana"</span></code></pre>
+
+      <!-- Demo interactivo: typeof -->
+      <div class="demo-box">
+        <h4>▶ Demo interactivo — typeof</h4>
+        <div class="input-row">
+          <input class="input-demo" type="text" id="tipo-input" placeholder='Escribe un valor: 42, "hola", true, null…'>
+          <button class="btn-demo" onclick="demoTipeof()">Evaluar</button>
+        </div>
+        <div class="output-consola" id="tipo-output">
+          <div class="output-linea out-log">// El resultado aparecerá aquí</div>
+        </div>
+      </div>
+
+    </section>
+
+
+    <!-- ============================================================
+         SECCIÓN 2 — OPERADORES
+    ============================================================= -->
+    <section class="seccion" id="operadores">
+      <h2>2. Operadores y Expresiones</h2>
+
+      <p>Los operadores realizan operaciones sobre valores (operandos). Una <strong>expresión</strong> es cualquier fragmento de código que produce un valor.</p>
+
+      <h3>Operadores aritméticos</h3>
+      <pre><code><span class="num">10</span> + <span class="num">3</span>   <span class="cm">// → 13   (suma)</span>
+<span class="num">10</span> - <span class="num">3</span>   <span class="cm">// → 7    (resta)</span>
+<span class="num">10</span> * <span class="num">3</span>   <span class="cm">// → 30   (multiplicación)</span>
+<span class="num">10</span> / <span class="num">3</span>   <span class="cm">// → 3.33 (división)</span>
+<span class="num">10</span> % <span class="num">3</span>   <span class="cm">// → 1    (módulo — resto de la división)</span>
+<span class="num">2</span>  ** <span class="num">8</span>  <span class="cm">// → 256  (potencia)</span>
+
+<span class="cm">// Incremento y decremento</span>
+<span class="kw">let</span> x = <span class="num">5</span>;
+x++;   <span class="cm">// x = 6  (post-incremento)</span>
+x--;   <span class="cm">// x = 5  (post-decremento)</span>
+++x;   <span class="cm">// x = 6  (pre-incremento)</span></code></pre>
+
+
+      <h3>Operadores de comparación</h3>
+      <pre><code><span class="cm">// == vs === → SIEMPRE usa ===</span>
+<span class="num">5</span> == <span class="str">"5"</span>   <span class="cm">// → true   (convierte tipos, peligroso)</span>
+<span class="num">5</span> === <span class="str">"5"</span>  <span class="cm">// → false  (compara valor Y tipo, correcto)</span>
+<span class="num">5</span> !== <span class="num">3</span>   <span class="cm">// → true   (diferente, estricto)</span>
+
+<span class="num">10</span> > <span class="num">5</span>    <span class="cm">// → true</span>
+<span class="num">10</span> >= <span class="num">10</span>  <span class="cm">// → true</span>
+<span class="num">3</span>  < <span class="num">7</span>    <span class="cm">// → true</span>
+<span class="num">3</span>  <= <span class="num">2</span>   <span class="cm">// → false</span></code></pre>
+
+      <div class="nota rojo">
+        <p><strong>Regla de oro:</strong> Usa siempre <code>===</code> (igualdad estricta) y <code>!==</code> (desigualdad estricta). El operador <code>==</code> hace conversiones de tipo automáticas que producen resultados sorprendentes.</p>
+      </div>
+
+
+      <h3>Operadores lógicos</h3>
+      <pre><code><span class="cm">// && → AND (Y): ambos deben ser true</span>
+<span class="kw">true</span>  && <span class="kw">true</span>   <span class="cm">// → true</span>
+<span class="kw">true</span>  && <span class="kw">false</span>  <span class="cm">// → false</span>
+
+<span class="cm">// || → OR (O): basta con que uno sea true</span>
+<span class="kw">false</span> || <span class="kw">true</span>   <span class="cm">// → true</span>
+<span class="kw">false</span> || <span class="kw">false</span>  <span class="cm">// → false</span>
+
+<span class="cm">// !  → NOT (NO): invierte el valor</span>
+!<span class="kw">true</span>            <span class="cm">// → false</span>
+!<span class="kw">false</span>           <span class="cm">// → true</span>
+
+<span class="cm">// Operador nullish coalescing ?? → fallback si null/undefined</span>
+<span class="kw">const</span> nombre = <span class="kw">null</span> ?? <span class="str">"Invitado"</span>;  <span class="cm">// → "Invitado"</span>
+
+<span class="cm">// Encadenamiento opcional ?. → evita errores con null</span>
+<span class="kw">const</span> usuario = <span class="kw">null</span>;
+usuario?.nombre;  <span class="cm">// → undefined (sin error)</span></code></pre>
+
+
+      <!-- Demo interactivo: calculadora -->
+      <div class="demo-box">
+        <h4>▶ Demo interactivo — Calculadora</h4>
+        <div class="input-row">
+          <input class="input-demo" type="number" id="calc-a" placeholder="Número A" value="10">
+          <input class="input-demo" type="number" id="calc-b" placeholder="Número B" value="3">
+        </div>
+        <div class="btn-fila">
+          <button class="btn-demo" onclick="demoCalc('+')">A + B</button>
+          <button class="btn-demo" onclick="demoCalc('-')">A − B</button>
+          <button class="btn-demo" onclick="demoCalc('*')">A × B</button>
+          <button class="btn-demo" onclick="demoCalc('/')">A ÷ B</button>
+          <button class="btn-demo" onclick="demoCalc('%')">A % B</button>
+          <button class="btn-demo" onclick="demoCalc('**')">A ** B</button>
+        </div>
+        <div class="output-consola" id="calc-output">
+          <div class="output-linea out-log">// Haz clic en un operador</div>
+        </div>
+      </div>
+
+    </section>
+
+
+    <!-- ============================================================
+         SECCIÓN 3 — FUNCIONES
+    ============================================================= -->
+    <section class="seccion" id="funciones">
+      <h2>3. Funciones</h2>
+
+      <p>Una <strong>función</strong> es un bloque de código reutilizable que realiza una tarea específica. Se define una vez y se puede ejecutar (invocar) múltiples veces.</p>
+
+      <h3>Tres formas de declarar funciones</h3>
+
+      <pre><code><span class="cm">// ── 1. Declaración de función (function declaration) ──</span>
+<span class="cm">// Se "sube" al inicio del scope (hoisting). Se puede llamar antes de declararse.</span>
+<span class="kw">function</span> <span class="fn">saludar</span>(nombre) {
+  <span class="kw">return</span> <span class="str">`Hola, ${nombre}!`</span>;
+}
+saludar(<span class="str">"Ana"</span>);  <span class="cm">// → "Hola, Ana!"</span>
+
+
+<span class="cm">// ── 2. Expresión de función (function expression) ──</span>
+<span class="cm">// Asignada a una variable. NO tiene hoisting.</span>
+<span class="kw">const</span> <span class="fn">sumar</span> = <span class="kw">function</span>(a, b) {
+  <span class="kw">return</span> a + b;
+};
+sumar(<span class="num">3</span>, <span class="num">4</span>);  <span class="cm">// → 7</span>
+
+
+<span class="cm">// ── 3. Arrow function (función flecha) ──</span>
+<span class="cm">// Sintaxis más corta. No tiene su propio "this".</span>
+<span class="kw">const</span> <span class="fn">multiplicar</span> = (a, b) <span class="op">=&gt;</span> a * b;
+multiplicar(<span class="num">5</span>, <span class="num">6</span>);  <span class="cm">// → 30</span>
+
+<span class="cm">// Si el cuerpo tiene varias líneas, necesita llaves y return</span>
+<span class="kw">const</span> <span class="fn">calcularDescuento</span> = (precio, porcentaje) <span class="op">=&gt;</span> {
+  <span class="kw">const</span> descuento = precio * (porcentaje / <span class="num">100</span>);
+  <span class="kw">return</span> precio - descuento;
+};</code></pre>
+
+
+      <h3>Parámetros y valores por defecto</h3>
+      <pre><code><span class="cm">// Parámetros con valor por defecto</span>
+<span class="kw">function</span> <span class="fn">saludar</span>(nombre = <span class="str">"Invitado"</span>, idioma = <span class="str">"es"</span>) {
+  <span class="kw">if</span> (idioma === <span class="str">"es"</span>) <span class="kw">return</span> <span class="str">`Hola, ${nombre}!`</span>;
+  <span class="kw">if</span> (idioma === <span class="str">"en"</span>) <span class="kw">return</span> <span class="str">`Hello, ${nombre}!`</span>;
+}
+
+saludar();            <span class="cm">// → "Hola, Invitado!"</span>
+saludar(<span class="str">"Ana"</span>);       <span class="cm">// → "Hola, Ana!"</span>
+saludar(<span class="str">"Bob"</span>, <span class="str">"en"</span>); <span class="cm">// → "Hello, Bob!"</span>
+
+<span class="cm">// Rest parameters → recibe número variable de argumentos</span>
+<span class="kw">function</span> <span class="fn">sumarTodo</span>(...numeros) {
+  <span class="kw">return</span> numeros.reduce((acc, n) <span class="op">=&gt;</span> acc + n, <span class="num">0</span>);
+}
+sumarTodo(<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>);  <span class="cm">// → 10</span></code></pre>
+
+
+      <h3>Scope (Alcance)</h3>
+      <pre><code><span class="cm">// Variables GLOBALES → accesibles desde cualquier lugar</span>
+<span class="kw">const</span> global = <span class="str">"soy global"</span>;
+
+<span class="kw">function</span> <span class="fn">ejemplo</span>() {
+  <span class="cm">// Variables LOCALES → solo dentro de la función</span>
+  <span class="kw">const</span> local = <span class="str">"solo existo aquí"</span>;
+  console.log(global);  <span class="cm">// ✅ puede leer la global</span>
+  console.log(local);   <span class="cm">// ✅ puede leer la local</span>
+}
+
+console.log(global);  <span class="cm">// ✅ accesible</span>
+console.log(local);   <span class="cm">// ❌ ReferenceError: local is not defined</span></code></pre>
+
+      <div class="comparativa">
+        <div class="comparativa-item bueno">
+          <div class="cab">✅ Arrow function concisa</div>
+          <pre><code><span class="cm">// Una línea, retorno implícito</span>
+<span class="kw">const</span> doble = n <span class="op">=&gt;</span> n * <span class="num">2</span>;
+<span class="kw">const</span> esPar  = n <span class="op">=&gt;</span> n % <span class="num">2</span> === <span class="num">0</span>;
+
+[<span class="num">1</span>,<span class="num">2</span>,<span class="num">3</span>].map(doble); <span class="cm">// [2,4,6]</span></code></pre>
+        </div>
+        <div class="comparativa-item malo">
+          <div class="cab">❌ Sin parámetros nombrados</div>
+          <pre><code><span class="cm">// Difícil de entender</span>
+<span class="kw">const</span> fn = (a,b,c) <span class="op">=&gt;</span> a*b+c/<span class="num">2</span>;
+
+<span class="cm">// Mejor así:</span>
+<span class="kw">const</span> calcular = (precio,cantidad,descuento) <span class="op">=&gt;</span>
+  precio * cantidad + descuento / <span class="num">2</span>;</code></pre>
+        </div>
+      </div>
+
+
+      <!-- Demo interactivo: funciones -->
+      <div class="demo-box">
+        <h4>▶ Demo interactivo — Funciones</h4>
+        <div class="input-row">
+          <input class="input-demo" type="text" id="fn-nombre" placeholder="Tu nombre">
+          <input class="input-demo" type="number" id="fn-edad" placeholder="Tu año de nacimiento" value="2000">
+        </div>
+        <div class="btn-fila">
+          <button class="btn-demo" onclick="demoFunciones()">Ejecutar funciones</button>
+        </div>
+        <div class="output-consola" id="fn-output">
+          <div class="output-linea out-log">// Ingresa tu nombre y año de nacimiento</div>
+        </div>
+      </div>
+
+    </section>
+
+
+    <!-- ============================================================
+         SECCIÓN 4 — ESTRUCTURAS DE CONTROL
+    ============================================================= -->
+    <section class="seccion" id="control">
+      <h2>4. Estructuras de control</h2>
+
+      <p>Las estructuras de control determinan el <strong>flujo de ejecución</strong> del programa: qué código se ejecuta y cuándo.</p>
+
+      <h3>if / else if / else</h3>
+      <pre><code><span class="kw">const</span> nota = <span class="num">75</span>;
+
+<span class="kw">if</span> (nota >= <span class="num">90</span>) {
+  console.log(<span class="str">"Excelente"</span>);
+} <span class="kw">else if</span> (nota >= <span class="num">70</span>) {
+  console.log(<span class="str">"Aprobado"</span>);     <span class="cm">// ← se ejecuta este bloque</span>
+} <span class="kw">else if</span> (nota >= <span class="num">60</span>) {
+  console.log(<span class="str">"Suficiente"</span>);
+} <span class="kw">else</span> {
+  console.log(<span class="str">"Reprobado"</span>);
+}</code></pre>
+
+
+      <h3>Operador ternario</h3>
+      <p>Versión compacta del if/else para una sola expresión:</p>
+      <pre><code><span class="cm">// condición ? valor_si_true : valor_si_false</span>
+<span class="kw">const</span> mensaje = nota >= <span class="num">70</span> ? <span class="str">"Aprobado"</span> : <span class="str">"Reprobado"</span>;
+
+<span class="cm">// Equivale a:</span>
+<span class="kw">let</span> mensaje2;
+<span class="kw">if</span> (nota >= <span class="num">70</span>) {
+  mensaje2 = <span class="str">"Aprobado"</span>;
+} <span class="kw">else</span> {
+  mensaje2 = <span class="str">"Reprobado"</span>;
+}</code></pre>
+
+
+      <h3>switch</h3>
+      <pre><code><span class="kw">const</span> dia = <span class="str">"lunes"</span>;
+
+<span class="kw">switch</span> (dia) {
+  <span class="kw">case</span> <span class="str">"lunes"</span>:
+  <span class="kw">case</span> <span class="str">"martes"</span>:
+  <span class="kw">case</span> <span class="str">"miércoles"</span>:
+  <span class="kw">case</span> <span class="str">"jueves"</span>:
+  <span class="kw">case</span> <span class="str">"viernes"</span>:
+    console.log(<span class="str">"Día laboral"</span>);
+    <span class="kw">break</span>;
+  <span class="kw">case</span> <span class="str">"sábado"</span>:
+  <span class="kw">case</span> <span class="str">"domingo"</span>:
+    console.log(<span class="str">"Fin de semana"</span>);
+    <span class="kw">break</span>;
+  <span class="kw">default</span>:
+    console.log(<span class="str">"Día desconocido"</span>);
+}</code></pre>
+
+
+      <h3>Bucles (for, while, forEach)</h3>
+      <pre><code><span class="cm">// for clásico</span>
+<span class="kw">for</span> (<span class="kw">let</span> i = <span class="num">0</span>; i < <span class="num">5</span>; i++) {
+  console.log(<span class="str">`Iteración ${i}`</span>);
+}
+
+<span class="cm">// for...of → recorrer arrays</span>
+<span class="kw">const</span> frutas = [<span class="str">"manzana"</span>, <span class="str">"pera"</span>, <span class="str">"uva"</span>];
+<span class="kw">for</span> (<span class="kw">const</span> fruta <span class="kw">of</span> frutas) {
+  console.log(fruta);
+}
+
+<span class="cm">// for...in → recorrer propiedades de objetos</span>
+<span class="kw">const</span> persona = { nombre: <span class="str">"Ana"</span>, edad: <span class="num">22</span> };
+<span class="kw">for</span> (<span class="kw">const</span> clave <span class="kw">in</span> persona) {
+  console.log(<span class="str">`${clave}: ${persona[clave]}`</span>);
+}
+
+<span class="cm">// while</span>
+<span class="kw">let</span> contador = <span class="num">0</span>;
+<span class="kw">while</span> (contador < <span class="num">3</span>) {
+  console.log(contador);
+  contador++;
+}</code></pre>
+
+
+      <!-- Demo interactivo: if/else -->
+      <div class="demo-box">
+        <h4>▶ Demo interactivo — Clasificador de notas</h4>
+        <div class="input-row">
+          <input class="input-demo" type="number" id="nota-input" placeholder="Ingresa una nota (0–100)" min="0" max="100">
+          <button class="btn-demo" onclick="demoNotas()">Clasificar</button>
+        </div>
+        <div class="output-consola" id="nota-output">
+          <div class="output-linea out-log">// Ingresa una nota del 0 al 100</div>
+        </div>
+      </div>
+
+    </section>
+
+
+    <!-- ============================================================
+         SECCIÓN 5 — EL DOM
+    ============================================================= -->
+    <section class="seccion" id="dom">
+      <h2>5. El DOM — Document Object Model</h2>
+
+      <p>El <strong>DOM</strong> es la representación en memoria de la página HTML. JavaScript puede leer y modificar esta representación para cambiar lo que el usuario ve en tiempo real, sin recargar la página.</p>
+
+      <div class="nota azul">
+        <p><strong>Analogía:</strong> Si HTML es el plano de una casa, el DOM es la casa real construida. Puedes modificar la casa (mover muebles, cambiar paredes) sin cambiar el plano original.</p>
+      </div>
+
+
+      <h3>Árbol del DOM</h3>
+      <div class="dom-tree" aria-label="Representación visual del árbol DOM">
+        <div class="dom-root"><span class="dom-tag">document</span></div>
+        <div class="dom-node">
+          <span class="dom-tag">&lt;html&gt;</span>
+          <div class="dom-node">
+            <span class="dom-tag">&lt;head&gt;</span>
+            <div class="dom-node"><span class="dom-tag">&lt;title&gt;</span> <span class="dom-text">"Mi página"</span></div>
+          </div>
+          <div class="dom-node">
+            <span class="dom-tag">&lt;body&gt;</span>
+            <div class="dom-node">
+              <span class="dom-tag">&lt;h1</span> <span class="dom-attr">id="titulo"</span><span class="dom-tag">&gt;</span> <span class="dom-text">"Hola"</span>
+            </div>
+            <div class="dom-node">
+              <span class="dom-tag">&lt;p</span> <span class="dom-attr">class="descripcion"</span><span class="dom-tag">&gt;</span> <span class="dom-text">"Texto..."</span>
+            </div>
+            <div class="dom-node">
+              <span class="dom-tag">&lt;button</span> <span class="dom-attr">id="btn"</span><span class="dom-tag">&gt;</span> <span class="dom-text">"Clic"</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <h3>Seleccionar elementos</h3>
+      <pre><code><span class="cm">// querySelector → primer elemento que coincide (CSS selector)</span>
+<span class="kw">const</span> titulo   = document.querySelector(<span class="str">"#titulo"</span>);
+<span class="kw">const</span> parrafo  = document.querySelector(<span class="str">".descripcion"</span>);
+<span class="kw">const</span> boton    = document.querySelector(<span class="str">"button"</span>);
+
+<span class="cm">// querySelectorAll → NodeList de TODOS los que coinciden</span>
+<span class="kw">const</span> items    = document.querySelectorAll(<span class="str">"li"</span>);
+<span class="kw">const</span> parrafos = document.querySelectorAll(<span class="str">".descripcion"</span>);
+
+<span class="cm">// Métodos clásicos (siguen siendo útiles)</span>
+<span class="kw">const</span> porId    = document.getElementById(<span class="str">"titulo"</span>);
+<span class="kw">const</span> porClase = document.getElementsByClassName(<span class="str">"descripcion"</span>);</code></pre>
+
+
+      <h3>Modificar contenido, estilos y clases</h3>
+      <pre><code><span class="kw">const</span> titulo = document.querySelector(<span class="str">"#titulo"</span>);
+
+<span class="cm">// Contenido</span>
+titulo.textContent = <span class="str">"Nuevo título"</span>;   <span class="cm">// solo texto, seguro</span>
+titulo.innerHTML   = <span class="str">"Título &lt;em&gt;cursiva&lt;/em&gt;"</span>; <span class="cm">// puede incluir HTML</span>
+
+<span class="cm">// Estilos en línea</span>
+titulo.style.color       = <span class="str">"red"</span>;
+titulo.style.fontSize    = <span class="str">"2rem"</span>;
+titulo.style.display     = <span class="str">"none"</span>;    <span class="cm">// ocultar</span>
+
+<span class="cm">// Atributos</span>
+titulo.setAttribute(<span class="str">"data-id"</span>, <span class="str">"42"</span>);
+titulo.getAttribute(<span class="str">"id"</span>);             <span class="cm">// → "titulo"</span>
+
+<span class="cm">// Clases CSS (la forma recomendada)</span>
+titulo.classList.add(<span class="str">"activo"</span>);       <span class="cm">// agregar clase</span>
+titulo.classList.remove(<span class="str">"activo"</span>);    <span class="cm">// eliminar clase</span>
+titulo.classList.toggle(<span class="str">"activo"</span>);    <span class="cm">// alternar (si la tiene la quita, si no la agrega)</span>
+titulo.classList.contains(<span class="str">"activo"</span>);  <span class="cm">// → true/false</span></code></pre>
+
+
+      <h3>Crear y eliminar elementos</h3>
+      <pre><code><span class="cm">// Crear un elemento nuevo</span>
+<span class="kw">const</span> nuevoParrafo = document.createElement(<span class="str">"p"</span>);
+nuevoParrafo.textContent = <span class="str">"Este párrafo fue creado con JS"</span>;
+nuevoParrafo.classList.add(<span class="str">"parrafo-nuevo"</span>);
+
+<span class="cm">// Agregarlo al DOM</span>
+document.body.appendChild(nuevoParrafo);           <span class="cm">// al final del body</span>
+document.querySelector(<span class="str">"#lista"</span>).prepend(nuevoParrafo); <span class="cm">// al inicio</span>
+
+<span class="cm">// Eliminar un elemento</span>
+nuevoParrafo.remove();
+
+<span class="cm">// Recorrer una lista de elementos del DOM</span>
+document.querySelectorAll(<span class="str">"li"</span>).forEach(item <span class="op">=&gt;</span> {
+  item.style.color = <span class="str">"green"</span>;
+});</code></pre>
+
+
+      <!-- Demo interactivo: DOM -->
+      <div class="demo-box">
+        <h4>▶ Demo interactivo — Manipulación del DOM</h4>
+        <div class="input-row">
+          <input class="input-demo" type="text" id="dom-texto" placeholder="Escribe texto para agregar a la lista">
+          <button class="btn-demo" onclick="domAgregar()">Agregar</button>
+        </div>
+        <div class="btn-fila">
+          <button class="btn-demo ambar" onclick="domCambiarFondo()">Cambiar fondo</button>
+          <button class="btn-demo lila" onclick="domCambiarTexto()">Modificar título</button>
+          <button class="btn-demo rojo" onclick="domLimpiarLista()">Limpiar lista</button>
+        </div>
+        <p id="dom-titulo-demo" style="font-family:var(--fuente-titulos);font-size:1.2rem;color:var(--color-primario);margin-bottom:var(--espacio-sm);">Título modificable</p>
+        <div class="dom-demo-zona" id="dom-zona">
+          <p class="dom-empty-msg">La lista aparecerá aquí…</p>
+        </div>
+        <p style="font-size:0.8rem;color:var(--color-texto-suave);margin:var(--espacio-sm) 0 0;">Haz clic en ✕ para eliminar un ítem individualmente.</p>
+      </div>
+
+    </section>
+
+
+    <!-- ============================================================
+         SECCIÓN 6 — EVENTOS
+    ============================================================= -->
+    <section class="seccion" id="eventos">
+      <h2>6. Eventos</h2>
+
+      <p>Los <strong>eventos</strong> son señales que el navegador genera cuando algo ocurre: un clic, una tecla presionada, el ratón moviéndose, el formulario enviado, la página cargada. JavaScript puede <em>escuchar</em> esos eventos y ejecutar código en respuesta.</p>
+
+      <h3>addEventListener</h3>
+      <pre><code><span class="cm">// Sintaxis:</span>
+elemento.addEventListener(<span class="str">'tipo-de-evento'</span>, funcionHandler);
+
+<span class="cm">// Ejemplo con función anónima</span>
+<span class="kw">const</span> boton = document.querySelector(<span class="str">"#btn"</span>);
+boton.addEventListener(<span class="str">'click'</span>, () <span class="op">=&gt;</span> {
+  console.log(<span class="str">"¡Botón presionado!"</span>);
+});
+
+<span class="cm">// Ejemplo con función nombrada (recomendado para poder remover)</span>
+<span class="kw">function</span> <span class="fn">manejarClic</span>(event) {
+  console.log(<span class="str">"Clic en:"</span>, event.target);
+}
+boton.addEventListener(<span class="str">'click'</span>, manejarClic);
+boton.removeEventListener(<span class="str">'click'</span>, manejarClic); <span class="cm">// ← remover</span></code></pre>
+
+
+      <h3>El objeto event</h3>
+      <pre><code><span class="kw">const</span> input = document.querySelector(<span class="str">"input"</span>);
+
+<span class="cm">// keydown → qué tecla se presionó</span>
+input.addEventListener(<span class="str">'keydown'</span>, (event) <span class="op">=&gt;</span> {
+  console.log(event.key);        <span class="cm">// → "Enter", "a", "Shift"...</span>
+  console.log(event.code);       <span class="cm">// → "KeyA", "Enter"...</span>
+  <span class="kw">if</span> (event.key === <span class="str">'Enter'</span>) {
+    console.log(<span class="str">"¡Enter presionado!"</span>);
+  }
+});
+
+<span class="cm">// mousemove → posición del cursor</span>
+document.addEventListener(<span class="str">'mousemove'</span>, (event) <span class="op">=&gt;</span> {
+  console.log(event.clientX, event.clientY);
+});
+
+<span class="cm">// submit → prevenir recarga de página en formularios</span>
+formulario.addEventListener(<span class="str">'submit'</span>, (event) <span class="op">=&gt;</span> {
+  event.preventDefault();  <span class="cm">// ← MUY IMPORTANTE</span>
+  <span class="cm">// procesar datos del formulario...</span>
+});</code></pre>
+
+
+      <h3>Tipos de eventos más comunes</h3>
+      <div class="tabla-wrapper">
+        <table>
+          <thead>
+            <tr><th>Categoría</th><th>Evento</th><th>Cuándo se dispara</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Ratón</td><td><code>click</code></td><td>Al hacer clic</td></tr>
+            <tr><td>Ratón</td><td><code>dblclick</code></td><td>Al hacer doble clic</td></tr>
+            <tr><td>Ratón</td><td><code>mouseenter</code></td><td>Al entrar el cursor al elemento</td></tr>
+            <tr><td>Ratón</td><td><code>mouseleave</code></td><td>Al salir el cursor del elemento</td></tr>
+            <tr><td>Ratón</td><td><code>mousemove</code></td><td>Al mover el cursor dentro</td></tr>
+            <tr><td>Teclado</td><td><code>keydown</code></td><td>Al presionar una tecla</td></tr>
+            <tr><td>Teclado</td><td><code>keyup</code></td><td>Al soltar una tecla</td></tr>
+            <tr><td>Formulario</td><td><code>submit</code></td><td>Al enviar el formulario</td></tr>
+            <tr><td>Formulario</td><td><code>input</code></td><td>Al cambiar el valor de un input</td></tr>
+            <tr><td>Formulario</td><td><code>change</code></td><td>Al confirmar el cambio (blur)</td></tr>
+            <tr><td>Formulario</td><td><code>focus</code> / <code>blur</code></td><td>Al recibir/perder foco</td></tr>
+            <tr><td>Documento</td><td><code>DOMContentLoaded</code></td><td>Al terminar de parsear el HTML</td></tr>
+            <tr><td>Documento</td><td><code>scroll</code></td><td>Al hacer scroll en la página</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+
+      <!-- Demo interactivo: eventos -->
+      <div class="demo-box">
+        <h4>▶ Demo interactivo — Eventos</h4>
+
+        <p style="font-size:0.875rem;color:var(--color-texto-suave);margin-bottom:var(--espacio-md);">Interactúa con la caja de abajo. Registra varios tipos de evento.</p>
+
+        <div class="evento-caja" id="evento-caja">
+          Haz clic, doble clic, o mueve el cursor aquí
+        </div>
+
+        <div style="display:flex;align-items:center;gap:var(--espacio-lg);flex-wrap:wrap;margin-bottom:var(--espacio-md);">
+          <div class="contador-badge">
+            <span>clics:</span>
+            <span class="contador-num" id="contador-clics">0</span>
+          </div>
+          <button class="btn-demo rojo" onclick="resetContador()">Resetear</button>
+        </div>
+
+        <div class="output-consola" id="evento-output">
+          <div class="output-linea out-log">// Los eventos aparecerán aquí</div>
+        </div>
+      </div>
+
+      <h3>Delegación de eventos</h3>
+      <pre><code><span class="cm">// En vez de agregar listener a CADA ítem de la lista...</span>
+<span class="cm">// ← ineficiente si hay muchos ítems o si se agregan dinámicamente</span>
+
+<span class="cm">// Escuchar en el CONTENEDOR PADRE → delegación</span>
+<span class="kw">const</span> lista = document.querySelector(<span class="str">"#lista"</span>);
+lista.addEventListener(<span class="str">'click'</span>, (event) <span class="op">=&gt;</span> {
+  <span class="cm">// event.target → el elemento exacto que recibió el clic</span>
+  <span class="kw">if</span> (event.target.matches(<span class="str">"li"</span>)) {
+    event.target.classList.toggle(<span class="str">"completado"</span>);
+  }
+});
+<span class="cm">// Funciona para ítems presentes Y futuros ✅</span></code></pre>
+
+    </section>
+
+
+    <!-- ============================================================
+         SECCIÓN 7 — PROYECTO APLICADO
+    ============================================================= -->
+    <section class="seccion" id="proyecto">
+      <h2>7. Proyecto aplicado — Calculadora de propinas</h2>
+
+      <p>Este proyecto combina <strong>todos los conceptos de la semana</strong>: variables y tipos, funciones con lógica de cálculo, manipulación del DOM para mostrar resultados, y eventos para reaccionar a la interacción del usuario.</p>
+
+      <div class="nota azul">
+        <p><strong>Conceptos aplicados:</strong> variables <code>const</code>/<code>let</code> · funciones de cálculo · <code>querySelector</code> y manipulación de <code>textContent</code> · <code>addEventListener</code> en botones e inputs · <code>classList.toggle/add/remove</code> · operadores aritméticos · condicionales con <code>if</code></p>
+      </div>
+
+      <div class="proyecto-wrapper">
+        <div class="proyecto-header">
+          <div class="py-icono">JS</div>
+          <div>
+            <h3>Calculadora de Propinas</h3>
+            <p>Divide la cuenta fácilmente entre varias personas</p>
+          </div>
+        </div>
+        <div class="proyecto-body">
+
+          <div class="campo-grupo">
+            <label for="py-cuenta">Total de la cuenta ($)</label>
+            <input class="campo-numero" type="number" id="py-cuenta" placeholder="0.00" min="0" step="0.01" value="">
+          </div>
+
+          <div class="campo-grupo">
+            <label>Porcentaje de propina</label>
+            <div class="propina-opciones">
+              <button class="propina-btn" data-propina="5">5%</button>
+              <button class="propina-btn activo" data-propina="10">10%</button>
+              <button class="propina-btn" data-propina="15">15%</button>
+              <button class="propina-btn" data-propina="20">20%</button>
+              <button class="propina-btn" data-propina="25">25%</button>
+            </div>
+            <div style="display:flex;align-items:center;gap:var(--espacio-sm);margin-top:var(--espacio-sm);">
+              <label style="font-size:0.8rem;font-family:var(--fuente-codigo);color:var(--color-texto-suave);white-space:nowrap;">Personalizado:</label>
+              <input class="input-demo" type="number" id="py-propina-custom" placeholder="%" min="0" max="100" style="max-width:100px;">
+            </div>
+          </div>
+
+          <div class="campo-grupo">
+            <label>Número de personas</label>
+            <div class="personas-control">
+              <button class="btn-circular" id="py-menos" aria-label="Reducir personas">−</button>
+              <span class="personas-num" id="py-personas-num">2</span>
+              <button class="btn-circular" id="py-mas" aria-label="Aumentar personas">+</button>
+            </div>
+          </div>
+
+          <div class="resultado-panel" id="py-resultado">
+            <div class="resultado-item">
+              <div class="resultado-label">Propina total</div>
+              <div class="resultado-valor" id="py-out-propina">$0.00</div>
+            </div>
+            <div class="resultado-item">
+              <div class="resultado-label">Total con propina</div>
+              <div class="resultado-valor" id="py-out-total">$0.00</div>
+            </div>
+            <div class="resultado-item total-persona">
+              <div class="resultado-label">Por persona</div>
+              <div class="resultado-valor" id="py-out-persona">$0.00</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <h3>Código de la calculadora</h3>
+      <pre><code><span class="cm">// ── Variables de estado ──────────────────────────────</span>
+<span class="kw">let</span> porcentajePropina = <span class="num">10</span>;
+<span class="kw">let</span> cantidadPersonas  = <span class="num">2</span>;
+
+<span class="cm">// ── Función principal de cálculo ─────────────────────</span>
+<span class="kw">function</span> <span class="fn">calcularPropina</span>() {
+  <span class="kw">const</span> cuenta = parseFloat(
+    document.querySelector(<span class="str">"#py-cuenta"</span>).value
+  ) || <span class="num">0</span>;
+
+  <span class="kw">const</span> propina      = cuenta * (porcentajePropina / <span class="num">100</span>);
+  <span class="kw">const</span> total        = cuenta + propina;
+  <span class="kw">const</span> porPersona   = total / cantidadPersonas;
+
+  <span class="cm">// Actualizar el DOM con los resultados</span>
+  document.querySelector(<span class="str">"#py-out-propina"</span>).textContent =
+    <span class="str">`$${propina.toFixed(<span class="num">2</span>)}`</span>;
+  document.querySelector(<span class="str">"#py-out-total"</span>).textContent  =
+    <span class="str">`$${total.toFixed(<span class="num">2</span>)}`</span>;
+  document.querySelector(<span class="str">"#py-out-persona"</span>).textContent =
+    <span class="str">`$${porPersona.toFixed(<span class="num">2</span>)}`</span>;
+}
+
+<span class="cm">// ── Eventos en los botones de propina ────────────────</span>
+document.querySelectorAll(<span class="str">".propina-btn"</span>).forEach(btn <span class="op">=&gt;</span> {
+  btn.addEventListener(<span class="str">'click'</span>, () <span class="op">=&gt;</span> {
+    <span class="cm">// Quitar clase activo de todos, ponerla en este</span>
+    document.querySelectorAll(<span class="str">".propina-btn"</span>)
+      .forEach(b <span class="op">=&gt;</span> b.classList.remove(<span class="str">"activo"</span>));
+    btn.classList.add(<span class="str">"activo"</span>);
+    porcentajePropina = Number(btn.dataset.propina);
+    calcularPropina();
+  });
+});
+
+<span class="cm">// ── Eventos en botones de personas ───────────────────</span>
+document.querySelector(<span class="str">"#py-mas"</span>).addEventListener(<span class="str">'click'</span>, () <span class="op">=&gt;</span> {
+  cantidadPersonas++;
+  actualizarPersonas();
+});
+document.querySelector(<span class="str">"#py-menos"</span>).addEventListener(<span class="str">'click'</span>, () <span class="op">=&gt;</span> {
+  <span class="kw">if</span> (cantidadPersonas > <span class="num">1</span>) cantidadPersonas--;
+  actualizarPersonas();
+});</code></pre>
+
+    </section>
+
+
+    <!-- ============================================================
+         PIE DE PÁGINA
+    ============================================================= -->
+    <footer class="site-footer">
+      <p>Semana 07 — Diseño Web · JavaScript</p>
+      <nav class="footer-nav" aria-label="Otras semanas">
+        <a href="semana-01-html.html">← Sem 01: HTML</a>
+        <a href="semana-02-css.html">← Sem 02: CSS</a>
+        <a href="semana-03-responsive.html">← Sem 03: Responsive</a>
+        <a href="semana-04-flexbox-grid.html">← Sem 04: Flex/Grid</a>
+        <a href="semana-05-css-avanzado.html">← Sem 05: CSS Avanzado</a>
+      </nav>
+    </footer>
+
+  </div><!-- /.pagina-wrapper -->
+
+
+  <!-- ============================================================
+       JAVASCRIPT — Demos interactivos y Proyecto
+  ============================================================= -->
+  <script>
+    /* ============================================================
+       UTILIDADES
+       ============================================================ */
+
+    /**
+     * Agrega una línea al output de consola simulada.
+     * @param {string} contenedorId - id del .output-consola
+     * @param {string} texto        - texto a mostrar
+     * @param {string} clase        - clase CSS del color (out-string, out-number…)
+     */
+    function logOutput(contenedorId, texto, clase = 'out-log') {
+      const contenedor = document.getElementById(contenedorId);
+      // Limpiar el mensaje inicial si es el primero real
+      if (contenedor.children.length === 1 &&
+          contenedor.children[0].textContent.startsWith('//')) {
+        contenedor.innerHTML = '';
+      }
+      const linea = document.createElement('div');
+      linea.className = `output-linea ${clase}`;
+      linea.textContent = texto;
+      contenedor.appendChild(linea);
+      // Scroll al fondo
+      contenedor.scrollTop = contenedor.scrollHeight;
+    }
+
+    function limpiarOutput(contenedorId) {
+      document.getElementById(contenedorId).innerHTML = '';
+    }
+
+    function formatearValor(valor) {
+      if (typeof valor === 'string')    return { texto: `"${valor}"`,  clase: 'out-string' };
+      if (typeof valor === 'number')    return { texto: `${valor}`,    clase: 'out-number' };
+      if (typeof valor === 'boolean')   return { texto: `${valor}`,    clase: 'out-boolean' };
+      if (valor === null)               return { texto: 'null',        clase: 'out-null' };
+      if (valor === undefined)          return { texto: 'undefined',   clase: 'out-null' };
+      if (Array.isArray(valor))         return { texto: JSON.stringify(valor), clase: 'out-objeto' };
+      if (typeof valor === 'object')    return { texto: JSON.stringify(valor), clase: 'out-objeto' };
+      return { texto: String(valor), clase: 'out-log' };
+    }
+
+    function bump(elementoId) {
+      const el = document.getElementById(elementoId);
+      el.classList.remove('actualizado');
+      void el.offsetWidth; // reflow
+      el.classList.add('actualizado');
+      setTimeout(() => el.classList.remove('actualizado'), 400);
+    }
+
+
+    /* ============================================================
+       SECCIÓN 1 — Demo typeof
+       ============================================================ */
+    function demoTipeof() {
+      const inputEl = document.getElementById('tipo-input');
+      const valor   = inputEl.value.trim();
+      limpiarOutput('tipo-output');
+
+      if (!valor) {
+        logOutput('tipo-output', '// Escribe algo en el campo', 'out-log');
+        return;
+      }
+
+      let evaluado;
+      try {
+        // eval controlado solo para esta demo educativa
+        evaluado = Function('"use strict"; return (' + valor + ')')();
+      } catch(e) {
+        logOutput('tipo-output', `> "${valor}"  ← texto sin comillas`, 'out-string');
+        logOutput('tipo-output', `typeof "${valor}" → "string"`, 'out-string');
+        return;
+      }
+
+      const { texto, clase } = formatearValor(evaluado);
+      const tipo = Array.isArray(evaluado) ? 'array (typeof → "object")' : typeof evaluado;
+
+      logOutput('tipo-output', `> ${texto}`, clase);
+      logOutput('tipo-output', `typeof → "${tipo}"`, 'out-log');
+
+      if (evaluado !== null && typeof evaluado === 'object') {
+        logOutput('tipo-output', 'Array.isArray() → ' + Array.isArray(evaluado), 'out-objeto');
+      }
+    }
+
+    document.getElementById('tipo-input').addEventListener('keydown', e => {
+      if (e.key === 'Enter') demoTipeof();
+    });
+
+
+    /* ============================================================
+       SECCIÓN 2 — Demo Calculadora
+       ============================================================ */
+    function demoCalc(operador) {
+      const a = parseFloat(document.getElementById('calc-a').value);
+      const b = parseFloat(document.getElementById('calc-b').value);
+
+      if (isNaN(a) || isNaN(b)) {
+        limpiarOutput('calc-output');
+        logOutput('calc-output', '// Ingresa dos números válidos', 'out-error');
+        return;
+      }
+
+      let resultado;
+      let expresion;
+
+      switch (operador) {
+        case '+':  resultado = a + b;       expresion = `${a} + ${b}`;  break;
+        case '-':  resultado = a - b;       expresion = `${a} - ${b}`;  break;
+        case '*':  resultado = a * b;       expresion = `${a} * ${b}`;  break;
+        case '/':
+          if (b === 0) {
+            limpiarOutput('calc-output');
+            logOutput('calc-output', '// Error: división entre cero → Infinity', 'out-error');
+            return;
+          }
+          resultado = a / b;
+          expresion = `${a} / ${b}`;
+          break;
+        case '%':  resultado = a % b;       expresion = `${a} % ${b}`;  break;
+        case '**': resultado = Math.pow(a, b); expresion = `${a} ** ${b}`; break;
+      }
+
+      limpiarOutput('calc-output');
+      logOutput('calc-output', `> ${expresion}`, 'out-log');
+      logOutput('calc-output', `→ ${Number(resultado.toFixed(6))}`, 'out-number');
+
+      const tipo = typeof resultado;
+      logOutput('calc-output', `typeof resultado → "${tipo}"`, 'out-log');
+    }
+
+
+    /* ============================================================
+       SECCIÓN 3 — Demo Funciones
+       ============================================================ */
+    // Declaración de función
+    function saludar(nombre = 'Invitado', idioma = 'es') {
+      if (idioma === 'es') return `Hola, ${nombre}!`;
+      if (idioma === 'en') return `Hello, ${nombre}!`;
+      return `${nombre}!`;
+    }
+
+    // Arrow function
+    const calcularEdad = (anioNacimiento) => new Date().getFullYear() - anioNacimiento;
+
+    // Función con múltiples returns
+    function clasificarEdad(edad) {
+      if (edad < 0)   return 'Valor inválido';
+      if (edad < 13)  return 'Niño/a';
+      if (edad < 18)  return 'Adolescente';
+      if (edad < 65)  return 'Adulto/a';
+      return 'Adulto mayor';
+    }
+
+    function demoFunciones() {
+      const nombre = document.getElementById('fn-nombre').value.trim() || 'Invitado';
+      const anio   = parseInt(document.getElementById('fn-edad').value) || 2000;
+      const edad   = calcularEdad(anio);
+
+      limpiarOutput('fn-output');
+      logOutput('fn-output', `// Llamando: saludar("${nombre}")`, 'out-log');
+      logOutput('fn-output', `→ "${saludar(nombre)}"`, 'out-string');
+      logOutput('fn-output', `// Llamando: calcularEdad(${anio})`, 'out-log');
+      logOutput('fn-output', `→ ${edad} años`, 'out-number');
+      logOutput('fn-output', `// Llamando: clasificarEdad(${edad})`, 'out-log');
+      logOutput('fn-output', `→ "${clasificarEdad(edad)}"`, 'out-string');
+
+      // Template literal
+      const resumen = `${nombre} tiene ${edad} años y es: ${clasificarEdad(edad)}`;
+      logOutput('fn-output', `// Template literal:`, 'out-log');
+      logOutput('fn-output', `→ "${resumen}"`, 'out-string');
+    }
+
+    document.getElementById('fn-edad').addEventListener('keydown', e => {
+      if (e.key === 'Enter') demoFunciones();
+    });
+    document.getElementById('fn-nombre').addEventListener('keydown', e => {
+      if (e.key === 'Enter') demoFunciones();
+    });
+
+
+    /* ============================================================
+       SECCIÓN 4 — Demo Clasificador de notas
+       ============================================================ */
+    function clasificarNota(nota) {
+      if (nota < 0 || nota > 100) return { texto: 'Nota fuera de rango (0–100)', emoji: '⚠️', clase: 'out-error' };
+      if (nota >= 95)  return { texto: 'Sobresaliente',  emoji: '🌟', clase: 'out-string' };
+      if (nota >= 80)  return { texto: 'Excelente',      emoji: '✅', clase: 'out-string' };
+      if (nota >= 70)  return { texto: 'Aprobado',       emoji: '👍', clase: 'out-number' };
+      if (nota >= 60)  return { texto: 'Suficiente',     emoji: '📝', clase: 'out-number' };
+      return               { texto: 'Reprobado',         emoji: '❌', clase: 'out-error' };
+    }
+
+    function demoNotas() {
+      const nota = parseFloat(document.getElementById('nota-input').value);
+      limpiarOutput('nota-output');
+
+      if (isNaN(nota)) {
+        logOutput('nota-output', '// Ingresa un número del 0 al 100', 'out-error');
+        return;
+      }
+
+      const { texto, emoji, clase } = clasificarNota(nota);
+      logOutput('nota-output', `// if/else evaluando nota: ${nota}`, 'out-log');
+      logOutput('nota-output', `→ ${emoji} ${texto}`, clase);
+      logOutput('nota-output', `// Ternario: nota >= 70 ? "Aprobado" : "Reprobado"`, 'out-log');
+      logOutput('nota-output', `→ "${nota >= 70 ? 'Aprobado' : 'Reprobado'}"`, 'out-string');
+    }
+
+    document.getElementById('nota-input').addEventListener('keydown', e => {
+      if (e.key === 'Enter') demoNotas();
+    });
+
+
+    /* ============================================================
+       SECCIÓN 5 — Demo DOM
+       ============================================================ */
+    const COLORES_FONDO = ['#f4f1ec', '#edf7f3', '#eef2f5', '#fdf5e6', '#f2eef9'];
+    let colorIdx = 0;
+
+    function domAgregar() {
+      const inputEl  = document.getElementById('dom-texto');
+      const texto    = inputEl.value.trim();
+      const zona     = document.getElementById('dom-zona');
+
+      if (!texto) return;
+
+      // Quitar mensaje vacío
+      const emptyMsg = zona.querySelector('.dom-empty-msg');
+      if (emptyMsg) emptyMsg.remove();
+
+      // Crear ítem con JavaScript puro
+      const item = document.createElement('div');
+      item.className = 'dom-item';
+
+      const span = document.createElement('span');
+      span.textContent = texto;
+
+      const btnElim = document.createElement('button');
+      btnElim.className = 'dom-item-eliminar';
+      btnElim.textContent = '✕';
+      btnElim.setAttribute('aria-label', 'Eliminar ítem');
+      btnElim.addEventListener('click', () => {
+        item.classList.add('salida');
+        setTimeout(() => {
+          item.remove();
+          if (!zona.querySelector('.dom-item')) {
+            const msg = document.createElement('p');
+            msg.className = 'dom-empty-msg';
+            msg.textContent = 'La lista está vacía…';
+            zona.appendChild(msg);
+          }
+        }, 300);
+      });
+
+      item.appendChild(span);
+      item.appendChild(btnElim);
+      zona.appendChild(item);
+      inputEl.value = '';
+      inputEl.focus();
+    }
+
+    function domCambiarFondo() {
+      colorIdx = (colorIdx + 1) % COLORES_FONDO.length;
+      document.getElementById('dom-zona').style.background = COLORES_FONDO[colorIdx];
+    }
+
+    function domCambiarTexto() {
+      const tituloEl = document.getElementById('dom-titulo-demo');
+      const opciones = [
+        'Título modificado con textContent',
+        '¡JavaScript modificó el DOM!',
+        'Texto cambiado dinámicamente',
+        'querySelector + textContent = ✨'
+      ];
+      const actual = tituloEl.textContent;
+      const siguiente = opciones.find(o => o !== actual) || opciones[0];
+      tituloEl.textContent = siguiente;
+      tituloEl.style.color = ['#1a3a4a','#2d7d5f','#5c3a8a','#a05010'][Math.floor(Math.random()*4)];
+    }
+
+    function domLimpiarLista() {
+      const zona = document.getElementById('dom-zona');
+      zona.innerHTML = '<p class="dom-empty-msg">La lista fue limpiada con innerHTML = ""…</p>';
+      colorIdx = 0;
+      zona.style.background = '';
+    }
+
+    document.getElementById('dom-texto').addEventListener('keydown', e => {
+      if (e.key === 'Enter') domAgregar();
+    });
+
+
+    /* ============================================================
+       SECCIÓN 6 — Demo Eventos
+       ============================================================ */
+    let contadorClics = 0;
+
+    const cajaDemoEventos = document.getElementById('evento-caja');
+    const eventoOutput    = document.getElementById('evento-output');
+    const numClics        = document.getElementById('contador-clics');
+
+    // Limpiar log inicial
+    eventoOutput.innerHTML = '';
+
+    function logEvento(texto, clase = 'out-log') {
+      // Máximo 8 líneas en este log
+      while (eventoOutput.children.length >= 8) {
+        eventoOutput.removeChild(eventoOutput.firstChild);
+      }
+      const linea = document.createElement('div');
+      linea.className = `output-linea ${clase}`;
+      linea.textContent = texto;
+      eventoOutput.appendChild(linea);
+    }
+
+    cajaDemoEventos.addEventListener('click', () => {
+      contadorClics++;
+      numClics.textContent = contadorClics;
+      numClics.classList.remove('bump');
+      void numClics.offsetWidth;
+      numClics.classList.add('bump');
+      setTimeout(() => numClics.classList.remove('bump'), 400);
+      logEvento(`click → contadorClics: ${contadorClics}`, 'out-number');
+    });
+
+    cajaDemoEventos.addEventListener('dblclick', () => {
+      logEvento('dblclick → ¡doble clic detectado!', 'out-string');
+    });
+
+    cajaDemoEventos.addEventListener('mouseenter', () => {
+      cajaDemoEventos.textContent = '¡cursor adentro! (mouseenter)';
+      logEvento('mouseenter → el cursor entró', 'out-boolean');
+    });
+
+    cajaDemoEventos.addEventListener('mouseleave', () => {
+      cajaDemoEventos.textContent = 'Haz clic, doble clic, o mueve el cursor aquí';
+      logEvento('mouseleave → el cursor salió', 'out-null');
+    });
+
+    function resetContador() {
+      contadorClics = 0;
+      numClics.textContent = '0';
+      eventoOutput.innerHTML = '';
+      logEvento('// Contador reseteado', 'out-log');
+    }
+
+
+    /* ============================================================
+       SECCIÓN 7 — Calculadora de propinas (Proyecto)
+       ============================================================ */
+    let porcentajePropina = 10;
+    let cantidadPersonas  = 2;
+
+    function formatearMoneda(valor) {
+      return '$' + valor.toFixed(2);
+    }
+
+    function actualizarResultado() {
+      const cuentaInput = document.getElementById('py-cuenta');
+      const cuenta = parseFloat(cuentaInput.value) || 0;
+
+      const propina     = cuenta * (porcentajePropina / 100);
+      const total       = cuenta + propina;
+      const porPersona  = cantidadPersonas > 0 ? total / cantidadPersonas : 0;
+
+      const elPropina  = document.getElementById('py-out-propina');
+      const elTotal    = document.getElementById('py-out-total');
+      const elPersona  = document.getElementById('py-out-persona');
+
+      elPropina.textContent  = formatearMoneda(propina);
+      elTotal.textContent    = formatearMoneda(total);
+      elPersona.textContent  = formatearMoneda(porPersona);
+
+      // Animación de actualización
+      [elPropina, elTotal, elPersona].forEach(el => {
+        el.classList.remove('actualizado');
+        void el.offsetWidth;
+        el.classList.add('actualizado');
+        setTimeout(() => el.classList.remove('actualizado'), 400);
+      });
+    }
+
+    function actualizarPersonas() {
+      document.getElementById('py-personas-num').textContent = cantidadPersonas;
+      actualizarResultado();
+    }
+
+    // Evento en el input de cuenta
+    document.getElementById('py-cuenta').addEventListener('input', actualizarResultado);
+
+    // Eventos en botones de propina predefinida
+    document.querySelectorAll('.propina-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.propina-btn').forEach(b => b.classList.remove('activo'));
+        btn.classList.add('activo');
+        document.getElementById('py-propina-custom').value = '';
+        porcentajePropina = Number(btn.dataset.propina);
+        actualizarResultado();
+      });
+    });
+
+    // Evento en propina personalizada
+    document.getElementById('py-propina-custom').addEventListener('input', function() {
+      const val = parseFloat(this.value);
+      if (!isNaN(val) && val >= 0) {
+        document.querySelectorAll('.propina-btn').forEach(b => b.classList.remove('activo'));
+        porcentajePropina = val;
+        actualizarResultado();
+      }
+    });
+
+    // Botones de personas
+    document.getElementById('py-mas').addEventListener('click', () => {
+      cantidadPersonas++;
+      actualizarPersonas();
+    });
+
+    document.getElementById('py-menos').addEventListener('click', () => {
+      if (cantidadPersonas > 1) {
+        cantidadPersonas--;
+        actualizarPersonas();
+      }
+    });
+
+    // Calcular con valores iniciales
+    actualizarResultado();
+
+  </script>
+
+</body>
+</html>

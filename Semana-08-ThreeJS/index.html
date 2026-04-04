@@ -1,0 +1,1855 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Semana 08 — Three.js</title>
+
+  <!--
+    THREE.JS — GRÁFICOS 3D EN EL NAVEGADOR
+    ========================================
+    Three.js es una librería JavaScript que abstrae la complejidad
+    de WebGL para que podamos crear escenas 3D con código legible.
+
+    Sin Three.js → cientos de líneas de WebGL puro (GLSL, buffers…)
+    Con Three.js  → escena 3D funcional en menos de 30 líneas
+
+    EL FLUJO BÁSICO SIEMPRE ES EL MISMO:
+    1. Crear una Scene          → el "mundo" donde viven los objetos
+    2. Crear una Camera         → el "ojo" que mira la escena
+    3. Crear un Renderer        → el "pintor" que dibuja en el <canvas>
+    4. Crear Geometría + Material → la forma y apariencia de un objeto
+    5. Unirlos en un Mesh       → el objeto 3D final
+    6. Añadir el Mesh a la Scene
+    7. Iniciar el loop de animación con requestAnimationFrame
+
+    INCLUSIÓN VÍA ES MODULES (recomendado):
+    <script type="importmap">
+      { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js" } }
+    </script>
+    <script type="module">
+      import * as THREE from 'three';
+    </script>
+  -->
+
+  <!-- Import map para Three.js -->
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
+
+  <style>
+
+    /* ============================================================
+       VARIABLES CSS — Paleta del curso + colores Three.js
+       ============================================================ */
+    :root {
+      /* Paleta base del curso */
+      --color-primario:    #1a3a4a;
+      --color-secundario:  #2d7d5f;
+      --color-acento:      #e8a020;
+      --color-fondo:       #f4f1ec;
+      --color-superficie:  #ffffff;
+      --color-texto:       #1e1e1e;
+      --color-texto-suave: #5a5a5a;
+      --color-borde:       #d6cfc4;
+
+      /* Colores temáticos Three.js */
+      --three-bg:          #0a0a12;   /* fondo negro del header/canvas */
+      --three-acento:      #ff6b35;   /* naranja Three.js */
+      --three-azul:        #4aa8ff;   /* azul para escenas */
+      --three-verde:       #50fa7b;   /* verde para código 3D */
+
+      /* Colores para sintaxis de código */
+      --color-js:          #f7df1e;
+      --color-js-oscuro:   #1a1a2e;
+
+      --fuente-titulos: 'Georgia', 'Times New Roman', serif;
+      --fuente-cuerpo:  'Trebuchet MS', 'Gill Sans', sans-serif;
+      --fuente-codigo:  'Courier New', 'Lucida Console', monospace;
+
+      --espacio-xs:  0.25rem;
+      --espacio-sm:  0.5rem;
+      --espacio-md:  1rem;
+      --espacio-lg:  1.5rem;
+      --espacio-xl:  2rem;
+      --espacio-xxl: 3rem;
+
+      --radio-sm:   4px;
+      --radio-md:   8px;
+      --radio-lg:   16px;
+      --radio-pill: 999px;
+
+      --sombra-sm: 0 1px 3px rgba(0,0,0,0.12);
+      --sombra-md: 0 4px 12px rgba(0,0,0,0.10);
+      --sombra-lg: 0 8px 24px rgba(0,0,0,0.14);
+
+      --duracion-rapida: 150ms;
+      --duracion-media:  300ms;
+    }
+
+
+    /* ============================================================
+       RESET Y BASE
+       ============================================================ */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--fuente-cuerpo);
+      font-size: 16px;
+      line-height: 1.7;
+      color: var(--color-texto);
+      background-color: var(--color-fondo);
+    }
+
+    p {
+      margin-bottom: var(--espacio-md);
+      max-width: 65ch;
+    }
+
+    h1, h2, h3, h4 {
+      font-family: var(--fuente-titulos);
+      color: var(--color-primario);
+      line-height: 1.2;
+      margin-bottom: var(--espacio-md);
+    }
+
+    h2, h3 { margin-top: var(--espacio-xl); }
+
+    a {
+      color: var(--color-secundario);
+      text-decoration: none;
+      border-bottom: 1px solid transparent;
+      transition: border-color var(--duracion-media) ease;
+    }
+    a:hover { border-bottom-color: var(--color-secundario); }
+
+    code {
+      font-family: var(--fuente-codigo);
+      font-size: 0.875em;
+      background-color: #e8e0f0;
+      color: #4a1a6a;
+      padding: 2px 6px;
+      border-radius: var(--radio-sm);
+    }
+
+    /*
+      Los bloques <pre> de esta semana tienen fondo oscuro tipo terminal,
+      con una pequeña etiqueta "3JS" en la esquina (igual que la semana 07
+      usaba "JS"). El posicionamiento absolute requiere position: relative
+      en el padre — aquí en el <pre> mismo.
+    */
+    pre {
+      background: var(--color-js-oscuro);
+      color: #f8f8f2;
+      padding: var(--espacio-md);
+      border-radius: var(--radio-md);
+      overflow-x: auto;
+      font-family: var(--fuente-codigo);
+      font-size: 0.875rem;
+      line-height: 1.8;
+      margin-bottom: var(--espacio-lg);
+      tab-size: 2;
+      position: relative;
+    }
+
+    pre::before {
+      /*
+        Etiqueta "3JS" en la esquina del bloque de código.
+        Usa position: absolute → requiere position: relative en el padre.
+        El naranja es el color temático de Three.js esta semana.
+      */
+      content: "3JS";
+      position: absolute;
+      top: var(--espacio-sm);
+      right: var(--espacio-sm);
+      background: var(--three-acento);
+      color: #ffffff;
+      font-family: var(--fuente-codigo);
+      font-size: 0.65rem;
+      font-weight: bold;
+      padding: 1px 6px;
+      border-radius: var(--radio-sm);
+      letter-spacing: 0.05em;
+    }
+
+    pre code {
+      background: none;
+      color: inherit;
+      padding: 0;
+      font-size: inherit;
+    }
+
+    /* Colores de sintaxis en bloques de código */
+    .kw  { color: #ff79c6; }          /* keywords: import, const, new, function */
+    .str { color: #f1fa8c; }          /* strings */
+    .num { color: #bd93f9; }          /* números */
+    .fn  { color: #50fa7b; }          /* funciones */
+    .cm  { color: #6272a4; font-style: italic; }  /* comentarios */
+    .cls { color: #8be9fd; }          /* clases / constructores THREE.xxx */
+    .prop{ color: #ffb86c; }          /* propiedades */
+
+    ul, ol { padding-left: 1.5rem; }
+    li { margin-bottom: var(--espacio-xs); }
+
+    ::selection {
+      background-color: var(--three-acento);
+      color: #ffffff;
+    }
+
+
+    /* ============================================================
+       LAYOUT GENERAL
+       ============================================================ */
+    .pagina-wrapper {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 var(--espacio-md);
+    }
+
+
+    /* ============================================================
+       ENCABEZADO — fondo oscuro espacial, temático Three.js
+       ============================================================
+       Esta semana el header cambia a fondo casi negro (#0a0a12)
+       para evocar el espacio 3D donde viven las escenas de Three.js.
+       El mismo patrón que la semana 07 usó el amarillo JS en el fondo.
+    */
+    .site-header {
+      background: var(--three-bg);
+      color: #ffffff;
+      padding: var(--espacio-xl) var(--espacio-md);
+      margin-bottom: var(--espacio-xxl);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Texto decorativo grande en el fondo — igual patrón que semana 07 */
+    .site-header::before {
+      content: "3D";
+      position: absolute;
+      right: var(--espacio-xl);
+      top: 50%;
+      transform: translateY(-50%);
+      font-family: var(--fuente-titulos);
+      font-size: 7rem;
+      font-weight: bold;
+      color: var(--three-acento);
+      opacity: 0.08;
+      line-height: 1;
+      pointer-events: none;
+    }
+
+    .site-header::after {
+      content: "";
+      position: absolute;
+      bottom: -50px;
+      left: 40px;
+      width: 160px;
+      height: 160px;
+      background: rgba(255,107,53,0.04);
+      border-radius: 50%;
+    }
+
+    .site-header h1 {
+      color: #ffffff;
+      font-size: 2.5rem;
+      margin-bottom: var(--espacio-sm);
+    }
+
+    .site-header p {
+      color: rgba(255,255,255,0.70);
+      max-width: none;
+    }
+
+    .badge-semana {
+      display: inline-block;
+      background: var(--three-acento);
+      color: #ffffff;
+      font-family: var(--fuente-codigo);
+      font-size: 0.75rem;
+      font-weight: bold;
+      padding: 3px 10px;
+      border-radius: var(--radio-pill);
+      margin-bottom: var(--espacio-md);
+      letter-spacing: 0.05em;
+    }
+
+
+    /* ============================================================
+       NAVEGACIÓN INTERNA
+       ============================================================ */
+    .nav-interna {
+      background: var(--color-superficie);
+      border: 1px solid var(--color-borde);
+      border-radius: var(--radio-lg);
+      padding: var(--espacio-lg);
+      margin-bottom: var(--espacio-xxl);
+      box-shadow: var(--sombra-sm);
+    }
+
+    .nav-interna h2 {
+      font-size: 1rem;
+      margin-top: 0;
+      margin-bottom: var(--espacio-md);
+      color: var(--color-texto-suave);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-family: var(--fuente-cuerpo);
+    }
+
+    .nav-interna ul {
+      list-style: none;
+      padding: 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--espacio-sm);
+    }
+
+    .nav-interna a {
+      display: inline-block;
+      padding: var(--espacio-xs) var(--espacio-md);
+      background: var(--color-fondo);
+      border: 1px solid var(--color-borde);
+      border-radius: var(--radio-pill);
+      font-size: 0.875rem;
+      color: var(--color-primario);
+      border-bottom: none;
+      transition: background var(--duracion-media), border-color var(--duracion-media);
+    }
+
+    .nav-interna a:hover {
+      background: var(--three-bg);
+      color: var(--three-acento);
+      border-color: var(--three-bg);
+    }
+
+
+    /* ============================================================
+       ETIQUETA IDENTIFICADORA
+       ============================================================ */
+    .etiqueta {
+      display: inline-block;
+      background: var(--color-primario);
+      color: #ffffff;
+      font-family: var(--fuente-codigo);
+      font-size: 0.72rem;
+      padding: 2px 8px;
+      border-radius: var(--radio-sm);
+      margin-bottom: var(--espacio-sm);
+      letter-spacing: 0.03em;
+    }
+
+    .etiqueta.verde  { background: var(--color-secundario); }
+    .etiqueta.ambar  { background: var(--color-acento); color: var(--color-primario); }
+    .etiqueta.lila   { background: #5c3a8a; }
+    .etiqueta.three  { background: var(--three-acento); color: #fff; }
+    .etiqueta.azul3  { background: var(--three-azul); color: #fff; }
+
+
+    /* ============================================================
+       SECCIÓN DE CONTENIDO
+       ============================================================ */
+    .seccion {
+      margin-bottom: var(--espacio-xxl);
+      scroll-margin-top: 2rem;
+    }
+
+    .seccion > h2 {
+      border-bottom: 2px solid var(--color-borde);
+      padding-bottom: var(--espacio-sm);
+    }
+
+
+    /* ============================================================
+       BLOQUE DE NOTA
+       ============================================================ */
+    .nota {
+      border-left: 4px solid var(--color-secundario);
+      background: #edf7f3;
+      padding: var(--espacio-md) var(--espacio-lg);
+      border-radius: 0 var(--radio-md) var(--radio-md) 0;
+      margin: var(--espacio-lg) 0;
+    }
+
+    .nota.ambar  { border-color: var(--color-acento);  background: #fdf5e6; }
+    .nota.azul   { border-color: var(--color-primario); background: #eef2f5; }
+    .nota.lila   { border-color: #5c3a8a;              background: #f2eef9; }
+    .nota.three  { border-color: var(--three-acento);  background: #fff5f0; }
+
+    .nota p { margin-bottom: 0; }
+    .nota p + p { margin-top: var(--espacio-sm); }
+
+
+    /* ============================================================
+       TABLA DE REFERENCIA
+       ============================================================ */
+    .tabla-wrapper {
+      overflow-x: auto;
+      margin: var(--espacio-lg) 0;
+      border-radius: var(--radio-md);
+      box-shadow: var(--sombra-sm);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+      background: var(--color-superficie);
+    }
+
+    th, td {
+      border: 1px solid var(--color-borde);
+      padding: 0.6rem 1rem;
+      text-align: left;
+    }
+
+    th {
+      background-color: var(--three-bg);
+      color: var(--three-acento);
+      font-family: var(--fuente-titulos);
+      font-weight: normal;
+    }
+
+    tr:nth-child(even) { background-color: #f0ece6; }
+    td code { font-size: 0.8rem; }
+
+
+    /* ============================================================
+       CANVAS DE DEMOS 3D — el contenedor para cada escena Three.js
+       ============================================================
+       Cada demo tiene un <canvas> donde Three.js renderiza.
+       El canvas tiene dimensiones fijas para ser predecibles,
+       y el contenedor tiene un fondo oscuro igual que una escena 3D real.
+    */
+    .demo-3d-wrap {
+      background: var(--three-bg);
+      border-radius: var(--radio-lg);
+      overflow: hidden;
+      margin: var(--espacio-lg) 0;
+      border: 1px solid rgba(255,107,53,0.2);
+      box-shadow: var(--sombra-lg);
+      position: relative;
+    }
+
+    .demo-3d-wrap canvas {
+      display: block;
+      width: 100% !important;
+      height: 320px !important;
+    }
+
+    /* Etiqueta de qué demo es */
+    .demo-3d-label {
+      position: absolute;
+      top: var(--espacio-sm);
+      left: var(--espacio-sm);
+      background: rgba(255,107,53,0.85);
+      color: #fff;
+      font-family: var(--fuente-codigo);
+      font-size: 0.7rem;
+      padding: 2px 10px;
+      border-radius: var(--radio-pill);
+      letter-spacing: 0.05em;
+      z-index: 10;
+      pointer-events: none;
+    }
+
+    /* Controles debajo del canvas */
+    .demo-3d-controles {
+      background: rgba(255,255,255,0.04);
+      border-top: 1px solid rgba(255,107,53,0.15);
+      padding: var(--espacio-sm) var(--espacio-md);
+      display: flex;
+      align-items: center;
+      gap: var(--espacio-sm);
+      flex-wrap: wrap;
+    }
+
+    .demo-3d-controles span {
+      font-family: var(--fuente-codigo);
+      font-size: 0.72rem;
+      color: rgba(255,255,255,0.5);
+    }
+
+    .btn-demo {
+      background: var(--three-acento);
+      color: #fff;
+      border: none;
+      padding: 4px 14px;
+      border-radius: var(--radio-pill);
+      font-family: var(--fuente-codigo);
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: opacity var(--duracion-rapida);
+    }
+
+    .btn-demo:hover { opacity: 0.85; }
+    .btn-demo.secundario { background: rgba(255,255,255,0.12); }
+
+
+    /* ============================================================
+       DIAGRAMA DE ESCENA Three.js
+       ============================================================ */
+    .diagrama-escena {
+      background: var(--color-superficie);
+      border: 1px solid var(--color-borde);
+      border-radius: var(--radio-lg);
+      padding: var(--espacio-xl);
+      margin: var(--espacio-lg) 0;
+      box-shadow: var(--sombra-sm);
+    }
+
+    .diagrama-escena .nodo {
+      display: flex;
+      align-items: center;
+      gap: var(--espacio-md);
+      padding: var(--espacio-sm) var(--espacio-md);
+      border-radius: var(--radio-md);
+      margin-bottom: var(--espacio-xs);
+      font-family: var(--fuente-codigo);
+      font-size: 0.85rem;
+    }
+
+    .diagrama-escena .nodo .icono {
+      font-size: 1.2rem;
+      width: 28px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    .diagrama-escena .nodo .nombre { font-weight: bold; min-width: 160px; }
+    .diagrama-escena .nodo .desc   { font-size: 0.78rem; color: var(--color-texto-suave); font-family: var(--fuente-cuerpo); }
+
+    .nodo.scene    { background: #f0f8ff; border: 1px solid #b8d8f8; color: #1a4a8a; }
+    .nodo.camera   { background: #fff5e6; border: 1px solid #f8d8a8; color: #8a4a00; }
+    .nodo.renderer { background: #edf7f3; border: 1px solid #b8ddd0; color: #1a5a3a; }
+    .nodo.mesh     { background: #f5f0ff; border: 1px solid #c8b8f8; color: #4a1a8a; }
+    .nodo.geo      { background: #fff0f5; border: 1px solid #f8b8c8; color: #8a1a3a; margin-left: 2rem; }
+    .nodo.mat      { background: #fff8e6; border: 1px solid #f8e8a8; color: #8a5a00; margin-left: 2rem; }
+    .nodo.light    { background: #fffff0; border: 1px solid #e8e8a8; color: #6a6a00; }
+
+    .diagrama-escena .flecha {
+      padding-left: var(--espacio-md);
+      color: var(--color-texto-suave);
+      font-size: 0.75rem;
+      margin-bottom: var(--espacio-xs);
+      font-family: var(--fuente-codigo);
+    }
+
+
+    /* ============================================================
+       CUADRÍCULA DE PRIMITIVAS / MATERIALES
+       ============================================================ */
+    .primitivas-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: var(--espacio-md);
+      margin: var(--espacio-lg) 0;
+    }
+
+    .primitiva-card {
+      background: var(--color-superficie);
+      border: 1px solid var(--color-borde);
+      border-radius: var(--radio-lg);
+      overflow: hidden;
+      box-shadow: var(--sombra-sm);
+    }
+
+    .primitiva-canvas-wrap {
+      background: var(--three-bg);
+      height: 140px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .primitiva-canvas-wrap canvas {
+      display: block;
+    }
+
+    .primitiva-info {
+      padding: var(--espacio-sm) var(--espacio-md);
+    }
+
+    .primitiva-info strong {
+      display: block;
+      font-family: var(--fuente-codigo);
+      font-size: 0.8rem;
+      color: var(--color-primario);
+      margin-bottom: 2px;
+    }
+
+    .primitiva-info span {
+      font-size: 0.75rem;
+      color: var(--color-texto-suave);
+    }
+
+
+    /* ============================================================
+       ASIDE Y RESUMEN
+       ============================================================ */
+    .aside-resumen {
+      background: #eeedfe;
+      border-left: 4px solid var(--color-primario);
+      padding: var(--espacio-lg) var(--espacio-xl);
+      border-radius: 0 var(--radio-lg) var(--radio-lg) 0;
+      margin: var(--espacio-xxl) 0;
+    }
+
+    .aside-resumen h3 {
+      margin-top: var(--espacio-sm);
+      color: var(--color-primario);
+      font-size: 1.1rem;
+    }
+
+    .aside-resumen table {
+      margin: var(--espacio-md) 0 0;
+      font-size: 0.85rem;
+      background: transparent;
+    }
+
+    .aside-resumen th {
+      background: rgba(26,58,74,0.15);
+      color: var(--color-primario);
+    }
+
+    .aside-resumen td { border-color: rgba(26,58,74,0.15); }
+
+
+    /* ============================================================
+       PROYECTO APLICADO
+       ============================================================ */
+    .proyecto-descripcion {
+      background: var(--color-superficie);
+      border: 1px solid var(--color-borde);
+      border-radius: var(--radio-lg);
+      padding: var(--espacio-xl);
+      box-shadow: var(--sombra-md);
+      margin-bottom: var(--espacio-xl);
+    }
+
+    .checklist {
+      list-style: none;
+      padding: 0;
+      margin: var(--espacio-md) 0;
+    }
+
+    .checklist li {
+      padding: var(--espacio-sm) 0;
+      border-bottom: 1px solid var(--color-borde);
+      display: flex;
+      align-items: flex-start;
+      gap: var(--espacio-sm);
+      font-size: 0.9rem;
+    }
+
+    .checklist li:last-child { border-bottom: none; }
+
+    .check-icon {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .check-icon.done { background: var(--color-secundario); color: white; }
+    .check-icon.todo { background: var(--color-borde); color: var(--color-texto-suave); }
+
+    .criterios-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: var(--espacio-md);
+      margin: var(--espacio-lg) 0;
+    }
+
+    @media (min-width: 600px) {
+      .criterios-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    .criterio-card {
+      background: var(--color-superficie);
+      border: 1px solid var(--color-borde);
+      border-radius: var(--radio-md);
+      padding: var(--espacio-lg);
+      box-shadow: var(--sombra-sm);
+    }
+
+    .criterio-card h4 {
+      font-size: 1rem;
+      margin-top: 0;
+      margin-bottom: var(--espacio-sm);
+      display: flex;
+      align-items: center;
+      gap: var(--espacio-sm);
+    }
+
+    .criterio-card ul { font-size: 0.875rem; color: var(--color-texto-suave); }
+
+    .criterio-puntaje {
+      display: inline-block;
+      background: var(--three-acento);
+      color: #ffffff;
+      font-family: var(--fuente-codigo);
+      font-size: 0.7rem;
+      font-weight: bold;
+      padding: 2px 8px;
+      border-radius: var(--radio-pill);
+      margin-left: auto;
+    }
+
+
+    /* ============================================================
+       FOOTER
+       ============================================================ */
+    .site-footer {
+      border-top: 1px solid var(--color-borde);
+      margin-top: var(--espacio-xxl);
+      padding: var(--espacio-xl) 0 var(--espacio-xxl);
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--color-texto-suave);
+    }
+
+    .site-footer .nav-semanas {
+      display: flex;
+      justify-content: center;
+      gap: var(--espacio-md);
+      flex-wrap: wrap;
+      margin-bottom: var(--espacio-lg);
+    }
+
+    .site-footer a {
+      font-size: 0.85rem;
+      color: var(--color-primario);
+      border-bottom: none;
+    }
+
+    .site-footer a:hover { text-decoration: underline; }
+
+    .site-footer a.activa {
+      background: var(--three-bg);
+      color: var(--three-acento);
+      padding: 3px 12px;
+      border-radius: var(--radio-pill);
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <!-- ============================================================
+       ENCABEZADO DEL SITIO
+       ============================================================ -->
+  <header class="site-header">
+    <div class="pagina-wrapper">
+      <span class="badge-semana">SEMANA 08 / 12</span>
+      <h1>Three.js — Gráficos 3D</h1>
+      <p>Escenas · Cámaras · Geometrías · Materiales · Luces · OrbitControls</p>
+    </div>
+  </header>
+
+
+  <div class="pagina-wrapper">
+
+    <!-- Navegación interna -->
+    <nav class="nav-interna">
+      <h2>Contenido de esta semana</h2>
+      <ul>
+        <li><a href="#intro">1. ¿Qué es Three.js?</a></li>
+        <li><a href="#setup">2. Configuración inicial</a></li>
+        <li><a href="#escena">3. Escena, Cámara y Renderer</a></li>
+        <li><a href="#geometrias">4. Geometrías primitivas</a></li>
+        <li><a href="#materiales">5. Materiales y luces</a></li>
+        <li><a href="#transformaciones">6. Transformaciones</a></li>
+        <li><a href="#controles">7. OrbitControls</a></li>
+        <li><a href="#animacion">8. Loop de animación</a></li>
+        <li><a href="#proyecto">9. Proyecto Aplicado</a></li>
+      </ul>
+    </nav>
+
+
+    <!-- ============================================================
+         SECCIÓN 1: ¿QUÉ ES THREE.JS?
+         ============================================================ -->
+    <section class="seccion" id="intro">
+      <span class="etiqueta three">introducción</span>
+      <h2>1. ¿Qué es Three.js?</h2>
+
+      <p>
+        <strong>Three.js</strong> es una librería JavaScript de código abierto que permite
+        crear y mostrar gráficos 3D en el navegador. Internamente usa <strong>WebGL</strong>,
+        la API del navegador para gráficos de alto rendimiento por GPU, pero nos oculta
+        toda su complejidad.
+      </p>
+
+      <div class="nota three">
+        <p>
+          <strong>WebGL puro</strong> requiere escribir shaders en GLSL, gestionar buffers
+          de vértices, matrices de transformación y mucho más. <strong>Three.js</strong>
+          abstrae todo eso: creas objetos con código JavaScript legible y la librería
+          traduce todo a WebGL por ti.
+        </p>
+      </div>
+
+      <!-- Diagrama de la jerarquía de una escena Three.js -->
+      <h3>Jerarquía de una escena Three.js</h3>
+      <p>Todos los elementos de Three.js se organizan en una estructura de árbol:</p>
+
+      <div class="diagrama-escena">
+        <div class="nodo scene">
+          <span class="icono">🌐</span>
+          <span class="nombre">THREE.Scene</span>
+          <span class="desc">El contenedor principal. Todo lo visible vive aquí.</span>
+        </div>
+        <div class="flecha">├── añadir con scene.add(objeto)</div>
+        <div class="nodo camera">
+          <span class="icono">📷</span>
+          <span class="nombre">PerspectiveCamera</span>
+          <span class="desc">Define el punto de vista. No se añade a la escena.</span>
+        </div>
+        <div class="flecha">├──</div>
+        <div class="nodo light">
+          <span class="icono">💡</span>
+          <span class="nombre">AmbientLight / DirectionalLight</span>
+          <span class="desc">Fuentes de luz. Se añaden a la escena.</span>
+        </div>
+        <div class="flecha">├──</div>
+        <div class="nodo mesh">
+          <span class="icono">🧊</span>
+          <span class="nombre">THREE.Mesh</span>
+          <span class="desc">Objeto 3D visible = Geometría + Material.</span>
+        </div>
+        <div class="flecha" style="margin-left:2rem">├──</div>
+        <div class="nodo geo">
+          <span class="icono">📐</span>
+          <span class="nombre">BoxGeometry</span>
+          <span class="desc">La forma del objeto (vértices, caras).</span>
+        </div>
+        <div class="flecha" style="margin-left:2rem">└──</div>
+        <div class="nodo mat">
+          <span class="icono">🎨</span>
+          <span class="nombre">MeshStandardMaterial</span>
+          <span class="desc">El aspecto del objeto (color, textura, brillo).</span>
+        </div>
+        <div class="flecha">└──</div>
+        <div class="nodo renderer" style="margin-top:4px">
+          <span class="icono">🖥</span>
+          <span class="nombre">WebGLRenderer</span>
+          <span class="desc">El "pintor". Dibuja la escena en el &lt;canvas&gt;.</span>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ============================================================
+         SECCIÓN 2: CONFIGURACIÓN INICIAL
+         ============================================================ -->
+    <section class="seccion" id="setup">
+      <span class="etiqueta three">setup</span>
+      <h2>2. Configuración inicial</h2>
+
+      <p>
+        Three.js se puede incluir de dos formas: via <strong>CDN</strong> con un
+        <code>&lt;script&gt;</code> clásico, o usando <strong>ES Modules</strong>
+        con <code>import</code>. En proyectos modernos se prefieren los módulos.
+      </p>
+
+      <h3>Opción A — Import Map (recomendado para este curso)</h3>
+
+      <pre><code><span class="cm">&lt;!-- 1. Declara el mapa de importaciones en el &lt;head&gt; --&gt;</span>
+<span class="str">&lt;script type="importmap"&gt;</span>
+  {
+    <span class="str">"imports"</span>: {
+      <span class="str">"three"</span>: <span class="str">"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"</span>,
+      <span class="str">"three/addons/"</span>: <span class="str">"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"</span>
+    }
+  }
+<span class="str">&lt;/script&gt;</span>
+
+<span class="cm">&lt;!-- 2. En el script, importa lo que necesites --&gt;</span>
+<span class="str">&lt;script type="module"&gt;</span>
+  <span class="kw">import</span> * <span class="kw">as</span> THREE <span class="kw">from</span> <span class="str">'three'</span>;
+  <span class="kw">import</span> { OrbitControls } <span class="kw">from</span> <span class="str">'three/addons/controls/OrbitControls.js'</span>;
+
+  <span class="cm">// Tu código Three.js va aquí...</span>
+<span class="str">&lt;/script&gt;</span></code></pre>
+
+      <div class="nota ambar">
+        <p>
+          <strong>type="module"</strong> es obligatorio. Los scripts de tipo módulo
+          tienen su propio scope, se ejecutan diferido y permiten usar <code>import</code>.
+          Sin él, <code>import</code> causará un error de sintaxis.
+        </p>
+      </div>
+
+      <h3>Estructura HTML base</h3>
+
+      <pre><code><span class="cm">&lt;!-- El canvas es donde Three.js dibuja. Puede ir en cualquier parte del body. --&gt;</span>
+&lt;<span class="cls">canvas</span> id=<span class="str">"mi-canvas"</span>&gt;&lt;/<span class="cls">canvas</span>&gt;
+
+<span class="cm">&lt;!-- Estilos para que el canvas ocupe toda la ventana --&gt;</span>
+&lt;<span class="cls">style</span>&gt;
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  <span class="cls">body</span> { overflow: hidden; <span class="prop">background</span>: <span class="str">#000</span>; }
+  <span class="cls">canvas</span> { <span class="prop">display</span>: block; }
+&lt;/<span class="cls">style</span>&gt;</code></pre>
+    </section>
+
+
+    <!-- ============================================================
+         SECCIÓN 3: ESCENA, CÁMARA Y RENDERER
+         ============================================================ -->
+    <section class="seccion" id="escena">
+      <span class="etiqueta three">núcleo</span>
+      <h2>3. Escena, Cámara y Renderer</h2>
+
+      <p>
+        Estos tres elementos son el mínimo imprescindible de cualquier proyecto Three.js.
+        Sin los tres no hay nada que mostrar.
+      </p>
+
+      <pre><code><span class="kw">import</span> * <span class="kw">as</span> THREE <span class="kw">from</span> <span class="str">'three'</span>;
+
+<span class="cm">// ── 1. ESCENA ─────────────────────────────────────────────────</span>
+<span class="cm">// La escena es el "mundo" donde colocamos todos los objetos.</span>
+<span class="kw">const</span> scene = <span class="kw">new</span> <span class="cls">THREE.Scene</span>();
+scene.<span class="prop">background</span> = <span class="kw">new</span> <span class="cls">THREE.Color</span>(<span class="str">'#0a0a12'</span>); <span class="cm">// color de fondo</span>
+
+<span class="cm">// ── 2. CÁMARA ─────────────────────────────────────────────────</span>
+<span class="cm">// PerspectiveCamera simula perspectiva humana (objetos lejanos son más pequeños).</span>
+<span class="cm">// Parámetros: fov (campo visual°), aspect (ancho/alto), near, far</span>
+<span class="kw">const</span> camera = <span class="kw">new</span> <span class="cls">THREE.PerspectiveCamera</span>(
+  <span class="num">75</span>,                               <span class="cm">// FOV: 75° es un valor natural</span>
+  window.innerWidth / window.innerHeight, <span class="cm">// relación de aspecto</span>
+  <span class="num">0.1</span>,                              <span class="cm">// plano cercano (near)</span>
+  <span class="num">1000</span>                              <span class="cm">// plano lejano (far)</span>
+);
+camera.<span class="prop">position</span>.<span class="fn">set</span>(<span class="num">0</span>, <span class="num">2</span>, <span class="num">5</span>); <span class="cm">// posición X, Y, Z en el espacio 3D</span>
+camera.<span class="prop">lookAt</span>(<span class="num">0</span>, <span class="num">0</span>, <span class="num">0</span>);        <span class="cm">// apunta al origen</span>
+
+<span class="cm">// ── 3. RENDERER ───────────────────────────────────────────────</span>
+<span class="cm">// WebGLRenderer dibuja la escena en un elemento <canvas>.</span>
+<span class="kw">const</span> renderer = <span class="kw">new</span> <span class="cls">THREE.WebGLRenderer</span>({
+  canvas: document.<span class="fn">getElementById</span>(<span class="str">'mi-canvas'</span>),
+  antialias: <span class="kw">true</span>   <span class="cm">// suaviza los bordes (antialiasing)</span>
+});
+renderer.<span class="fn">setSize</span>(window.innerWidth, window.innerHeight);
+renderer.<span class="prop">setPixelRatio</span>(window.<span class="prop">devicePixelRatio</span>); <span class="cm">// resolución en pantallas Retina</span>
+
+<span class="cm">// ── 4. PRIMER RENDER ──────────────────────────────────────────</span>
+renderer.<span class="fn">render</span>(scene, camera); <span class="cm">// dibuja UNA vez</span></code></pre>
+
+      <!-- DEMO EN VIVO: escena mínima -->
+      <h3>Demo en vivo — escena mínima con un cubo</h3>
+      <div class="demo-3d-wrap" id="demo-basico-wrap">
+        <div class="demo-3d-label">Scene + Camera + Renderer + Mesh</div>
+        <canvas id="canvas-basico"></canvas>
+        <div class="demo-3d-controles">
+          <span>🖱 Arrastra para orbitar · Scroll para zoom</span>
+          <button class="btn-demo" id="btn-basico-wireframe">Wireframe</button>
+          <button class="btn-demo secundario" id="btn-basico-color">Cambiar color</button>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ============================================================
+         SECCIÓN 4: GEOMETRÍAS PRIMITIVAS
+         ============================================================ -->
+    <section class="seccion" id="geometrias">
+      <span class="etiqueta azul3">geometrías</span>
+      <h2>4. Geometrías primitivas</h2>
+
+      <p>
+        Three.js incluye muchas geometrías listas para usar. Todas heredan de
+        <code>BufferGeometry</code> y definen la forma de un objeto mediante
+        vértices, aristas y caras.
+      </p>
+
+      <!-- Cards con mini-demos de cada primitiva -->
+      <div class="primitivas-grid" id="primitivas-grid">
+        <div class="primitiva-card">
+          <div class="primitiva-canvas-wrap"><canvas id="c-box" width="160" height="140"></canvas></div>
+          <div class="primitiva-info"><strong>BoxGeometry</strong><span>new THREE.BoxGeometry(w, h, d)</span></div>
+        </div>
+        <div class="primitiva-card">
+          <div class="primitiva-canvas-wrap"><canvas id="c-sphere" width="160" height="140"></canvas></div>
+          <div class="primitiva-info"><strong>SphereGeometry</strong><span>new THREE.SphereGeometry(r, seg, seg)</span></div>
+        </div>
+        <div class="primitiva-card">
+          <div class="primitiva-canvas-wrap"><canvas id="c-cylinder" width="160" height="140"></canvas></div>
+          <div class="primitiva-info"><strong>CylinderGeometry</strong><span>new THREE.CylinderGeometry(r, r, h, seg)</span></div>
+        </div>
+        <div class="primitiva-card">
+          <div class="primitiva-canvas-wrap"><canvas id="c-torus" width="160" height="140"></canvas></div>
+          <div class="primitiva-info"><strong>TorusGeometry</strong><span>new THREE.TorusGeometry(r, tube, seg, seg)</span></div>
+        </div>
+        <div class="primitiva-card">
+          <div class="primitiva-canvas-wrap"><canvas id="c-plane" width="160" height="140"></canvas></div>
+          <div class="primitiva-info"><strong>PlaneGeometry</strong><span>new THREE.PlaneGeometry(w, h)</span></div>
+        </div>
+        <div class="primitiva-card">
+          <div class="primitiva-canvas-wrap"><canvas id="c-cone" width="160" height="140"></canvas></div>
+          <div class="primitiva-info"><strong>ConeGeometry</strong><span>new THREE.ConeGeometry(r, h, seg)</span></div>
+        </div>
+      </div>
+
+      <pre><code><span class="cm">// ── GEOMETRÍAS PRIMITIVAS ─────────────────────────────────────</span>
+<span class="cm">// Cada geometría define la forma matemática del objeto.</span>
+
+<span class="kw">const</span> cubo      = <span class="kw">new</span> <span class="cls">THREE.BoxGeometry</span>(<span class="num">1</span>, <span class="num">1</span>, <span class="num">1</span>);        <span class="cm">// ancho, alto, profundidad</span>
+<span class="kw">const</span> esfera    = <span class="kw">new</span> <span class="cls">THREE.SphereGeometry</span>(<span class="num">0.5</span>, <span class="num">32</span>, <span class="num">32</span>);  <span class="cm">// radio, seg. horizontales, verticales</span>
+<span class="kw">const</span> plano     = <span class="kw">new</span> <span class="cls">THREE.PlaneGeometry</span>(<span class="num">10</span>, <span class="num">10</span>);       <span class="cm">// ancho, alto</span>
+<span class="kw">const</span> cilindro  = <span class="kw">new</span> <span class="cls">THREE.CylinderGeometry</span>(<span class="num">0.5</span>, <span class="num">0.5</span>, <span class="num">2</span>, <span class="num">32</span>); <span class="cm">// radioTop, radioBot, h, seg</span>
+<span class="kw">const</span> toro      = <span class="kw">new</span> <span class="cls">THREE.TorusGeometry</span>(<span class="num">0.5</span>, <span class="num">0.2</span>, <span class="num">16</span>, <span class="num">100</span>); <span class="cm">// radio, tubo, seg, seg</span>
+<span class="kw">const</span> cono      = <span class="kw">new</span> <span class="cls">THREE.ConeGeometry</span>(<span class="num">0.5</span>, <span class="num">1</span>, <span class="num">32</span>);     <span class="cm">// radio, altura, segmentos</span>
+
+<span class="cm">// ¡Más segmentos = más suave, pero más costoso computacionalmente!</span>
+<span class="cm">// SphereGeometry(0.5, 8, 8) → rugosa. SphereGeometry(0.5, 64, 64) → perfecta.</span></code></pre>
+    </section>
+
+
+    <!-- ============================================================
+         SECCIÓN 5: MATERIALES Y LUCES
+         ============================================================ -->
+    <section class="seccion" id="materiales">
+      <span class="etiqueta lila">materiales</span>
+      <h2>5. Materiales y Luces</h2>
+
+      <p>
+        El material define el <em>aspecto visual</em> del objeto. Algunos materiales
+        reaccionan a la luz, otros no. Si usas <code>MeshStandardMaterial</code>
+        y no hay luces en la escena, el objeto se verá completamente negro.
+      </p>
+
+      <div class="tabla-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Material</th>
+              <th>Necesita luz</th>
+              <th>Uso típico</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>MeshBasicMaterial</code></td>
+              <td>No</td>
+              <td>Pruebas, wireframes, iconos. Siempre visible.</td>
+            </tr>
+            <tr>
+              <td><code>MeshNormalMaterial</code></td>
+              <td>No</td>
+              <td>Depuración. Colorea las normales de la geometría.</td>
+            </tr>
+            <tr>
+              <td><code>MeshLambertMaterial</code></td>
+              <td>Sí</td>
+              <td>Superficies mate sin reflejos especulares. Rápido.</td>
+            </tr>
+            <tr>
+              <td><code>MeshPhongMaterial</code></td>
+              <td>Sí</td>
+              <td>Superficies con brillo especular. Plástico, metal básico.</td>
+            </tr>
+            <tr>
+              <td><code>MeshStandardMaterial</code></td>
+              <td>Sí</td>
+              <td><strong>Recomendado.</strong> PBR: roughness + metalness. Más realista.</td>
+            </tr>
+            <tr>
+              <td><code>MeshPhysicalMaterial</code></td>
+              <td>Sí</td>
+              <td>PBR avanzado: vidrio, refracción, clearcoat.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- DEMO EN VIVO: comparativa de materiales -->
+      <h3>Demo en vivo — comparativa de materiales</h3>
+      <div class="demo-3d-wrap">
+        <div class="demo-3d-label">MeshBasicMaterial · MeshNormalMaterial · MeshStandardMaterial</div>
+        <canvas id="canvas-materiales"></canvas>
+        <div class="demo-3d-controles">
+          <span>🖱 Arrastra para orbitar</span>
+        </div>
+      </div>
+
+      <pre><code><span class="cm">// ── MATERIALES ────────────────────────────────────────────────</span>
+
+<span class="cm">// MeshBasicMaterial: no reacciona a la luz, color plano</span>
+<span class="kw">const</span> matBasico = <span class="kw">new</span> <span class="cls">THREE.MeshBasicMaterial</span>({
+  color: <span class="str">'#ff6b35'</span>,
+  wireframe: <span class="kw">false</span>   <span class="cm">// true → muestra solo las aristas</span>
+});
+
+<span class="cm">// MeshStandardMaterial: PBR (Physically Based Rendering)</span>
+<span class="cm">// Necesita al menos una luz para verse correctamente.</span>
+<span class="kw">const</span> matStandard = <span class="kw">new</span> <span class="cls">THREE.MeshStandardMaterial</span>({
+  color:     <span class="str">'#4aa8ff'</span>, <span class="cm">// color base</span>
+  metalness: <span class="num">0.3</span>,       <span class="cm">// 0 = plástico, 1 = metal puro</span>
+  roughness: <span class="num">0.4</span>        <span class="cm">// 0 = espejo, 1 = completamente rugoso</span>
+});
+
+<span class="cm">// ── LUCES ─────────────────────────────────────────────────────</span>
+
+<span class="cm">// AmbientLight: ilumina uniformemente todo, sin dirección ni sombras</span>
+<span class="kw">const</span> luzAmbiente = <span class="kw">new</span> <span class="cls">THREE.AmbientLight</span>(<span class="str">'#ffffff'</span>, <span class="num">0.5</span>); <span class="cm">// color, intensidad</span>
+scene.<span class="fn">add</span>(luzAmbiente);
+
+<span class="cm">// DirectionalLight: como el sol, rayos paralelos, produce sombras</span>
+<span class="kw">const</span> luzDireccional = <span class="kw">new</span> <span class="cls">THREE.DirectionalLight</span>(<span class="str">'#ffffff'</span>, <span class="num">1.5</span>);
+luzDireccional.<span class="prop">position</span>.<span class="fn">set</span>(<span class="num">5</span>, <span class="num">10</span>, <span class="num">7</span>); <span class="cm">// posición de la fuente de luz</span>
+scene.<span class="fn">add</span>(luzDireccional);
+
+<span class="cm">// PointLight: como una bombilla, emite en todas las direcciones</span>
+<span class="kw">const</span> luzPunto = <span class="kw">new</span> <span class="cls">THREE.PointLight</span>(<span class="str">'#ff6b35'</span>, <span class="num">2</span>, <span class="num">10</span>); <span class="cm">// color, intensidad, distancia</span>
+luzPunto.<span class="prop">position</span>.<span class="fn">set</span>(-<span class="num">3</span>, <span class="num">2</span>, <span class="num">2</span>);
+scene.<span class="fn">add</span>(luzPunto);</code></pre>
+    </section>
+
+
+    <!-- ============================================================
+         SECCIÓN 6: TRANSFORMACIONES
+         ============================================================ -->
+    <section class="seccion" id="transformaciones">
+      <span class="etiqueta verde">transformaciones</span>
+      <h2>6. Posición, Rotación y Escala</h2>
+
+      <p>
+        Todo objeto 3D en Three.js (Mesh, Camera, Light…) tiene tres propiedades
+        de transformación: <code>position</code>, <code>rotation</code> y <code>scale</code>.
+        Las tres son objetos <code>THREE.Vector3</code> con ejes X, Y y Z.
+      </p>
+
+      <pre><code><span class="cm">// ── TRANSFORMACIONES DE UN MESH ───────────────────────────────</span>
+<span class="kw">const</span> mesh = <span class="kw">new</span> <span class="cls">THREE.Mesh</span>(geometria, material);
+
+<span class="cm">// POSICIÓN — en unidades de la escena (1 unit ≈ 1 metro)</span>
+mesh.<span class="prop">position</span>.<span class="fn">set</span>(<span class="num">2</span>, <span class="num">0</span>, -<span class="num">1</span>); <span class="cm">// x, y, z</span>
+mesh.<span class="prop">position</span>.<span class="prop">x</span> = <span class="num">2</span>;          <span class="cm">// también se puede eje a eje</span>
+
+<span class="cm">// ROTACIÓN — en radianes (Math.PI = 180°)</span>
+mesh.<span class="prop">rotation</span>.<span class="fn">set</span>(<span class="num">0</span>, Math.PI / <span class="num">4</span>, <span class="num">0</span>); <span class="cm">// 45° sobre el eje Y</span>
+mesh.<span class="prop">rotation</span>.<span class="prop">y</span> += <span class="num">0.01</span>;              <span class="cm">// acumular en cada frame → gira</span>
+
+<span class="cm">// ESCALA — 1 = tamaño original</span>
+mesh.<span class="prop">scale</span>.<span class="fn">set</span>(<span class="num">2</span>, <span class="num">1</span>, <span class="num">0.5</span>); <span class="cm">// doble en X, mitad en Z</span>
+mesh.<span class="prop">scale</span>.<span class="fn">setScalar</span>(<span class="num">1.5</span>); <span class="cm">// escala uniforme</span>
+
+<span class="cm">// JERARQUÍAS — agrupar objetos para transformarlos juntos</span>
+<span class="kw">const</span> grupo = <span class="kw">new</span> <span class="cls">THREE.Group</span>();
+grupo.<span class="fn">add</span>(mesh1);
+grupo.<span class="fn">add</span>(mesh2);
+grupo.<span class="prop">position</span>.<span class="prop">y</span> = <span class="num">2</span>; <span class="cm">// mueve ambos meshes juntos</span>
+scene.<span class="fn">add</span>(grupo);
+
+<span class="cm">// CONVERSIÓN: grados → radianes</span>
+<span class="cm">// const rad = THREE.MathUtils.degToRad(45); // → 0.785...</span></code></pre>
+
+      <!-- DEMO EN VIVO: controles de transformación -->
+      <h3>Demo en vivo — controles de transformación</h3>
+      <div class="demo-3d-wrap">
+        <div class="demo-3d-label">position · rotation · scale</div>
+        <canvas id="canvas-transform"></canvas>
+        <div class="demo-3d-controles">
+          <button class="btn-demo" id="btn-tf-pos">Mover posición</button>
+          <button class="btn-demo" id="btn-tf-rot">Rotar 45°</button>
+          <button class="btn-demo" id="btn-tf-scale">Escalar</button>
+          <button class="btn-demo secundario" id="btn-tf-reset">Reset</button>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ============================================================
+         SECCIÓN 7: ORBITCONTROLS
+         ============================================================ -->
+    <section class="seccion" id="controles">
+      <span class="etiqueta three">controles</span>
+      <h2>7. OrbitControls</h2>
+
+      <p>
+        <code>OrbitControls</code> es un add-on de Three.js (no está en el bundle
+        principal) que agrega navegación 3D interactiva: orbitar con el mouse,
+        hacer zoom con la rueda y hacer panning con el botón derecho.
+      </p>
+
+      <pre><code><span class="cm">// ── IMPORTAR ORBITCONTROLS (es un add-on, no parte del core) ──</span>
+<span class="kw">import</span> { OrbitControls } <span class="kw">from</span> <span class="str">'three/addons/controls/OrbitControls.js'</span>;
+
+<span class="cm">// ── CREAR E INICIALIZAR ────────────────────────────────────────</span>
+<span class="kw">const</span> controls = <span class="kw">new</span> <span class="cls">OrbitControls</span>(camera, renderer.<span class="prop">domElement</span>);
+<span class="cm">// domElement es el <canvas> del renderer — los eventos de mouse van ahí</span>
+
+<span class="cm">// ── OPCIONES COMUNES ──────────────────────────────────────────</span>
+controls.<span class="prop">enableDamping</span>  = <span class="kw">true</span>;  <span class="cm">// inercia suave al soltar el mouse</span>
+controls.<span class="prop">dampingFactor</span>  = <span class="num">0.05</span>; <span class="cm">// qué tan rápido frena (0.05 es suave)</span>
+controls.<span class="prop">enableZoom</span>     = <span class="kw">true</span>;  <span class="cm">// zoom con rueda del mouse</span>
+controls.<span class="prop">enablePan</span>      = <span class="kw">true</span>;  <span class="cm">// panning con botón derecho</span>
+controls.<span class="prop">autoRotate</span>     = <span class="kw">false</span>; <span class="cm">// rotación automática continua</span>
+controls.<span class="prop">autoRotateSpeed</span>= <span class="num">2.0</span>;  <span class="cm">// velocidad de autoRotate</span>
+controls.<span class="prop">minDistance</span>   = <span class="num">2</span>;     <span class="cm">// distancia mínima de zoom</span>
+controls.<span class="prop">maxDistance</span>   = <span class="num">20</span>;    <span class="cm">// distancia máxima de zoom</span>
+controls.<span class="prop">maxPolarAngle</span>  = Math.PI / <span class="num">2</span>; <span class="cm">// ángulo vertical máximo (no gira debajo)</span>
+
+<span class="cm">// ── MUY IMPORTANTE: actualizar en el loop ─────────────────────</span>
+<span class="cm">// Si enableDamping = true, DEBES llamar controls.update() en cada frame</span>
+<span class="kw">function</span> <span class="fn">animate</span>() {
+  requestAnimationFrame(animate);
+  controls.<span class="fn">update</span>(); <span class="cm">// ← obligatorio con damping</span>
+  renderer.<span class="fn">render</span>(scene, camera);
+}
+<span class="fn">animate</span>();</code></pre>
+
+      <div class="nota">
+        <p>
+          <strong>Controles del mouse con OrbitControls:</strong><br>
+          • <strong>Botón izquierdo + arrastrar</strong> → orbitar (rotar la cámara alrededor)<br>
+          • <strong>Rueda del mouse</strong> → zoom in/out<br>
+          • <strong>Botón derecho + arrastrar</strong> → panning (mover la cámara lateralmente)<br>
+          • <strong>Dos dedos en touch</strong> → zoom. <strong>Un dedo</strong> → orbitar
+        </p>
+      </div>
+    </section>
+
+
+    <!-- ============================================================
+         SECCIÓN 8: LOOP DE ANIMACIÓN
+         ============================================================ -->
+    <section class="seccion" id="animacion">
+      <span class="etiqueta verde">animación</span>
+      <h2>8. Loop de animación</h2>
+
+      <p>
+        <code>requestAnimationFrame</code> es la API del navegador para crear loops
+        de animación sincronizados con la pantalla (60fps o más). Three.js lo usa
+        internamente para mantener la escena en movimiento.
+      </p>
+
+      <pre><code><span class="cm">// ── EL LOOP DE ANIMACIÓN ──────────────────────────────────────</span>
+<span class="cm">// requestAnimationFrame llama a la función antes de cada repintado</span>
+<span class="cm">// de la pantalla (60fps en la mayoría de monitores).</span>
+<span class="cm">// La función se llama a sí misma para crear el loop infinito.</span>
+
+<span class="kw">const</span> clock = <span class="kw">new</span> <span class="cls">THREE.Clock</span>(); <span class="cm">// para medir el tiempo transcurrido</span>
+
+<span class="kw">function</span> <span class="fn">animate</span>() {
+  requestAnimationFrame(<span class="fn">animate</span>); <span class="cm">// ← pide el próximo frame</span>
+
+  <span class="kw">const</span> elapsed = clock.<span class="fn">getElapsedTime</span>(); <span class="cm">// segundos desde que empezó</span>
+  <span class="kw">const</span> delta   = clock.<span class="fn">getDelta</span>();       <span class="cm">// tiempo entre el frame anterior y este</span>
+
+  <span class="cm">// ── Rotar el cubo en cada frame ──</span>
+  cubo.<span class="prop">rotation</span>.<span class="prop">x</span> += <span class="num">0.01</span>;           <span class="cm">// velocidad en radianes/frame</span>
+  cubo.<span class="prop">rotation</span>.<span class="prop">y</span> += <span class="num">0.01</span>;
+
+  <span class="cm">// ── Animación con seno (oscilación suave) ──</span>
+  esfera.<span class="prop">position</span>.<span class="prop">y</span> = Math.<span class="fn">sin</span>(elapsed * <span class="num">2</span>) * <span class="num">0.5</span>; <span class="cm">// sube y baja</span>
+
+  <span class="cm">// ── Actualizar controles (si tienen damping) ──</span>
+  controls.<span class="fn">update</span>();
+
+  <span class="cm">// ── Renderizar la escena ──</span>
+  renderer.<span class="fn">render</span>(scene, camera);
+}
+
+<span class="fn">animate</span>(); <span class="cm">// ← arrancar el loop</span>
+
+<span class="cm">// ── RESPONSIVE: adaptar al cambio de tamaño de ventana ────────</span>
+window.<span class="fn">addEventListener</span>(<span class="str">'resize'</span>, () => {
+  camera.<span class="prop">aspect</span> = window.<span class="prop">innerWidth</span> / window.<span class="prop">innerHeight</span>;
+  camera.<span class="fn">updateProjectionMatrix</span>(); <span class="cm">// obligatorio tras cambiar aspect</span>
+  renderer.<span class="fn">setSize</span>(window.<span class="prop">innerWidth</span>, window.<span class="prop">innerHeight</span>);
+});</code></pre>
+
+      <!-- DEMO EN VIVO: escena completa con animación -->
+      <h3>Demo en vivo — escena completa animada</h3>
+      <div class="demo-3d-wrap">
+        <div class="demo-3d-label">Scene · Lights · Meshes · OrbitControls · requestAnimationFrame</div>
+        <canvas id="canvas-animacion"></canvas>
+        <div class="demo-3d-controles">
+          <span>🖱 Arrastra · Scroll · Click derecho</span>
+          <button class="btn-demo" id="btn-anim-autorotate">Auto-rotar</button>
+          <button class="btn-demo secundario" id="btn-anim-pausa">Pausar</button>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ============================================================
+         ASIDE: RESUMEN RÁPIDO
+         ============================================================ -->
+    <aside class="aside-resumen">
+      <span class="etiqueta">Resumen</span>
+      <h3>Cheat Sheet — Three.js Fundamentos</h3>
+
+      <div class="tabla-wrapper">
+        <table>
+          <thead>
+            <tr><th>Clase / Función</th><th>Para qué sirve</th><th>Ejemplo</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>THREE.Scene</code></td><td>Contenedor del mundo 3D</td><td><code>new THREE.Scene()</code></td></tr>
+            <tr><td><code>THREE.PerspectiveCamera</code></td><td>Cámara con perspectiva</td><td><code>new THREE.PerspectiveCamera(75, aspect, 0.1, 1000)</code></td></tr>
+            <tr><td><code>THREE.WebGLRenderer</code></td><td>Dibuja la escena en el canvas</td><td><code>new THREE.WebGLRenderer({ antialias: true })</code></td></tr>
+            <tr><td><code>THREE.Mesh</code></td><td>Objeto 3D visible</td><td><code>new THREE.Mesh(geo, mat)</code></td></tr>
+            <tr><td><code>THREE.BoxGeometry</code></td><td>Cubo</td><td><code>new THREE.BoxGeometry(1, 1, 1)</code></td></tr>
+            <tr><td><code>THREE.SphereGeometry</code></td><td>Esfera</td><td><code>new THREE.SphereGeometry(0.5, 32, 32)</code></td></tr>
+            <tr><td><code>THREE.MeshStandardMaterial</code></td><td>Material PBR (recomendado)</td><td><code>new THREE.MeshStandardMaterial({ color, roughness, metalness })</code></td></tr>
+            <tr><td><code>THREE.AmbientLight</code></td><td>Luz global sin dirección</td><td><code>new THREE.AmbientLight('#fff', 0.5)</code></td></tr>
+            <tr><td><code>THREE.DirectionalLight</code></td><td>Luz solar direccional</td><td><code>new THREE.DirectionalLight('#fff', 1)</code></td></tr>
+            <tr><td><code>scene.add()</code></td><td>Añadir objetos a la escena</td><td><code>scene.add(mesh, luz)</code></td></tr>
+            <tr><td><code>OrbitControls</code></td><td>Navegación 3D con el mouse</td><td><code>new OrbitControls(camera, renderer.domElement)</code></td></tr>
+            <tr><td><code>requestAnimationFrame</code></td><td>Loop de animación</td><td><code>function animate() { rAF(animate); renderer.render(scene, camera); }</code></td></tr>
+            <tr><td><code>THREE.Clock</code></td><td>Medir tiempo en el loop</td><td><code>clock.getElapsedTime()</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </aside>
+
+
+    <!-- ============================================================
+         SECCIÓN 9: PROYECTO APLICADO
+         ============================================================ -->
+    <section class="seccion" id="proyecto">
+      <span class="etiqueta ambar">entregable</span>
+      <h2>9. Proyecto Aplicado</h2>
+
+      <div class="proyecto-descripcion">
+        <h3 style="margin-top: 0;">🧊 Escena 3D interactiva desde cero</h3>
+        <p>
+          Construye una escena 3D completa usando todos los conceptos de la semana:
+          múltiples objetos, materiales con luz, navegación con OrbitControls y
+          al menos un objeto animado en el loop.
+        </p>
+
+        <h4>Requisitos mínimos</h4>
+        <ul class="checklist">
+          <li>
+            <span class="check-icon done">✓</span>
+            Configuración correcta: <code>Scene</code>, <code>PerspectiveCamera</code>, <code>WebGLRenderer</code> con <code>antialias</code>.
+          </li>
+          <li>
+            <span class="check-icon done">✓</span>
+            Al menos <strong>3 geometrías primitivas distintas</strong> con materiales diferentes.
+          </li>
+          <li>
+            <span class="check-icon done">✓</span>
+            Iluminación con <code>AmbientLight</code> y al menos una <code>DirectionalLight</code> o <code>PointLight</code>.
+          </li>
+          <li>
+            <span class="check-icon todo">○</span>
+            <code>OrbitControls</code> con <code>enableDamping: true</code> para navegación suave.
+          </li>
+          <li>
+            <span class="check-icon todo">○</span>
+            Loop de animación con al menos un objeto que rote, oscile o se mueva.
+          </li>
+          <li>
+            <span class="check-icon todo">○</span>
+            Escena responsive: <code>resize</code> listener que actualiza cámara y renderer.
+          </li>
+          <li>
+            <span class="check-icon todo">○</span>
+            Un plano como "suelo" para dar contexto espacial a la escena.
+          </li>
+        </ul>
+      </div>
+
+      <h3>Criterios de evaluación</h3>
+      <div class="criterios-grid">
+        <div class="criterio-card">
+          <h4>🌐 Escena base <span class="criterio-puntaje">25 pts</span></h4>
+          <ul>
+            <li>Scene + Camera + Renderer correctos</li>
+            <li>Antialias activo</li>
+            <li>Canvas ocupa el viewport</li>
+            <li>Resize listener implementado</li>
+          </ul>
+        </div>
+        <div class="criterio-card">
+          <h4>🧊 Objetos 3D <span class="criterio-puntaje">25 pts</span></h4>
+          <ul>
+            <li>≥ 3 geometrías distintas</li>
+            <li>MeshStandardMaterial con color</li>
+            <li>Posiciones distintas en la escena</li>
+            <li>Al menos un Group con jerarquía</li>
+          </ul>
+        </div>
+        <div class="criterio-card">
+          <h4>💡 Iluminación <span class="criterio-puntaje">25 pts</span></h4>
+          <ul>
+            <li>AmbientLight para iluminación base</li>
+            <li>DirectionalLight o PointLight</li>
+            <li>Los objetos reaccionan a la luz</li>
+            <li>roughness / metalness configurados</li>
+          </ul>
+        </div>
+        <div class="criterio-card">
+          <h4>🎮 Interacción <span class="criterio-puntaje">25 pts</span></h4>
+          <ul>
+            <li>OrbitControls con damping</li>
+            <li>Loop de animación con rAF</li>
+            <li>Al menos un objeto animado</li>
+            <li>Código limpio y comentado</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="nota three">
+        <p>
+          <strong>💡 Recursos clave:</strong>
+          <a href="https://threejs.org/docs/" target="_blank" rel="noopener">Documentación oficial de Three.js</a> ·
+          <a href="https://threejs.org/examples/" target="_blank" rel="noopener">Ejemplos oficiales</a> ·
+          <a href="https://discoverthreejs.com/" target="_blank" rel="noopener">Discover Three.js</a> (libro gratuito).
+          El inspector de escena <a href="https://chrome.google.com/webstore/detail/threejs-developer-tools" target="_blank" rel="noopener">Three.js Developer Tools</a>
+          para Chrome es muy útil para depurar.
+        </p>
+      </div>
+    </section>
+
+
+    <!-- Footer -->
+    <footer class="site-footer">
+      <nav class="nav-semanas">
+        <a href="semana-05-css-avanzado.html">← Sem. 05 CSS Avanzado</a>
+        <a href="semana-07-js.html">← Sem. 07 JavaScript</a>
+        <a href="#" class="activa">Sem. 08 Three.js</a>
+        <a href="#">Sem. 09 GSAP →</a>
+      </nav>
+      <address>
+        Diseño Web &bull; Semana 08 &bull;
+        <a href="mailto:docente@curso.edu">docente@curso.edu</a>
+      </address>
+      <p style="margin-top: 0.5rem;">&copy; 2025 — Ejercicio práctico de Three.js</p>
+    </footer>
+
+  </div><!-- /.pagina-wrapper -->
+
+
+  <!-- ============================================================
+       SCRIPTS THREE.JS — todos los demos de la página
+       ============================================================
+       type="module" es obligatorio para usar import.
+       El script se ejecuta tras el parsing del HTML (diferido).
+  -->
+  <script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+    /* ──────────────────────────────────────────────────────────────
+       UTILIDAD: crear un renderer ligero para los mini-demos
+       ────────────────────────────────────────────────────────────── */
+    function crearRendererMini(canvasId, ancho, alto) {
+      const canvas = document.getElementById(canvasId);
+      if (!canvas) return null;
+      const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+      renderer.setSize(ancho, alto);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.shadowMap.enabled = true;
+      return renderer;
+    }
+
+    /* ──────────────────────────────────────────────────────────────
+       DEMO 1: Escena básica — sección 3
+       Muestra: Scene, PerspectiveCamera, WebGLRenderer, Mesh,
+       AmbientLight, DirectionalLight, OrbitControls
+    ────────────────────────────────────────────────────────────── */
+    ;(function initDemoBasico() {
+      const wrap   = document.getElementById('demo-basico-wrap');
+      if (!wrap) return;
+      const W = wrap.clientWidth || 860;
+      const H = 320;
+
+      const renderer = crearRendererMini('canvas-basico', W, H);
+      if (!renderer) return;
+      renderer.setClearColor(0x0a0a12);
+
+      const scene  = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(60, W / H, 0.1, 100);
+      camera.position.set(0, 1.5, 4);
+
+      // Luz ambiental + direccional
+      scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+      const dirLight = new THREE.DirectionalLight(0xffffff, 1.5);
+      dirLight.position.set(5, 8, 5);
+      scene.add(dirLight);
+      const pLight = new THREE.PointLight(0xff6b35, 2, 12);
+      pLight.position.set(-3, 2, 2);
+      scene.add(pLight);
+
+      // Cubo principal
+      const geo = new THREE.BoxGeometry(1.5, 1.5, 1.5);
+      const mat = new THREE.MeshStandardMaterial({ color: 0xff6b35, roughness: 0.3, metalness: 0.2 });
+      const cubo = new THREE.Mesh(geo, mat);
+      scene.add(cubo);
+
+      // Plano suelo
+      const suelo = new THREE.Mesh(
+        new THREE.PlaneGeometry(10, 10),
+        new THREE.MeshStandardMaterial({ color: 0x1a1a2e, roughness: 0.9 })
+      );
+      suelo.rotation.x = -Math.PI / 2;
+      suelo.position.y = -1;
+      scene.add(suelo);
+
+      // OrbitControls
+      const controls = new OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.05;
+      controls.target.set(0, 0, 0);
+
+      // Botones
+      document.getElementById('btn-basico-wireframe')?.addEventListener('click', () => {
+        mat.wireframe = !mat.wireframe;
+      });
+      const colores = [0xff6b35, 0x4aa8ff, 0x50fa7b, 0xf7df1e, 0xff79c6];
+      let ci = 0;
+      document.getElementById('btn-basico-color')?.addEventListener('click', () => {
+        ci = (ci + 1) % colores.length;
+        mat.color.setHex(colores[ci]);
+      });
+
+      const clock = new THREE.Clock();
+      function animate() {
+        requestAnimationFrame(animate);
+        const t = clock.getElapsedTime();
+        cubo.rotation.x = t * 0.4;
+        cubo.rotation.y = t * 0.6;
+        controls.update();
+        renderer.render(scene, camera);
+      }
+      animate();
+    })();
+
+
+    /* ──────────────────────────────────────────────────────────────
+       DEMOS PRIMITIVAS — sección 4 (mini-canvas por geometría)
+    ────────────────────────────────────────────────────────────── */
+    const primitivas = [
+      { id: 'c-box',      geo: () => new THREE.BoxGeometry(1.2, 1.2, 1.2),             color: 0xff6b35 },
+      { id: 'c-sphere',   geo: () => new THREE.SphereGeometry(0.7, 32, 32),            color: 0x4aa8ff },
+      { id: 'c-cylinder', geo: () => new THREE.CylinderGeometry(0.5, 0.5, 1.4, 32),   color: 0x50fa7b },
+      { id: 'c-torus',    geo: () => new THREE.TorusGeometry(0.5, 0.2, 16, 100),       color: 0xf7df1e },
+      { id: 'c-plane',    geo: () => new THREE.PlaneGeometry(1.4, 1.4),                color: 0xff79c6 },
+      { id: 'c-cone',     geo: () => new THREE.ConeGeometry(0.6, 1.4, 32),             color: 0xbd93f9 },
+    ];
+
+    primitivas.forEach(({ id, geo, color }) => {
+      const canvas = document.getElementById(id);
+      if (!canvas) return;
+      const W = 160, H = 140;
+      const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+      renderer.setSize(W, H);
+      renderer.setClearColor(0x0a0a12);
+
+      const scene  = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(55, W / H, 0.1, 50);
+      camera.position.set(0, 0.5, 3);
+
+      scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+      const dl = new THREE.DirectionalLight(0xffffff, 1.5);
+      dl.position.set(3, 5, 3);
+      scene.add(dl);
+
+      const mesh = new THREE.Mesh(geo(), new THREE.MeshStandardMaterial({ color, roughness: 0.4, metalness: 0.1 }));
+      scene.add(mesh);
+
+      const clock = new THREE.Clock();
+      function animate() {
+        requestAnimationFrame(animate);
+        const t = clock.getElapsedTime();
+        mesh.rotation.y = t * 0.7;
+        mesh.rotation.x = Math.sin(t * 0.3) * 0.3;
+        renderer.render(scene, camera);
+      }
+      animate();
+    });
+
+
+    /* ──────────────────────────────────────────────────────────────
+       DEMO MATERIALES — sección 5
+       Tres esferas: Basic, Normal, Standard
+    ────────────────────────────────────────────────────────────── */
+    ;(function initDemoMateriales() {
+      const wrap = document.querySelector('#canvas-materiales')?.parentElement;
+      if (!wrap) return;
+      const W = wrap.clientWidth || 860;
+      const H = 320;
+
+      const renderer = crearRendererMini('canvas-materiales', W, H);
+      if (!renderer) return;
+      renderer.setClearColor(0x0a0a12);
+
+      const scene  = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(60, W / H, 0.1, 100);
+      camera.position.set(0, 1, 6);
+
+      scene.add(new THREE.AmbientLight(0xffffff, 0.4));
+      const dl = new THREE.DirectionalLight(0xffffff, 2);
+      dl.position.set(5, 8, 5);
+      scene.add(dl);
+      const pl = new THREE.PointLight(0x4aa8ff, 3, 15);
+      pl.position.set(-4, 3, 2);
+      scene.add(pl);
+
+      const geoEsfera = new THREE.SphereGeometry(0.9, 32, 32);
+
+      // Izquierda: MeshBasicMaterial — no reacciona a la luz
+      const m1 = new THREE.Mesh(geoEsfera, new THREE.MeshBasicMaterial({ color: 0xff6b35 }));
+      m1.position.x = -3;
+      scene.add(m1);
+
+      // Centro: MeshNormalMaterial — muestra las normales
+      const m2 = new THREE.Mesh(geoEsfera, new THREE.MeshNormalMaterial());
+      scene.add(m2);
+
+      // Derecha: MeshStandardMaterial — PBR, reacciona a la luz
+      const m3 = new THREE.Mesh(geoEsfera, new THREE.MeshStandardMaterial({
+        color: 0x4aa8ff, roughness: 0.2, metalness: 0.5
+      }));
+      m3.position.x = 3;
+      scene.add(m3);
+
+      // Suelo
+      const suelo = new THREE.Mesh(
+        new THREE.PlaneGeometry(14, 14),
+        new THREE.MeshStandardMaterial({ color: 0x1a1a2e, roughness: 0.9 })
+      );
+      suelo.rotation.x = -Math.PI / 2;
+      suelo.position.y = -1.2;
+      scene.add(suelo);
+
+      const controls = new OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.05;
+      controls.target.set(0, 0, 0);
+
+      const clock = new THREE.Clock();
+      function animate() {
+        requestAnimationFrame(animate);
+        const t = clock.getElapsedTime();
+        [m1, m2, m3].forEach(m => { m.rotation.y = t * 0.5; });
+        controls.update();
+        renderer.render(scene, camera);
+      }
+      animate();
+    })();
+
+
+    /* ──────────────────────────────────────────────────────────────
+       DEMO TRANSFORMACIONES — sección 6
+    ────────────────────────────────────────────────────────────── */
+    ;(function initDemoTransform() {
+      const wrap = document.querySelector('#canvas-transform')?.parentElement;
+      if (!wrap) return;
+      const W = wrap.clientWidth || 860;
+      const H = 320;
+
+      const renderer = crearRendererMini('canvas-transform', W, H);
+      if (!renderer) return;
+      renderer.setClearColor(0x0a0a12);
+
+      const scene  = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(60, W / H, 0.1, 100);
+      camera.position.set(2, 2, 6);
+
+      scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+      const dl = new THREE.DirectionalLight(0xffffff, 1.5);
+      dl.position.set(5, 8, 5);
+      scene.add(dl);
+
+      // Ejes de referencia
+      scene.add(new THREE.AxesHelper(3));
+
+      // Objeto principal
+      const mesh = new THREE.Mesh(
+        new THREE.BoxGeometry(1, 1, 1),
+        new THREE.MeshStandardMaterial({ color: 0xff6b35, roughness: 0.3 })
+      );
+      scene.add(mesh);
+
+      // Suelo
+      const suelo = new THREE.Mesh(
+        new THREE.PlaneGeometry(10, 10),
+        new THREE.MeshStandardMaterial({ color: 0x1a1a2e, roughness: 0.9 })
+      );
+      suelo.rotation.x = -Math.PI / 2;
+      suelo.position.y = -1;
+      scene.add(suelo);
+
+      const controls = new OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+
+      // Botones de transformación
+      document.getElementById('btn-tf-pos')?.addEventListener('click', () => {
+        mesh.position.x = (Math.random() - 0.5) * 4;
+        mesh.position.z = (Math.random() - 0.5) * 4;
+      });
+      document.getElementById('btn-tf-rot')?.addEventListener('click', () => {
+        mesh.rotation.y += Math.PI / 4;
+        mesh.rotation.x += Math.PI / 8;
+      });
+      let scaleDir = 1;
+      document.getElementById('btn-tf-scale')?.addEventListener('click', () => {
+        const s = mesh.scale.x + scaleDir * 0.3;
+        if (s > 2 || s < 0.5) scaleDir *= -1;
+        mesh.scale.setScalar(Math.max(0.5, Math.min(2, s)));
+      });
+      document.getElementById('btn-tf-reset')?.addEventListener('click', () => {
+        mesh.position.set(0, 0, 0);
+        mesh.rotation.set(0, 0, 0);
+        mesh.scale.setScalar(1);
+      });
+
+      function animate() {
+        requestAnimationFrame(animate);
+        controls.update();
+        renderer.render(scene, camera);
+      }
+      animate();
+    })();
+
+
+    /* ──────────────────────────────────────────────────────────────
+       DEMO ANIMACIÓN — sección 8 (escena completa)
+    ────────────────────────────────────────────────────────────── */
+    ;(function initDemoAnimacion() {
+      const wrap = document.querySelector('#canvas-animacion')?.parentElement;
+      if (!wrap) return;
+      const W = wrap.clientWidth || 860;
+      const H = 320;
+
+      const renderer = crearRendererMini('canvas-animacion', W, H);
+      if (!renderer) return;
+      renderer.setClearColor(0x0a0a12);
+
+      const scene  = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(60, W / H, 0.1, 100);
+      camera.position.set(0, 3, 8);
+
+      scene.add(new THREE.AmbientLight(0xffffff, 0.4));
+      const dl = new THREE.DirectionalLight(0xffffff, 1.5);
+      dl.position.set(5, 10, 7);
+      scene.add(dl);
+      const pl1 = new THREE.PointLight(0xff6b35, 3, 15);
+      pl1.position.set(-3, 3, 2);
+      scene.add(pl1);
+      const pl2 = new THREE.PointLight(0x4aa8ff, 2, 12);
+      pl2.position.set(3, 2, -2);
+      scene.add(pl2);
+
+      // Cubo central
+      const cubo = new THREE.Mesh(
+        new THREE.BoxGeometry(1.2, 1.2, 1.2),
+        new THREE.MeshStandardMaterial({ color: 0xff6b35, roughness: 0.2, metalness: 0.3 })
+      );
+      scene.add(cubo);
+
+      // Esferas orbitando
+      const esferas = [];
+      const coloresEsf = [0x4aa8ff, 0x50fa7b, 0xf7df1e, 0xff79c6];
+      for (let i = 0; i < 4; i++) {
+        const e = new THREE.Mesh(
+          new THREE.SphereGeometry(0.3, 24, 24),
+          new THREE.MeshStandardMaterial({ color: coloresEsf[i], roughness: 0.3, metalness: 0.1 })
+        );
+        scene.add(e);
+        esferas.push(e);
+      }
+
+      // Toro
+      const toro = new THREE.Mesh(
+        new THREE.TorusGeometry(0.8, 0.15, 16, 100),
+        new THREE.MeshStandardMaterial({ color: 0xbd93f9, roughness: 0.4, metalness: 0.2 })
+      );
+      toro.rotation.x = Math.PI / 2;
+      scene.add(toro);
+
+      // Plano suelo
+      const suelo = new THREE.Mesh(
+        new THREE.PlaneGeometry(20, 20),
+        new THREE.MeshStandardMaterial({ color: 0x0d0d20, roughness: 0.95 })
+      );
+      suelo.rotation.x = -Math.PI / 2;
+      suelo.position.y = -1.5;
+      scene.add(suelo);
+
+      const controls = new OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.05;
+      controls.target.set(0, 0, 0);
+
+      // Botón autorotate
+      document.getElementById('btn-anim-autorotate')?.addEventListener('click', () => {
+        controls.autoRotate = !controls.autoRotate;
+      });
+
+      // Botón pausa
+      let pausado = false;
+      document.getElementById('btn-anim-pausa')?.addEventListener('click', (e) => {
+        pausado = !pausado;
+        e.target.textContent = pausado ? 'Reanudar' : 'Pausar';
+      });
+
+      const clock = new THREE.Clock();
+      function animate() {
+        requestAnimationFrame(animate);
+        if (!pausado) {
+          const t = clock.getElapsedTime();
+
+          // Rotar cubo
+          cubo.rotation.x = t * 0.5;
+          cubo.rotation.y = t * 0.7;
+
+          // Escalar cubo con seno
+          const s = 1 + Math.sin(t * 2) * 0.08;
+          cubo.scale.setScalar(s);
+
+          // Esferas en órbita
+          esferas.forEach((e, i) => {
+            const ang = t * 0.8 + (i * Math.PI * 2) / 4;
+            const radio = 2.2;
+            e.position.x = Math.cos(ang) * radio;
+            e.position.z = Math.sin(ang) * radio;
+            e.position.y = Math.sin(t * 1.5 + i) * 0.5;
+          });
+
+          // Toro gira en su eje
+          toro.rotation.z = t * 0.4;
+
+          // Las luces orbitando
+          pl1.position.x = Math.cos(t * 0.6) * 4;
+          pl1.position.z = Math.sin(t * 0.6) * 4;
+          pl2.position.x = Math.cos(t * 0.6 + Math.PI) * 3;
+          pl2.position.z = Math.sin(t * 0.6 + Math.PI) * 3;
+        }
+
+        controls.update();
+        renderer.render(scene, camera);
+      }
+      animate();
+    })();
+
+  </script>
+
+</body>
+</html>

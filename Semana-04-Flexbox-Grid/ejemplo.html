@@ -1,0 +1,1580 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ODS 2030 — Objetivos de Desarrollo Sostenible</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;1,9..144,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+
+  <style>
+
+    /* =====================================================
+       VARIABLES CSS
+       ===================================================== */
+    :root {
+      --negro:      #0a0a0a;
+      --blanco:     #f8f6f2;
+      --gris-suave: #ececec;
+      --gris-med:   #999;
+      --acento:     #e63c2f;   /* rojo ODS oficial */
+
+      --f-titulo: 'Fraunces', Georgia, serif;
+      --f-cuerpo: 'DM Sans', 'Trebuchet MS', sans-serif;
+      --f-mono:   'Courier New', monospace;
+
+      --fs-hero: clamp(3rem, 8vw, 6.5rem);
+      --fs-h2:   clamp(1.6rem, 3.5vw, 2.4rem);
+
+      --gap: clamp(1rem, 2.5vw, 1.5rem);
+      --radio: 6px;
+    }
+
+    /* =====================================================
+       RESET Y BASE
+       ===================================================== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    img  { max-width: 100%; display: block; }
+
+    body {
+      font-family: var(--f-cuerpo);
+      background: var(--blanco);
+      color: var(--negro);
+      font-size: 16px;
+      line-height: 1.65;
+    }
+
+    /* =====================================================
+       NAVEGACIÓN — FLEXBOX
+       Propiedades usadas:
+       display: flex
+       justify-content: space-between
+       align-items: center
+       gap
+       flex-wrap
+       ===================================================== */
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      background: var(--negro);
+
+      /* FLEXBOX: contenedor */
+      display: flex;
+      justify-content: space-between;   /* logo izq ↔ links der */
+      align-items: center;              /* centrado vertical */
+      flex-wrap: wrap;                  /* en móvil estrecho bajan */
+      gap: 0.5rem;
+
+      padding: 1rem 2rem;
+    }
+
+    .nav-logo {
+      font-family: var(--f-titulo);
+      font-size: 1.1rem;
+      color: var(--blanco);
+      letter-spacing: 0.02em;
+    }
+
+    .nav-logo span { color: var(--acento); }
+
+    .nav-links {
+      /* FLEXBOX: lista de links también usa flex */
+      display: flex;
+      gap: 2rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: rgba(248,246,242,0.65);
+      text-decoration: none;
+      font-size: 0.875rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover { color: var(--blanco); }
+
+    .nav-cta {
+      background: var(--acento);
+      color: var(--blanco);
+      padding: 0.5rem 1.25rem;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 500;
+      text-decoration: none;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      transition: opacity 0.2s;
+    }
+
+    .nav-cta:hover { opacity: 0.85; }
+
+    @media (max-width: 640px) {
+      .nav { padding: 0.75rem 1rem; }
+      .nav-links { display: none; }   /* se simplifica en móvil */
+    }
+
+
+    /* =====================================================
+       HERO — CSS GRID + FLEXBOX
+       grid-template-areas: "num titulo" / "num desc"
+       Flexbox para el contenido interno
+       ===================================================== */
+    .hero {
+      background: var(--negro);
+      color: var(--blanco);
+      min-height: 90vh;
+      padding: 4rem 2rem 3rem;
+
+      /* GRID: estructura del hero */
+      display: grid;
+      grid-template-columns: 1fr;          /* mobile: 1 columna */
+      grid-template-areas:
+        "badge"
+        "titulo"
+        "desc"
+        "stats";
+      align-content: center;
+      gap: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    @media (min-width: 768px) {
+      .hero {
+        /* GRID: en desktop 2 columnas */
+        grid-template-columns: 1fr 1fr;
+        grid-template-areas:
+          "badge  badge"
+          "titulo desc"
+          "stats  stats";
+        min-height: 85vh;
+        padding: 5rem 3rem;
+      }
+    }
+
+    .hero-badge {
+      grid-area: badge;
+      /* FLEXBOX: badge con ícono y texto en fila */
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .hero-badge span {
+      font-family: var(--f-mono);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--acento);
+      border: 1px solid rgba(230,60,47,0.4);
+      padding: 4px 14px;
+      border-radius: 999px;
+    }
+
+    .hero-titulo {
+      grid-area: titulo;
+      font-family: var(--f-titulo);
+      font-size: var(--fs-hero);
+      line-height: 0.95;
+      font-weight: 700;
+    }
+
+    .hero-titulo em {
+      display: block;
+      font-style: italic;
+      font-weight: 300;
+      color: rgba(248,246,242,0.55);
+    }
+
+    .hero-desc {
+      grid-area: desc;
+      /* FLEXBOX: descripción alineada al final en desktop */
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      gap: 1.5rem;
+    }
+
+    .hero-desc p {
+      color: rgba(248,246,242,0.7);
+      font-size: 1.05rem;
+      max-width: 40ch;
+      line-height: 1.75;
+    }
+
+    .hero-desc a {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--blanco);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      border-bottom: 1px solid rgba(248,246,242,0.3);
+      padding-bottom: 2px;
+      width: fit-content;
+      transition: border-color 0.2s;
+    }
+
+    .hero-desc a:hover { border-color: var(--blanco); }
+
+    /* Stats en fila — FLEXBOX */
+    .hero-stats {
+      grid-area: stats;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2rem;
+      border-top: 1px solid rgba(255,255,255,0.12);
+      padding-top: 2rem;
+    }
+
+    .stat { }
+    .stat-num {
+      font-family: var(--f-titulo);
+      font-size: clamp(2rem, 4vw, 2.8rem);
+      color: var(--acento);
+      line-height: 1;
+    }
+
+    .stat-label {
+      font-size: 0.8rem;
+      color: rgba(248,246,242,0.55);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+
+    /* =====================================================
+       FRANJA TICKER — FLEXBOX
+       overflow hidden + flex para efecto continuo visual
+       ===================================================== */
+    .ticker {
+      background: var(--acento);
+      padding: 0.6rem 0;
+      overflow: hidden;
+    }
+
+    .ticker-track {
+      /* FLEXBOX: items en fila que no se rompen */
+      display: flex;
+      align-items: center;
+      gap: 3rem;
+      white-space: nowrap;
+      animation: ticker-scroll 30s linear infinite;
+    }
+
+    .ticker-item {
+      font-family: var(--f-mono);
+      font-size: 0.78rem;
+      color: var(--blanco);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      flex-shrink: 0;   /* nunca se encoge: mantiene su ancho */
+    }
+
+    @keyframes ticker-scroll {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+
+
+    /* =====================================================
+       SECCIÓN: SOBRE LOS ODS
+       GRID de dos columnas en desktop
+       ===================================================== */
+    .seccion-sobre {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 5rem 2rem;
+
+      /* GRID: texto izquierda, números derecha */
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 3rem;
+    }
+
+    @media (min-width: 768px) {
+      .seccion-sobre {
+        grid-template-columns: 1fr 1fr;
+        align-items: center;
+      }
+    }
+
+    .sobre-texto h2 {
+      font-family: var(--f-titulo);
+      font-size: var(--fs-h2);
+      line-height: 1.15;
+      margin-bottom: 1.25rem;
+    }
+
+    .sobre-texto p {
+      color: #444;
+      max-width: 48ch;
+      margin-bottom: 1rem;
+    }
+
+    .sobre-chips {
+      /* FLEXBOX: chips en fila con wrap */
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 1.5rem;
+    }
+
+    .chip {
+      padding: 5px 14px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 500;
+      border: 1.5px solid currentColor;
+    }
+
+    /* colores por pilar */
+    .chip-social  { color: #e5243b; border-color: #e5243b; }
+    .chip-eco     { color: #3f7e44; border-color: #3f7e44; }
+    .chip-amb     { color: #0a97d9; border-color: #0a97d9; }
+
+    /* Mini grid de números: 2×2 */
+    .sobre-numeros {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1px;
+      background: var(--gris-suave);
+      border: 1px solid var(--gris-suave);
+      border-radius: var(--radio);
+      overflow: hidden;
+    }
+
+    .num-celda {
+      background: var(--blanco);
+      padding: 2rem 1.5rem;
+    }
+
+    .num-grande {
+      font-family: var(--f-titulo);
+      font-size: clamp(2.5rem, 5vw, 3.5rem);
+      line-height: 1;
+      margin-bottom: 0.4rem;
+    }
+
+    .num-desc { font-size: 0.85rem; color: var(--gris-med); }
+
+
+    /* =====================================================
+       GALERÍA ODS — CSS GRID PRINCIPAL
+       La estrella de la Semana 04
+
+       MOBILE:  1 columna
+       TABLET:  repeat(auto-fill, minmax(180px, 1fr))
+       DESKTOP: grid-template-areas con destacados
+
+       Propiedades demostradas:
+       ✓ grid-template-columns
+       ✓ grid-template-rows
+       ✓ grid-template-areas
+       ✓ grid-column: span N
+       ✓ grid-row: span N
+       ✓ auto-fill + minmax
+       ✓ gap
+       ===================================================== */
+    .seccion-ods {
+      background: var(--negro);
+      padding: 5rem 0 4rem;
+    }
+
+    .seccion-ods-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
+
+    .seccion-header {
+      /* FLEXBOX: etiqueta y título alineados */
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .seccion-header h2 {
+      font-family: var(--f-titulo);
+      font-size: var(--fs-h2);
+      color: var(--blanco);
+    }
+
+    .seccion-header p {
+      font-family: var(--f-mono);
+      font-size: 0.78rem;
+      color: var(--gris-med);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      text-align: right;
+    }
+
+    /* ---- GRID de ODS: la demostración central ---- */
+    .ods-grid {
+      display: grid;
+      /* MOBILE: 2 columnas pequeñas */
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--gap);
+    }
+
+    @media (min-width: 600px) {
+      .ods-grid {
+        /* TABLET: auto-fill responsivo */
+        grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .ods-grid {
+        /*
+          DESKTOP: grid asimétrico con áreas nombradas.
+          Los primeros 3 ODS tienen tratamiento especial (más grandes).
+          Los 14 restantes llenan el espacio normal.
+
+          grid-template-columns define 5 columnas.
+          Los elementos con span ocupan varias.
+        */
+        grid-template-columns: repeat(5, 1fr);
+        grid-auto-rows: 160px;
+      }
+
+      /* ODS 1 — grande, ocupa 2 columnas y 2 filas */
+      .ods-card[data-ods="1"] {
+        grid-column: span 2;
+        grid-row: span 2;
+      }
+
+      /* ODS 13 — también grande */
+      .ods-card[data-ods="13"] {
+        grid-column: span 2;
+        grid-row: span 2;
+      }
+
+      /* ODS 17 — destacado final */
+      .ods-card[data-ods="17"] {
+        grid-column: span 2;
+      }
+    }
+
+    /* ---- Cada tarjeta ODS ---- */
+    .ods-card {
+      border-radius: var(--radio);
+      padding: 1.25rem;
+      min-height: 120px;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+
+      /* FLEXBOX: contenido interno de la card */
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .ods-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 32px rgba(0,0,0,0.4);
+      z-index: 2;
+    }
+
+    /* Número del ODS */
+    .ods-num {
+      font-family: var(--f-titulo);
+      font-size: clamp(1.8rem, 3vw, 2.6rem);
+      font-weight: 700;
+      line-height: 1;
+      color: rgba(255,255,255,0.9);
+    }
+
+    /* Nombre del ODS */
+    .ods-nombre {
+      font-size: clamp(0.72rem, 1.2vw, 0.85rem);
+      font-weight: 500;
+      color: rgba(255,255,255,0.92);
+      line-height: 1.3;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    /* FLEXBOX en el pie de la card */
+    .ods-pie {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+    }
+
+    .ods-icono {
+      font-size: clamp(1.4rem, 2.5vw, 2rem);
+      opacity: 0.9;
+    }
+
+    /* ---- Colores oficiales de los 17 ODS ---- */
+    .ods-card[data-ods="1"]  { background: #e5243b; }
+    .ods-card[data-ods="2"]  { background: #DDA63A; }
+    .ods-card[data-ods="3"]  { background: #4C9F38; }
+    .ods-card[data-ods="4"]  { background: #C5192D; }
+    .ods-card[data-ods="5"]  { background: #FF3A21; }
+    .ods-card[data-ods="6"]  { background: #26BDE2; }
+    .ods-card[data-ods="7"]  { background: #FCC30B; }
+    .ods-card[data-ods="8"]  { background: #A21942; }
+    .ods-card[data-ods="9"]  { background: #FD6925; }
+    .ods-card[data-ods="10"] { background: #DD1367; }
+    .ods-card[data-ods="11"] { background: #FD9D24; }
+    .ods-card[data-ods="12"] { background: #BF8B2E; }
+    .ods-card[data-ods="13"] { background: #3F7E44; }
+    .ods-card[data-ods="14"] { background: #0A97D9; }
+    .ods-card[data-ods="15"] { background: #56C02B; }
+    .ods-card[data-ods="16"] { background: #00689D; }
+    .ods-card[data-ods="17"] { background: #19486A; }
+
+    /* ODS 7 tiene fondo claro, texto oscuro */
+    .ods-card[data-ods="7"] .ods-num,
+    .ods-card[data-ods="7"] .ods-nombre  { color: rgba(0,0,0,0.85); }
+    .ods-card[data-ods="11"] .ods-num,
+    .ods-card[data-ods="11"] .ods-nombre { color: rgba(0,0,0,0.85); }
+    .ods-card[data-ods="12"] .ods-num,
+    .ods-card[data-ods="12"] .ods-nombre { color: rgba(0,0,0,0.75); }
+
+
+    /* =====================================================
+       PILARES — CSS GRID de 3 columnas con areas
+       Demuestra grid-template-areas en sección completa
+       ===================================================== */
+    .seccion-pilares {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 5rem 2rem;
+    }
+
+    .pilares-intro {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    .pilares-intro h2 {
+      font-family: var(--f-titulo);
+      font-size: var(--fs-h2);
+      margin-bottom: 0.75rem;
+    }
+
+    .pilares-intro p { color: #555; max-width: 50ch; margin: 0 auto; }
+
+    /* GRID de pilares: 1 col → 3 col */
+    .pilares-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: var(--gap);
+    }
+
+    @media (min-width: 700px) {
+      .pilares-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    .pilar-card {
+      border-radius: var(--radio);
+      overflow: hidden;
+      border: 1.5px solid var(--gris-suave);
+
+      /* FLEXBOX: layout interno de la card */
+      display: flex;
+      flex-direction: column;
+    }
+
+    .pilar-head {
+      padding: 2rem 1.75rem 1.5rem;
+      /* FLEXBOX: ícono y título */
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .pilar-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 12px;
+      /* FLEXBOX: centrar el emoji */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.6rem;
+    }
+
+    .pilar-titulo {
+      font-family: var(--f-titulo);
+      font-size: 1.3rem;
+      line-height: 1.2;
+    }
+
+    .pilar-cuerpo {
+      padding: 0 1.75rem 1.75rem;
+      flex: 1;   /* empuja el pie hacia abajo */
+    }
+
+    .pilar-cuerpo p {
+      font-size: 0.9rem;
+      color: #555;
+      margin-bottom: 1rem;
+    }
+
+    .pilar-ods-list {
+      /* FLEXBOX: chips de ODS */
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+
+    .pilar-ods-chip {
+      font-size: 0.72rem;
+      font-weight: 500;
+      padding: 3px 10px;
+      border-radius: 999px;
+      color: #fff;
+    }
+
+    /* Colores por pilar */
+    .pilar-social .pilar-icon { background: #fde8e8; }
+    .pilar-social .pilar-titulo { color: #b01c2e; }
+    .pilar-social .pilar-ods-chip { background: #e5243b; }
+
+    .pilar-eco .pilar-icon { background: #e8f5e9; }
+    .pilar-eco .pilar-titulo { color: #2d5a2e; }
+    .pilar-eco .pilar-ods-chip { background: #3f7e44; }
+
+    .pilar-amb .pilar-icon { background: #e3f4fb; }
+    .pilar-amb .pilar-titulo { color: #0a5f86; }
+    .pilar-amb .pilar-ods-chip { background: #0a97d9; }
+
+
+    /* =====================================================
+       SECCIÓN PROGRESO — GRID de dos columnas
+       Left: texto / Right: barras de progreso
+       ===================================================== */
+    .seccion-progreso {
+      background: #f8f6f2;
+      padding: 5rem 0;
+    }
+
+    .progreso-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 2rem;
+
+      /* GRID: columnas en desktop */
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 3rem;
+      align-items: center;
+    }
+
+    @media (min-width: 768px) {
+      .progreso-inner {
+        grid-template-columns: 1fr 1.2fr;
+      }
+    }
+
+    .progreso-texto h2 {
+      font-family: var(--f-titulo);
+      font-size: var(--fs-h2);
+      margin-bottom: 1rem;
+    }
+
+    .progreso-texto p { color: #555; margin-bottom: 1.5rem; }
+
+    .progreso-texto a {
+      display: inline-block;
+      background: var(--negro);
+      color: var(--blanco);
+      padding: 0.65rem 1.5rem;
+      border-radius: 999px;
+      text-decoration: none;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: opacity 0.2s;
+    }
+
+    .progreso-texto a:hover { opacity: 0.8; }
+
+    /* Barras de progreso */
+    .barras {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .barra-item { }
+
+    .barra-info {
+      /* FLEXBOX: nombre y porcentaje en los extremos */
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 0.4rem;
+    }
+
+    .barra-nombre { font-size: 0.875rem; font-weight: 500; }
+    .barra-pct    { font-family: var(--f-titulo); font-size: 1rem; }
+
+    .barra-track {
+      height: 8px;
+      background: var(--gris-suave);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .barra-fill {
+      height: 100%;
+      border-radius: 999px;
+    }
+
+
+    /* =====================================================
+       MAPA / LLAMADA A ACCIÓN — GRID FULL
+       grid-template-areas: texto + visual
+       ===================================================== */
+    .seccion-cta {
+      background: var(--negro);
+      color: var(--blanco);
+      padding: 5rem 2rem;
+    }
+
+    .cta-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+
+      /* GRID: área texto y área visual */
+      display: grid;
+      grid-template-columns: 1fr;
+      grid-template-areas:
+        "texto"
+        "visual";
+      gap: 3rem;
+      align-items: center;
+    }
+
+    @media (min-width: 768px) {
+      .cta-inner {
+        grid-template-columns: 1fr 1fr;
+        grid-template-areas: "texto visual";
+      }
+    }
+
+    .cta-texto { grid-area: texto; }
+
+    .cta-texto h2 {
+      font-family: var(--f-titulo);
+      font-size: var(--fs-h2);
+      margin-bottom: 1.25rem;
+      line-height: 1.15;
+    }
+
+    .cta-texto h2 em {
+      font-style: italic;
+      font-weight: 300;
+      color: rgba(248,246,242,0.5);
+    }
+
+    .cta-texto p {
+      color: rgba(248,246,242,0.65);
+      margin-bottom: 2rem;
+      max-width: 44ch;
+    }
+
+    .cta-botones {
+      /* FLEXBOX: botones en fila */
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 0.7rem 1.6rem;
+      border-radius: 999px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      text-decoration: none;
+      transition: transform 0.15s, opacity 0.2s;
+    }
+
+    .btn:hover { transform: translateY(-2px); }
+
+    .btn-rojo   { background: var(--acento); color: var(--blanco); }
+    .btn-borde  { border: 1.5px solid rgba(248,246,242,0.3); color: var(--blanco); }
+    .btn-borde:hover { border-color: var(--blanco); }
+
+    /* Visual: mini grid de 3×3 con colores ODS */
+    .cta-visual { grid-area: visual; }
+
+    .mini-ods-grid {
+      /* GRID: cuadrícula 3×3 de colores */
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(3, 80px);
+      gap: 6px;
+      border-radius: var(--radio);
+      overflow: hidden;
+    }
+
+    @media (min-width: 768px) {
+      .mini-ods-grid {
+        grid-template-rows: repeat(3, 100px);
+      }
+    }
+
+    .mini-cell {
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--f-titulo);
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: rgba(255,255,255,0.85);
+      transition: transform 0.2s;
+    }
+
+    .mini-cell:hover { transform: scale(1.05); z-index: 1; }
+
+    /* span en el mini grid */
+    .mini-cell.ancho { grid-column: span 2; }
+    .mini-cell.alto  { grid-row: span 2; }
+
+
+    /* =====================================================
+       FOOTER — GRID + FLEXBOX
+       ===================================================== */
+    .footer {
+      background: #050505;
+      color: rgba(248,246,242,0.5);
+      padding: 4rem 2rem 2rem;
+    }
+
+    .footer-grid {
+      max-width: 1200px;
+      margin: 0 auto;
+
+      /* GRID: marca + 3 columnas de links */
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 2.5rem;
+      margin-bottom: 3rem;
+    }
+
+    @media (min-width: 640px) {
+      .footer-grid {
+        grid-template-columns: 2fr 1fr 1fr 1fr;
+      }
+    }
+
+    .footer-marca h3 {
+      font-family: var(--f-titulo);
+      font-size: 1.3rem;
+      color: var(--blanco);
+      margin-bottom: 0.75rem;
+    }
+
+    .footer-marca h3 span { color: var(--acento); }
+    .footer-marca p { font-size: 0.875rem; line-height: 1.7; }
+
+    .footer-col h4 {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: rgba(248,246,242,0.4);
+      margin-bottom: 1rem;
+    }
+
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 0.5rem; }
+
+    .footer-col a {
+      color: rgba(248,246,242,0.6);
+      text-decoration: none;
+      font-size: 0.875rem;
+      transition: color 0.2s;
+    }
+
+    .footer-col a:hover { color: var(--blanco); }
+
+    .footer-bottom {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding-top: 1.5rem;
+      border-top: 1px solid rgba(255,255,255,0.07);
+
+      /* FLEXBOX: copyright ↔ links */
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      font-size: 0.78rem;
+    }
+
+    .footer-bottom a {
+      color: rgba(248,246,242,0.4);
+      text-decoration: none;
+    }
+
+    /* =====================================================
+       ETIQUETAS CSS (didácticas) — se muestran sobre demos
+       ===================================================== */
+    .label-css {
+      display: inline-block;
+      font-family: var(--f-mono);
+      font-size: 0.7rem;
+      background: rgba(0,0,0,0.75);
+      color: #a8d8c0;
+      padding: 2px 8px;
+      border-radius: 3px;
+      margin-bottom: 0.5rem;
+    }
+
+    .label-css.flex  { background: rgba(45,125,95,0.9); }
+    .label-css.grid  { background: rgba(92,58,138,0.9); }
+
+    /* Wrapper de sección con contenedor máximo */
+    .wrapper { max-width: 1200px; margin: 0 auto; padding: 0 2rem; }
+
+  </style>
+</head>
+
+<body>
+
+  <!-- ==============================================
+       NAV — display:flex + justify-content:space-between
+       ============================================== -->
+  <nav class="nav">
+    <!--
+      NAV usa FLEXBOX:
+      display: flex
+      justify-content: space-between  → logo | links | botón
+      align-items: center             → centrado vertical
+    -->
+    <span class="nav-logo">ODS<span>·</span>2030</span>
+    <ul class="nav-links">
+      <li><a href="#ods">Los ODS</a></li>
+      <li><a href="#pilares">Pilares</a></li>
+      <li><a href="#progreso">Progreso</a></li>
+      <li><a href="#actua">Actúa</a></li>
+    </ul>
+    <a href="#actua" class="nav-cta">Únete</a>
+  </nav>
+
+
+  <!-- ==============================================
+       HERO — CSS GRID con grid-template-areas
+       ============================================== -->
+  <section class="hero">
+    <!--
+      HERO usa CSS GRID:
+      grid-template-areas: "badge" / "titulo" / "desc" / "stats"
+      En desktop: grid-template-columns: 1fr 1fr
+      → título izquierda, descripción derecha
+    -->
+    <div class="hero-badge">
+      <span>Agenda 2030 · 17 Objetivos · 169 Metas</span>
+    </div>
+
+    <h1 class="hero-titulo">
+      Un mundo<br>
+      <em>sin dejar</em><br>
+      a nadie atrás
+    </h1>
+
+    <div class="hero-desc">
+      <p>
+        Los Objetivos de Desarrollo Sostenible son un llamado universal a la acción
+        para erradicar la pobreza, proteger el planeta y garantizar paz y prosperidad
+        para todas las personas en 2030.
+      </p>
+      <a href="#ods">Explorar los 17 objetivos →</a>
+    </div>
+
+    <div class="hero-stats">
+      <!--
+        STATS usa FLEXBOX:
+        display: flex + flex-wrap: wrap + gap
+      -->
+      <div class="stat">
+        <div class="stat-num">17</div>
+        <div class="stat-label">Objetivos globales</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">169</div>
+        <div class="stat-label">Metas específicas</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">193</div>
+        <div class="stat-label">Países firmantes</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">2030</div>
+        <div class="stat-label">Año límite</div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- Ticker animado — FLEXBOX + animation -->
+  <div class="ticker">
+    <div class="ticker-track">
+      <span class="ticker-item">ODS 1 — Fin de la pobreza</span>
+      <span class="ticker-item">★</span>
+      <span class="ticker-item">ODS 2 — Hambre cero</span>
+      <span class="ticker-item">★</span>
+      <span class="ticker-item">ODS 3 — Salud y bienestar</span>
+      <span class="ticker-item">★</span>
+      <span class="ticker-item">ODS 4 — Educación de calidad</span>
+      <span class="ticker-item">★</span>
+      <span class="ticker-item">ODS 5 — Igualdad de género</span>
+      <span class="ticker-item">★</span>
+      <span class="ticker-item">ODS 6 — Agua limpia</span>
+      <span class="ticker-item">★</span>
+      <span class="ticker-item">ODS 7 — Energía asequible</span>
+      <span class="ticker-item">★</span>
+      <span class="ticker-item">ODS 8 — Trabajo decente</span>
+      <span class="ticker-item">★</span>
+      <span class="ticker-item">ODS 9 — Industria e innovación</span>
+      <span class="ticker-item">★</span>
+      <span class="ticker-item">ODS 10 — Reducción de desigualdades</span>
+      <span class="ticker-item">★</span>
+      <span class="ticker-item">ODS 11 — Ciudades sostenibles</span>
+      <span class="ticker-item">★</span>
+      <span class="ticker-item">ODS 12 — Producción responsable</span>
+      <span class="ticker-item">★</span>
+      <span class="ticker-item">ODS 13 — Acción por el clima</span>
+      <span class="ticker-item">★</span>
+      <span class="ticker-item">ODS 14 — Vida submarina</span>
+      <span class="ticker-item">★</span>
+      <span class="ticker-item">ODS 15 — Vida de ecosistemas</span>
+      <span class="ticker-item">★</span>
+      <span class="ticker-item">ODS 16 — Paz y justicia</span>
+      <span class="ticker-item">★</span>
+      <span class="ticker-item">ODS 17 — Alianzas para los objetivos</span>
+      <span class="ticker-item">★</span>
+      <!-- Duplicado para el loop continuo -->
+      <span class="ticker-item">ODS 1 — Fin de la pobreza</span>
+      <span class="ticker-item">★</span>
+      <span class="ticker-item">ODS 2 — Hambre cero</span>
+      <span class="ticker-item">★</span>
+      <span class="ticker-item">ODS 3 — Salud y bienestar</span>
+      <span class="ticker-item">★</span>
+      <span class="ticker-item">ODS 4 — Educación de calidad</span>
+      <span class="ticker-item">★</span>
+      <span class="ticker-item">ODS 5 — Igualdad de género</span>
+      <span class="ticker-item">★</span>
+      <span class="ticker-item">ODS 13 — Acción por el clima</span>
+      <span class="ticker-item">★</span>
+      <span class="ticker-item">ODS 17 — Alianzas para los objetivos</span>
+    </div>
+  </div>
+
+
+  <!-- ==============================================
+       SECCIÓN "SOBRE LOS ODS" — GRID 2 columnas
+       ============================================== -->
+  <section class="seccion-sobre" id="intro">
+    <!--
+      GRID:
+      grid-template-columns: 1fr 1fr (en desktop)
+      align-items: center
+    -->
+    <div class="sobre-texto">
+      <span class="label-css grid">display: grid — 2 columnas</span>
+      <h2>¿Qué son los ODS?</h2>
+      <p>
+        En 2015, los 193 países miembros de la ONU adoptaron la Agenda 2030,
+        un plan de acción universal con 17 Objetivos de Desarrollo Sostenible.
+      </p>
+      <p>
+        Estos objetivos cubren desde erradicar la pobreza y el hambre,
+        hasta combatir el cambio climático, promover la paz y garantizar
+        educación y salud para todos.
+      </p>
+      <div class="sobre-chips">
+        <span class="chip chip-social">Personas</span>
+        <span class="chip chip-eco">Prosperidad</span>
+        <span class="chip chip-amb">Planeta</span>
+        <span class="chip chip-social">Paz</span>
+        <span class="chip chip-eco">Alianzas</span>
+      </div>
+    </div>
+
+    <div class="sobre-numeros">
+      <!--
+        GRID interno: 2×2 con 1px de separación visible
+        grid-template-columns: 1fr 1fr
+        background: gris (el "gap" se convierte en separador)
+      -->
+      <div class="num-celda">
+        <div class="num-grande" style="color:#e5243b;">17</div>
+        <div class="num-desc">Objetivos de Desarrollo Sostenible</div>
+      </div>
+      <div class="num-celda">
+        <div class="num-grande" style="color:#3f7e44;">169</div>
+        <div class="num-desc">Metas medibles hasta 2030</div>
+      </div>
+      <div class="num-celda">
+        <div class="num-grande" style="color:#0a97d9;">232</div>
+        <div class="num-desc">Indicadores de seguimiento</div>
+      </div>
+      <div class="num-celda">
+        <div class="num-grande" style="color:#FCC30B;">8.000+</div>
+        <div class="num-desc">Millones de personas involucradas</div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ==============================================
+       GALERÍA ODS — CSS GRID COMPLETO
+       La sección estrella de la semana
+       ============================================== -->
+  <section class="seccion-ods" id="ods">
+    <div class="seccion-ods-inner">
+
+      <div class="seccion-header">
+        <!--
+          FLEXBOX:
+          justify-content: space-between → título izq, nota der
+        -->
+        <div>
+          <span class="label-css grid">CSS Grid — los 17 ODS</span>
+          <h2 style="color:var(--blanco);">Los 17 Objetivos</h2>
+        </div>
+        <p>
+          grid-template-columns: repeat(5, 1fr)<br>
+          ODS 1 y 13: grid-column: span 2 + grid-row: span 2
+        </p>
+      </div>
+
+      <!--
+        GRID PRINCIPAL:
+        Mobile:  repeat(2, 1fr)
+        Tablet:  repeat(auto-fill, minmax(170px, 1fr))
+        Desktop: repeat(5, 1fr) con spans en ODS 1, 13 y 17
+      -->
+      <div class="ods-grid">
+
+        <div class="ods-card" data-ods="1">
+          <div class="ods-num">1</div>
+          <div class="ods-pie">
+            <div class="ods-nombre">Fin de la<br>Pobreza</div>
+            <div class="ods-icono">🤝</div>
+          </div>
+        </div>
+
+        <div class="ods-card" data-ods="2">
+          <div class="ods-num">2</div>
+          <div class="ods-pie">
+            <div class="ods-nombre">Hambre<br>Cero</div>
+            <div class="ods-icono">🌾</div>
+          </div>
+        </div>
+
+        <div class="ods-card" data-ods="3">
+          <div class="ods-num">3</div>
+          <div class="ods-pie">
+            <div class="ods-nombre">Salud y<br>Bienestar</div>
+            <div class="ods-icono">❤️</div>
+          </div>
+        </div>
+
+        <div class="ods-card" data-ods="4">
+          <div class="ods-num">4</div>
+          <div class="ods-pie">
+            <div class="ods-nombre">Educación de<br>Calidad</div>
+            <div class="ods-icono">📚</div>
+          </div>
+        </div>
+
+        <div class="ods-card" data-ods="5">
+          <div class="ods-num">5</div>
+          <div class="ods-pie">
+            <div class="ods-nombre">Igualdad de<br>Género</div>
+            <div class="ods-icono">⚖️</div>
+          </div>
+        </div>
+
+        <div class="ods-card" data-ods="6">
+          <div class="ods-num">6</div>
+          <div class="ods-pie">
+            <div class="ods-nombre">Agua Limpia<br>y Saneamiento</div>
+            <div class="ods-icono">💧</div>
+          </div>
+        </div>
+
+        <div class="ods-card" data-ods="7">
+          <div class="ods-num">7</div>
+          <div class="ods-pie">
+            <div class="ods-nombre">Energía<br>Asequible</div>
+            <div class="ods-icono">⚡</div>
+          </div>
+        </div>
+
+        <div class="ods-card" data-ods="8">
+          <div class="ods-num">8</div>
+          <div class="ods-pie">
+            <div class="ods-nombre">Trabajo Decente<br>y Crecimiento</div>
+            <div class="ods-icono">💼</div>
+          </div>
+        </div>
+
+        <div class="ods-card" data-ods="9">
+          <div class="ods-num">9</div>
+          <div class="ods-pie">
+            <div class="ods-nombre">Industria<br>e Innovación</div>
+            <div class="ods-icono">🏗️</div>
+          </div>
+        </div>
+
+        <div class="ods-card" data-ods="10">
+          <div class="ods-num">10</div>
+          <div class="ods-pie">
+            <div class="ods-nombre">Reducción de<br>Desigualdades</div>
+            <div class="ods-icono">🔄</div>
+          </div>
+        </div>
+
+        <div class="ods-card" data-ods="11">
+          <div class="ods-num">11</div>
+          <div class="ods-pie">
+            <div class="ods-nombre">Ciudades<br>Sostenibles</div>
+            <div class="ods-icono">🏙️</div>
+          </div>
+        </div>
+
+        <div class="ods-card" data-ods="12">
+          <div class="ods-num">12</div>
+          <div class="ods-pie">
+            <div class="ods-nombre">Producción<br>Responsable</div>
+            <div class="ods-icono">♻️</div>
+          </div>
+        </div>
+
+        <div class="ods-card" data-ods="13">
+          <div class="ods-num">13</div>
+          <div class="ods-pie">
+            <div class="ods-nombre">Acción por<br>el Clima</div>
+            <div class="ods-icono">🌍</div>
+          </div>
+        </div>
+
+        <div class="ods-card" data-ods="14">
+          <div class="ods-num">14</div>
+          <div class="ods-pie">
+            <div class="ods-nombre">Vida<br>Submarina</div>
+            <div class="ods-icono">🐟</div>
+          </div>
+        </div>
+
+        <div class="ods-card" data-ods="15">
+          <div class="ods-num">15</div>
+          <div class="ods-pie">
+            <div class="ods-nombre">Vida de<br>Ecosistemas</div>
+            <div class="ods-icono">🌿</div>
+          </div>
+        </div>
+
+        <div class="ods-card" data-ods="16">
+          <div class="ods-num">16</div>
+          <div class="ods-pie">
+            <div class="ods-nombre">Paz, Justicia<br>e Instituciones</div>
+            <div class="ods-icono">🕊️</div>
+          </div>
+        </div>
+
+        <div class="ods-card" data-ods="17">
+          <div class="ods-num">17</div>
+          <div class="ods-pie">
+            <div class="ods-nombre">Alianzas para<br>los Objetivos</div>
+            <div class="ods-icono">🤝</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ==============================================
+       PILARES — GRID 3 columnas + FLEXBOX interno
+       ============================================== -->
+  <section class="seccion-pilares" id="pilares">
+    <div class="pilares-intro">
+      <span class="label-css grid">grid-template-columns: repeat(3, 1fr)</span>
+      <h2>Los tres pilares</h2>
+      <p>Los ODS se agrupan en tres grandes dimensiones del desarrollo sostenible.</p>
+    </div>
+
+    <div class="pilares-grid">
+      <!--
+        GRID: 3 columnas en desktop
+        Cada card usa FLEXBOX internamente:
+        flex-direction: column + flex: 1 para empujar el pie abajo
+      -->
+
+      <div class="pilar-card pilar-social">
+        <div class="pilar-head">
+          <div class="pilar-icon">👥</div>
+          <h3 class="pilar-titulo">Dimensión Social</h3>
+        </div>
+        <div class="pilar-cuerpo">
+          <p>Garantizar los derechos humanos fundamentales: alimentación, salud, educación e igualdad para todas las personas.</p>
+          <div class="pilar-ods-list">
+            <span class="pilar-ods-chip" style="background:#e5243b;">ODS 1</span>
+            <span class="pilar-ods-chip" style="background:#DDA63A;">ODS 2</span>
+            <span class="pilar-ods-chip" style="background:#4C9F38;">ODS 3</span>
+            <span class="pilar-ods-chip" style="background:#C5192D;">ODS 4</span>
+            <span class="pilar-ods-chip" style="background:#FF3A21;">ODS 5</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="pilar-card pilar-eco">
+        <div class="pilar-head">
+          <div class="pilar-icon">📈</div>
+          <h3 class="pilar-titulo">Dimensión Económica</h3>
+        </div>
+        <div class="pilar-cuerpo">
+          <p>Impulsar el crecimiento económico inclusivo, el trabajo digno, la innovación y la reducción de desigualdades.</p>
+          <div class="pilar-ods-list">
+            <span class="pilar-ods-chip" style="background:#FCC30B; color:#000;">ODS 7</span>
+            <span class="pilar-ods-chip" style="background:#A21942;">ODS 8</span>
+            <span class="pilar-ods-chip" style="background:#FD6925;">ODS 9</span>
+            <span class="pilar-ods-chip" style="background:#DD1367;">ODS 10</span>
+            <span class="pilar-ods-chip" style="background:#19486A;">ODS 17</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="pilar-card pilar-amb">
+        <div class="pilar-head">
+          <div class="pilar-icon">🌍</div>
+          <h3 class="pilar-titulo">Dimensión Ambiental</h3>
+        </div>
+        <div class="pilar-cuerpo">
+          <p>Proteger el planeta: combatir el cambio climático, conservar océanos, bosques y ecosistemas terrestres.</p>
+          <div class="pilar-ods-list">
+            <span class="pilar-ods-chip" style="background:#26BDE2;">ODS 6</span>
+            <span class="pilar-ods-chip" style="background:#BF8B2E;">ODS 12</span>
+            <span class="pilar-ods-chip" style="background:#3F7E44;">ODS 13</span>
+            <span class="pilar-ods-chip" style="background:#0A97D9;">ODS 14</span>
+            <span class="pilar-ods-chip" style="background:#56C02B;">ODS 15</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ==============================================
+       PROGRESO — GRID 2 columnas
+       ============================================== -->
+  <section class="seccion-progreso" id="progreso">
+    <div class="progreso-inner">
+      <!--
+        GRID: texto izquierda | barras derecha
+        grid-template-columns: 1fr 1.2fr
+      -->
+
+      <div class="progreso-texto">
+        <span class="label-css grid">grid-template-columns: 1fr 1.2fr</span>
+        <h2>¿Cómo vamos?</h2>
+        <p>
+          A 2025, el mundo está rezagado en muchos ODS.
+          La pandemia, los conflictos y el cambio climático
+          retrasaron décadas de avance. Necesitamos acelerar.
+        </p>
+        <a href="https://sdgs.un.org/goals" target="_blank" rel="noopener noreferrer">
+          Ver informe completo ONU →
+        </a>
+      </div>
+
+      <div class="barras">
+        <!--
+          Cada barra usa FLEXBOX para alinear nombre y porcentaje
+          justify-content: space-between
+        -->
+        <div class="barra-item">
+          <div class="barra-info">
+            <span class="barra-nombre">ODS 4 — Educación de calidad</span>
+            <span class="barra-pct" style="color:#C5192D;">45%</span>
+          </div>
+          <div class="barra-track">
+            <div class="barra-fill" style="width:45%; background:#C5192D;"></div>
+          </div>
+        </div>
+
+        <div class="barra-item">
+          <div class="barra-info">
+            <span class="barra-nombre">ODS 7 — Energía asequible</span>
+            <span class="barra-pct" style="color:#FCC30B;">62%</span>
+          </div>
+          <div class="barra-track">
+            <div class="barra-fill" style="width:62%; background:#FCC30B;"></div>
+          </div>
+        </div>
+
+        <div class="barra-item">
+          <div class="barra-info">
+            <span class="barra-nombre">ODS 13 — Acción climática</span>
+            <span class="barra-pct" style="color:#3F7E44;">28%</span>
+          </div>
+          <div class="barra-track">
+            <div class="barra-fill" style="width:28%; background:#3F7E44;"></div>
+          </div>
+        </div>
+
+        <div class="barra-item">
+          <div class="barra-info">
+            <span class="barra-nombre">ODS 5 — Igualdad de género</span>
+            <span class="barra-pct" style="color:#FF3A21;">38%</span>
+          </div>
+          <div class="barra-track">
+            <div class="barra-fill" style="width:38%; background:#FF3A21;"></div>
+          </div>
+        </div>
+
+        <div class="barra-item">
+          <div class="barra-info">
+            <span class="barra-nombre">ODS 3 — Salud y bienestar</span>
+            <span class="barra-pct" style="color:#4C9F38;">71%</span>
+          </div>
+          <div class="barra-track">
+            <div class="barra-fill" style="width:71%; background:#4C9F38;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ==============================================
+       CTA FINAL — GRID con grid-template-areas
+       ============================================== -->
+  <section class="seccion-cta" id="actua">
+    <div class="cta-inner">
+      <!--
+        GRID:
+        grid-template-areas: "texto visual"
+        En mobile: columna única con "texto" arriba
+      -->
+
+      <div class="cta-texto">
+        <span class="label-css grid">grid-template-areas: "texto visual"</span>
+        <h2>
+          Tú también<br>
+          <em>puedes actuar</em>
+        </h2>
+        <p>
+          Cada persona, empresa y gobierno tiene un rol que jugar.
+          Desde decisiones cotidianas hasta políticas globales,
+          todos los actos cuentan para 2030.
+        </p>
+        <div class="cta-botones">
+          <!--
+            FLEXBOX: botones en fila
+            display: flex + gap + flex-wrap
+          -->
+          <a href="https://sdgs.un.org/goals" target="_blank" rel="noopener noreferrer" class="btn btn-rojo">
+            Conoce los ODS
+          </a>
+          <a href="#ods" class="btn btn-borde">
+            Ver los 17 objetivos
+          </a>
+        </div>
+      </div>
+
+      <div class="cta-visual">
+        <!--
+          Mini GRID de 3×3 con colores ODS
+          Algunos elementos con grid-column: span 2
+        -->
+        <div class="mini-ods-grid">
+          <div class="mini-cell ancho" style="background:#e5243b;">1</div>
+          <div class="mini-cell" style="background:#DDA63A;">2</div>
+          <div class="mini-cell" style="background:#4C9F38;">3</div>
+          <div class="mini-cell alto" style="background:#3F7E44;">13</div>
+          <div class="mini-cell" style="background:#C5192D;">4</div>
+          <div class="mini-cell" style="background:#FF3A21;">5</div>
+          <div class="mini-cell" style="background:#26BDE2;">6</div>
+          <div class="mini-cell" style="background:#0A97D9;">14</div>
+          <div class="mini-cell" style="background:#19486A;">17</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ==============================================
+       FOOTER — GRID 4 columnas + FLEXBOX
+       ============================================== -->
+  <footer class="footer">
+    <div class="footer-grid">
+      <!--
+        GRID: grid-template-columns: 2fr 1fr 1fr 1fr
+        En mobile: 1fr (columna única)
+      -->
+
+      <div class="footer-marca">
+        <h3>ODS<span>·</span>2030</h3>
+        <p>
+          Sitio de ejemplo para la Semana 04 de Diseño Web.<br>
+          Demuestra el uso de CSS Grid y Flexbox con contenido real.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>ODS</h4>
+        <ul>
+          <li><a href="#">ODS 1 — 5</a></li>
+          <li><a href="#">ODS 6 — 10</a></li>
+          <li><a href="#">ODS 11 — 17</a></li>
+          <li><a href="#">Indicadores</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Recursos</h4>
+        <ul>
+          <li><a href="https://sdgs.un.org" target="_blank" rel="noopener noreferrer">Sitio ONU</a></li>
+          <li><a href="https://www.undp.org/es" target="_blank" rel="noopener noreferrer">PNUD</a></li>
+          <li><a href="#">Informe 2024</a></li>
+          <li><a href="#">Datos abiertos</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Clase</h4>
+        <ul>
+          <li><a href="#">Semana 01 — HTML</a></li>
+          <li><a href="#">Semana 02 — CSS</a></li>
+          <li><a href="#">Semana 03 — Responsive</a></li>
+          <li><a href="#" style="color:var(--acento);">Semana 04 — Grid/Flex ←</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <span>&copy; 2025 — Diseño Web · Semana 04 · Flexbox y CSS Grid</span>
+      <a href="https://sdgs.un.org/goals" target="_blank" rel="noopener noreferrer">sdgs.un.org</a>
+    </div>
+  </footer>
+
+</body>
+</html>

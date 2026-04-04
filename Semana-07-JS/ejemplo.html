@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>RPG PRO UI+</title>
+
+<style>
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background: #f5f1e6;
+  color: #3e2f1c;
+  text-align: center;
+  padding: 20px;
+}
+
+h1 {
+  margin-bottom: 20px;
+}
+
+/* GRID */
+.container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  max-width: 900px;
+  margin: auto;
+}
+
+.box {
+  background: #fffaf0;
+  border: 2px solid #d2b48c;
+  border-radius: 15px;
+  padding: 20px;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+}
+
+/* BOTONES */
+button {
+  padding: 12px;
+  margin: 5px;
+  border-radius: 8px;
+  border: none;
+  background: linear-gradient(145deg,#8b5a2b,#a06b3b);
+  color: white;
+  cursor: pointer;
+  font-weight: bold;
+  transition: 0.2s;
+}
+
+button:hover {
+  transform: scale(1.05);
+}
+
+button:disabled {
+  background: #999;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* BARRAS */
+.bar {
+  height: 18px;
+  background: #ddd;
+  border-radius: 10px;
+  margin: 8px 0;
+  overflow: hidden;
+}
+
+.fill {
+  height: 100%;
+  width: 100%;
+  transition: 0.4s;
+}
+
+.hp { background: linear-gradient(to right,#6b8e23,#9acd32); }
+.energy { background: linear-gradient(to right,#4682b4,#5dade2); }
+
+.enemy .hp { background: linear-gradient(to right,#b22222,#ff4d4d); }
+
+/* LOG */
+.log {
+  background: #f0e6d2;
+  height: 180px;
+  overflow-y: auto;
+  text-align: left;
+  padding: 10px;
+  border-radius: 10px;
+}
+
+/* INPUT */
+input {
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+</style>
+</head>
+
+<body>
+
+<h1>⚔️ RPG PRO</h1>
+
+<div class="box">
+  <input id="nombre" placeholder="Nombre del héroe">
+  <button onclick="start()">Iniciar juego</button>
+</div>
+
+<div id="game" style="display:none;">
+
+<div class="container">
+
+  <!-- PLAYER -->
+  <div class="box">
+    <h2 id="pName"></h2>
+
+    ❤️ Vida: <span id="pHP"></span>
+    <div class="bar"><div id="pHPbar" class="fill hp"></div></div>
+
+    ⚡ Energía: <span id="pEnergy"></span>
+    <div class="bar"><div id="pEnergyBar" class="fill energy"></div></div>
+  </div>
+
+  <!-- ENEMY -->
+  <div class="box enemy">
+    <h2 id="eName"></h2>
+
+    ❤️ Vida: <span id="eHP"></span>
+    <div class="bar"><div id="eHPbar" class="fill hp"></div></div>
+  </div>
+
+  <!-- ACCIONES -->
+  <div class="box">
+    <button onclick="attack()">⚔️ Ataque básico</button>
+    <button onclick="heal()">💚 Curarse</button>
+    <button id="btnSpecial" onclick="special()">🔥 Ataque especial</button>
+    <button onclick="defend()">🛡️ Defender</button>
+  </div>
+
+  <!-- LOG -->
+  <div class="box log" id="log"></div>
+
+</div>
+</div>
+
+<script>
+let player = {};
+let enemy = {};
+let gameOver = false;
+
+const enemies = [
+  {name:"👾 Goblin", hp:80, attack:10, defense:5, special:12},
+  {name:"🐺 Lobo", hp:90, attack:12, defense:6, special:14},
+  {name:"🧙 Mago", hp:100, attack:14, defense:4, special:20},
+  {name:"🐉 Dragón", hp:130, attack:18, defense:10, special:25}
+];
+
+function start(){
+  gameOver = false;
+
+  player = {
+    name: document.getElementById("nombre").value || "Héroe",
+    hp:100,
+    attack:15,
+    defense:8,
+    special:20,
+    energy:50,
+    defending:false
+  };
+
+  enemy = {...enemies[random(0,enemies.length-1)]};
+  enemy.energy = 50;
+
+  document.getElementById("pName").innerText = player.name;
+  document.getElementById("eName").innerText = enemy.name;
+
+  document.getElementById("game").style.display="block";
+
+  log("🟢 ¡La batalla comienza!");
+  update();
+}
+
+function random(min,max){
+  return Math.floor(Math.random()*(max-min+1))+min;
+}
+
+function calcDamage(att, def){
+  let base = att + random(-5,5);
+  let dmg = base - def/2;
+  return Math.max(1, Math.floor(dmg));
+}
+
+/* ACCIONES */
+
+function attack(){
+  if(gameOver) return;
+
+  let dmg = calcDamage(player.attack, enemy.defense);
+  enemy.hp -= dmg;
+  player.energy += 5;
+
+  log(`⚔️ Haces ${dmg}`);
+  checkEnd();
+  enemyTurn();
+  update();
+}
+
+function heal(){
+  if(gameOver) return;
+
+  let heal = random(10,20);
+  player.hp += heal;
+  player.energy += 5;
+
+  log(`💚 Recuperas ${heal}`);
+  enemyTurn();
+  update();
+}
+
+function special(){
+  if(gameOver) return;
+
+  if(player.energy < 20){
+    log("⚡ Sin energía");
+    return;
+  }
+
+  let dmg = calcDamage(player.special, enemy.defense);
+  enemy.hp -= dmg;
+  player.energy -= 20;
+
+  log(`🔥 Especial ${dmg}`);
+  checkEnd();
+  enemyTurn();
+  update();
+}
+
+function defend(){
+  if(gameOver) return;
+
+  player.defending = true;
+  player.energy += 10;
+
+  log("🛡️ Defendiendo...");
+  enemyTurn();
+}
+
+/* IA */
+
+function enemyTurn(){
+  if(enemy.hp <=0 || gameOver) return;
+
+  let action = random(1,4);
+
+  if(action===1){
+    let dmg = calcDamage(enemy.attack, player.defense);
+
+    if(player.defending){
+      dmg = Math.floor(dmg/2);
+      player.defending=false;
+      log("🛡️ Bloqueaste daño");
+    }
+
+    player.hp -= dmg;
+    log(`👾 ${enemy.name} ataca ${dmg}`);
+  }
+
+  if(action===2 && enemy.hp<50){
+    let heal = random(10,20);
+    enemy.hp += heal;
+    log(`👾 se cura ${heal}`);
+  }
+
+  if(action===3 && enemy.energy>=20){
+    let dmg = calcDamage(enemy.special, player.defense);
+    player.hp -= dmg;
+    enemy.energy -=20;
+    log(`💥 Especial enemigo ${dmg}`);
+  }
+
+  if(action===4){
+    enemy.energy +=10;
+    log("⚡ enemigo carga energía");
+  }
+
+  checkEnd();
+}
+
+/* FINAL DEL JUEGO */
+
+function checkEnd(){
+  if(enemy.hp <= 0 && !gameOver){
+    gameOver = true;
+    log("🏆 ¡Ganaste!");
+    setTimeout(()=> alert("🏆 ¡Felicidades! Has ganado la batalla"), 200);
+  }
+
+  if(player.hp <= 0 && !gameOver){
+    gameOver = true;
+    log("💀 Has perdido...");
+    setTimeout(()=> alert("💀 Has sido derrotado"), 200);
+  }
+}
+
+/* UI */
+
+function update(){
+  document.getElementById("pHP").innerText = Math.max(player.hp,0);
+  document.getElementById("eHP").innerText = Math.max(enemy.hp,0);
+  document.getElementById("pEnergy").innerText = player.energy;
+
+  document.getElementById("pHPbar").style.width = player.hp+"%";
+  document.getElementById("eHPbar").style.width = enemy.hp+"%";
+  document.getElementById("pEnergyBar").style.width = player.energy+"%";
+
+  document.getElementById("btnSpecial").disabled = player.energy < 20;
+}
+
+function log(msg){
+  let box = document.getElementById("log");
+  box.innerHTML += "<p>"+msg+"</p>";
+  box.scrollTop = box.scrollHeight;
+}
+</script>
+
+</body>
+</html>

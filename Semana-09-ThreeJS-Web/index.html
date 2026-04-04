@@ -1,0 +1,1866 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Semana 09 — Three.js + Eventos JS</title>
+
+  <!--
+    THREE.JS + EVENTOS JAVASCRIPT — INTEGRACIÓN CON EL DOM
+    =======================================================
+    Esta semana combinamos dos mundos:
+
+    1. EVENTOS JAVASCRIPT
+       → click, mousemove, scroll, resize, keydown...
+       → addEventListener / removeEventListener
+       → El objeto Event y sus propiedades
+       → Delegación de eventos
+
+    2. THREE.JS INTEGRADO EN EL DOM
+       → Canvas dentro de un <div> (no a pantalla completa)
+       → Canvas como fondo (position: fixed, z-index: -1)
+       → Escena 3D que reacciona al scroll
+       → Escena 3D que reacciona al mousemove
+       → Raycasting: detectar clicks sobre objetos 3D
+
+    La diferencia clave con la semana 08:
+    → Antes: Three.js era TODA la experiencia (ocupa todo el viewport)
+    → Ahora: Three.js es UNA PARTE de la interfaz web
+              (convive con HTML, CSS, texto y otros elementos)
+  -->
+
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
+
+  <style>
+
+    /* ============================================================
+       VARIABLES CSS — paleta del curso + tema Three.js semana 09
+       ============================================================ */
+    :root {
+      --color-primario:    #1a3a4a;
+      --color-secundario:  #2d7d5f;
+      --color-acento:      #e8a020;
+      --color-fondo:       #f4f1ec;
+      --color-superficie:  #ffffff;
+      --color-texto:       #1e1e1e;
+      --color-texto-suave: #5a5a5a;
+      --color-borde:       #d6cfc4;
+
+      --three-bg:     #0a0a12;
+      --three-acento: #ff6b35;
+      --three-azul:   #4aa8ff;
+      --three-verde:  #50fa7b;
+
+      --color-js:        #f7df1e;
+      --color-js-oscuro: #1a1a2e;
+
+      --fuente-titulos: 'Georgia', 'Times New Roman', serif;
+      --fuente-cuerpo:  'Trebuchet MS', 'Gill Sans', sans-serif;
+      --fuente-codigo:  'Courier New', 'Lucida Console', monospace;
+
+      --espacio-xs:  0.25rem;
+      --espacio-sm:  0.5rem;
+      --espacio-md:  1rem;
+      --espacio-lg:  1.5rem;
+      --espacio-xl:  2rem;
+      --espacio-xxl: 3rem;
+
+      --radio-sm:   4px;
+      --radio-md:   8px;
+      --radio-lg:   16px;
+      --radio-pill: 999px;
+
+      --sombra-sm: 0 1px 3px rgba(0,0,0,0.12);
+      --sombra-md: 0 4px 12px rgba(0,0,0,0.10);
+      --sombra-lg: 0 8px 28px rgba(0,0,0,0.16);
+
+      --duracion-rapida: 150ms;
+      --duracion-media:  300ms;
+      --duracion-lenta:  600ms;
+      --timing-rebote:   cubic-bezier(0.34, 1.56, 0.64, 1);
+      --timing-entrada:  cubic-bezier(0.0, 0.0, 0.2, 1);
+    }
+
+
+    /* ============================================================
+       RESET Y BASE
+       ============================================================ */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--fuente-cuerpo);
+      font-size: 16px;
+      line-height: 1.7;
+      color: var(--color-texto);
+      background-color: var(--color-fondo);
+    }
+
+    p {
+      margin-bottom: var(--espacio-md);
+      max-width: 65ch;
+    }
+
+    h1, h2, h3, h4 {
+      font-family: var(--fuente-titulos);
+      color: var(--color-primario);
+      line-height: 1.2;
+      margin-bottom: var(--espacio-md);
+    }
+
+    h2, h3 { margin-top: var(--espacio-xl); }
+
+    a {
+      color: var(--color-secundario);
+      text-decoration: none;
+      border-bottom: 1px solid transparent;
+      transition: border-color var(--duracion-media) ease;
+    }
+    a:hover { border-bottom-color: var(--color-secundario); }
+
+    code {
+      font-family: var(--fuente-codigo);
+      font-size: 0.875em;
+      background-color: #e8e0f0;
+      color: #4a1a6a;
+      padding: 2px 6px;
+      border-radius: var(--radio-sm);
+    }
+
+    pre {
+      background: var(--color-js-oscuro);
+      color: #f8f8f2;
+      padding: var(--espacio-md);
+      border-radius: var(--radio-md);
+      overflow-x: auto;
+      font-family: var(--fuente-codigo);
+      font-size: 0.875rem;
+      line-height: 1.8;
+      margin-bottom: var(--espacio-lg);
+      tab-size: 2;
+      position: relative;
+    }
+
+    pre::before {
+      content: "3JS";
+      position: absolute;
+      top: var(--espacio-sm);
+      right: var(--espacio-sm);
+      background: var(--three-acento);
+      color: #fff;
+      font-family: var(--fuente-codigo);
+      font-size: 0.65rem;
+      font-weight: bold;
+      padding: 1px 6px;
+      border-radius: var(--radio-sm);
+      letter-spacing: 0.05em;
+    }
+
+    /* Bloques que son solo JavaScript (sin Three.js) */
+    pre.js-only::before {
+      content: "JS";
+      background: var(--color-js);
+      color: var(--color-js-oscuro);
+    }
+
+    pre code {
+      background: none;
+      color: inherit;
+      padding: 0;
+      font-size: inherit;
+    }
+
+    /* Colores de sintaxis */
+    .kw   { color: #ff79c6; }
+    .str  { color: #f1fa8c; }
+    .num  { color: #bd93f9; }
+    .fn   { color: #50fa7b; }
+    .cm   { color: #6272a4; font-style: italic; }
+    .cls  { color: #8be9fd; }
+    .prop { color: #ffb86c; }
+
+    ul, ol { padding-left: 1.5rem; }
+    li { margin-bottom: var(--espacio-xs); }
+
+    ::selection {
+      background-color: var(--three-acento);
+      color: #ffffff;
+    }
+
+
+    /* ============================================================
+       LAYOUT GENERAL
+       ============================================================ */
+    .pagina-wrapper {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 var(--espacio-md);
+    }
+
+
+    /* ============================================================
+       ENCABEZADO
+       ============================================================ */
+    .site-header {
+      background: var(--three-bg);
+      color: #fff;
+      padding: var(--espacio-xl) var(--espacio-md);
+      margin-bottom: var(--espacio-xxl);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .site-header::before {
+      content: "DOM";
+      position: absolute;
+      right: var(--espacio-xl);
+      top: 50%;
+      transform: translateY(-50%);
+      font-family: var(--fuente-titulos);
+      font-size: 5.5rem;
+      font-weight: bold;
+      color: var(--three-acento);
+      opacity: 0.08;
+      line-height: 1;
+      pointer-events: none;
+    }
+
+    .site-header::after {
+      content: "";
+      position: absolute;
+      bottom: -50px;
+      left: 40px;
+      width: 160px;
+      height: 160px;
+      background: rgba(255,107,53,0.04);
+      border-radius: 50%;
+    }
+
+    .site-header h1 {
+      color: #fff;
+      font-size: 2.5rem;
+      margin-bottom: var(--espacio-sm);
+    }
+
+    .site-header p {
+      color: rgba(255,255,255,0.70);
+      max-width: none;
+    }
+
+    .badge-semana {
+      display: inline-block;
+      background: var(--three-acento);
+      color: #fff;
+      font-family: var(--fuente-codigo);
+      font-size: 0.75rem;
+      font-weight: bold;
+      padding: 3px 10px;
+      border-radius: var(--radio-pill);
+      margin-bottom: var(--espacio-md);
+      letter-spacing: 0.05em;
+    }
+
+
+    /* ============================================================
+       NAVEGACIÓN INTERNA
+       ============================================================ */
+    .nav-interna {
+      background: var(--color-superficie);
+      border: 1px solid var(--color-borde);
+      border-radius: var(--radio-lg);
+      padding: var(--espacio-lg);
+      margin-bottom: var(--espacio-xxl);
+      box-shadow: var(--sombra-sm);
+    }
+
+    .nav-interna h2 {
+      font-size: 1rem;
+      margin-top: 0;
+      margin-bottom: var(--espacio-md);
+      color: var(--color-texto-suave);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-family: var(--fuente-cuerpo);
+    }
+
+    .nav-interna ul {
+      list-style: none;
+      padding: 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--espacio-sm);
+    }
+
+    .nav-interna a {
+      display: inline-block;
+      padding: var(--espacio-xs) var(--espacio-md);
+      background: var(--color-fondo);
+      border: 1px solid var(--color-borde);
+      border-radius: var(--radio-pill);
+      font-size: 0.875rem;
+      color: var(--color-primario);
+      border-bottom: none;
+      transition: background var(--duracion-media), border-color var(--duracion-media);
+    }
+
+    .nav-interna a:hover {
+      background: var(--three-bg);
+      color: var(--three-acento);
+      border-color: var(--three-bg);
+    }
+
+
+    /* ============================================================
+       ETIQUETA IDENTIFICADORA
+       ============================================================ */
+    .etiqueta {
+      display: inline-block;
+      background: var(--color-primario);
+      color: #fff;
+      font-family: var(--fuente-codigo);
+      font-size: 0.72rem;
+      padding: 2px 8px;
+      border-radius: var(--radio-sm);
+      margin-bottom: var(--espacio-sm);
+      letter-spacing: 0.03em;
+    }
+
+    .etiqueta.verde  { background: var(--color-secundario); }
+    .etiqueta.ambar  { background: var(--color-acento); color: var(--color-primario); }
+    .etiqueta.lila   { background: #5c3a8a; }
+    .etiqueta.three  { background: var(--three-acento); }
+    .etiqueta.azul3  { background: var(--three-azul); }
+    .etiqueta.js     { background: var(--color-js); color: var(--color-js-oscuro); }
+
+
+    /* ============================================================
+       SECCIÓN
+       ============================================================ */
+    .seccion {
+      margin-bottom: var(--espacio-xxl);
+      scroll-margin-top: 2rem;
+    }
+
+    .seccion > h2 {
+      border-bottom: 2px solid var(--color-borde);
+      padding-bottom: var(--espacio-sm);
+    }
+
+
+    /* ============================================================
+       NOTAS
+       ============================================================ */
+    .nota {
+      border-left: 4px solid var(--color-secundario);
+      background: #edf7f3;
+      padding: var(--espacio-md) var(--espacio-lg);
+      border-radius: 0 var(--radio-md) var(--radio-md) 0;
+      margin: var(--espacio-lg) 0;
+    }
+
+    .nota.ambar { border-color: var(--color-acento);  background: #fdf5e6; }
+    .nota.azul  { border-color: var(--color-primario); background: #eef2f5; }
+    .nota.lila  { border-color: #5c3a8a;              background: #f2eef9; }
+    .nota.three { border-color: var(--three-acento);  background: #fff5f0; }
+    .nota.js    { border-color: var(--color-js);      background: #fdfbe6; }
+
+    .nota p { margin-bottom: 0; }
+    .nota p + p { margin-top: var(--espacio-sm); }
+
+
+    /* ============================================================
+       TABLA
+       ============================================================ */
+    .tabla-wrapper {
+      overflow-x: auto;
+      margin: var(--espacio-lg) 0;
+      border-radius: var(--radio-md);
+      box-shadow: var(--sombra-sm);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+      background: var(--color-superficie);
+    }
+
+    th, td {
+      border: 1px solid var(--color-borde);
+      padding: 0.6rem 1rem;
+      text-align: left;
+    }
+
+    th {
+      background-color: var(--three-bg);
+      color: var(--three-acento);
+      font-family: var(--fuente-titulos);
+      font-weight: normal;
+    }
+
+    tr:nth-child(even) { background-color: #f0ece6; }
+    td code { font-size: 0.8rem; }
+
+
+    /* ============================================================
+       DEMO BOX — contenedor para demos interactivos HTML/CSS/JS
+       ============================================================
+       Igual que semana 07. Caja blanca con encabezado código.
+    */
+    .demo-box {
+      background: var(--color-superficie);
+      border: 1px solid var(--color-borde);
+      border-radius: var(--radio-lg);
+      padding: var(--espacio-lg);
+      margin: var(--espacio-md) 0;
+      box-shadow: var(--sombra-sm);
+    }
+
+    .demo-box h4 {
+      font-family: var(--fuente-codigo);
+      font-size: 0.8rem;
+      color: var(--color-texto-suave);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-top: 0;
+      margin-bottom: var(--espacio-md);
+      padding-bottom: var(--espacio-sm);
+      border-bottom: 1px solid var(--color-borde);
+    }
+
+    /* Consola simulada */
+    .output-consola {
+      background: var(--color-js-oscuro);
+      border-radius: var(--radio-md);
+      padding: var(--espacio-md);
+      font-family: var(--fuente-codigo);
+      font-size: 0.85rem;
+      min-height: 56px;
+      color: #f8f8f2;
+      position: relative;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .output-consola::before {
+      content: "▶ consola";
+      position: absolute;
+      top: var(--espacio-xs);
+      right: var(--espacio-sm);
+      font-size: 0.65rem;
+      color: rgba(255,255,255,0.3);
+      letter-spacing: 0.05em;
+    }
+
+    .output-linea {
+      padding: 1px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      line-height: 1.6;
+    }
+
+    .output-linea:last-child { border-bottom: none; }
+    .out-evento  { color: var(--three-acento); }
+    .out-valor   { color: #bd93f9; }
+    .out-ok      { color: var(--three-verde); }
+    .out-log     { color: #f8f8f2; }
+
+    /* Botones de demo */
+    .btn-demo {
+      display: inline-block;
+      padding: var(--espacio-sm) var(--espacio-lg);
+      background: var(--color-primario);
+      color: #fff;
+      border: none;
+      border-radius: var(--radio-pill);
+      font-family: var(--fuente-codigo);
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: background var(--duracion-media), transform var(--duracion-media) var(--timing-rebote);
+    }
+
+    .btn-demo:hover { background: var(--color-secundario); transform: translateY(-2px); }
+    .btn-demo:active { transform: translateY(1px); }
+
+    .btn-demo.three  { background: var(--three-acento); }
+    .btn-demo.three:hover { background: #e05520; }
+    .btn-demo.lila   { background: #5c3a8a; }
+    .btn-demo.lila:hover  { background: #7a4aaa; }
+    .btn-demo.secundario  { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,107,53,0.3); }
+    .btn-demo.secundario:hover { background: rgba(255,255,255,0.22); }
+
+    .btn-fila {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--espacio-sm);
+      margin-bottom: var(--espacio-md);
+    }
+
+    /* Zona de evento visual */
+    .evento-zona {
+      width: 100%;
+      height: 100px;
+      background: var(--color-fondo);
+      border: 2px dashed var(--color-borde);
+      border-radius: var(--radio-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--fuente-codigo);
+      font-size: 0.9rem;
+      color: var(--color-texto-suave);
+      cursor: pointer;
+      transition: background var(--duracion-media), border-color var(--duracion-media);
+      user-select: none;
+      margin-bottom: var(--espacio-md);
+    }
+
+    .evento-zona:hover { border-color: var(--three-acento); background: #fff8f5; }
+
+    /* Barra de progreso de scroll */
+    .scroll-bar-wrap {
+      height: 12px;
+      background: var(--color-borde);
+      border-radius: var(--radio-pill);
+      overflow: hidden;
+      margin-bottom: var(--espacio-sm);
+    }
+
+    .scroll-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--three-acento), var(--three-azul));
+      border-radius: var(--radio-pill);
+      transition: width 0.1s linear;
+    }
+
+    /* Mouse tracker */
+    .mouse-tracker {
+      background: var(--color-fondo);
+      border: 2px dashed var(--color-borde);
+      border-radius: var(--radio-md);
+      height: 120px;
+      position: relative;
+      overflow: hidden;
+      cursor: crosshair;
+      margin-bottom: var(--espacio-md);
+    }
+
+    .mouse-dot {
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      background: var(--three-acento);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      transition: left 0.05s, top 0.05s;
+      box-shadow: 0 0 8px rgba(255,107,53,0.6);
+    }
+
+    .mouse-label {
+      position: absolute;
+      bottom: var(--espacio-sm);
+      right: var(--espacio-sm);
+      font-family: var(--fuente-codigo);
+      font-size: 0.72rem;
+      color: var(--color-texto-suave);
+    }
+
+
+    /* ============================================================
+       CANVAS DE DEMOS THREE.JS — contenedor dentro del DOM
+       ============================================================ */
+    .demo-3d-wrap {
+      background: var(--three-bg);
+      border-radius: var(--radio-lg);
+      overflow: hidden;
+      margin: var(--espacio-lg) 0;
+      border: 1px solid rgba(255,107,53,0.2);
+      box-shadow: var(--sombra-lg);
+      position: relative;
+    }
+
+    .demo-3d-wrap canvas {
+      display: block;
+      width: 100% !important;
+      height: 300px !important;
+    }
+
+    .demo-3d-label {
+      position: absolute;
+      top: var(--espacio-sm);
+      left: var(--espacio-sm);
+      background: rgba(255,107,53,0.85);
+      color: #fff;
+      font-family: var(--fuente-codigo);
+      font-size: 0.7rem;
+      padding: 2px 10px;
+      border-radius: var(--radio-pill);
+      letter-spacing: 0.05em;
+      z-index: 10;
+      pointer-events: none;
+    }
+
+    .demo-3d-controles {
+      background: rgba(255,255,255,0.04);
+      border-top: 1px solid rgba(255,107,53,0.15);
+      padding: var(--espacio-sm) var(--espacio-md);
+      display: flex;
+      align-items: center;
+      gap: var(--espacio-sm);
+      flex-wrap: wrap;
+    }
+
+    .demo-3d-controles span {
+      font-family: var(--fuente-codigo);
+      font-size: 0.72rem;
+      color: rgba(255,255,255,0.5);
+      flex: 1;
+    }
+
+
+    /* ============================================================
+       SECCIÓN ESPECIAL: CANVAS COMO FONDO
+       ============================================================
+       Esta demo muestra Three.js como fondo detrás de contenido HTML.
+       El canvas tiene position:fixed y z-index:-1 en el ejemplo.
+       Aquí lo simulamos con position:relative en el contenedor.
+    */
+    .fondo-demo-wrap {
+      position: relative;
+      border-radius: var(--radio-lg);
+      overflow: hidden;
+      margin: var(--espacio-lg) 0;
+      box-shadow: var(--sombra-lg);
+      min-height: 320px;
+    }
+
+    .fondo-demo-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Contenido HTML encima del canvas 3D */
+    .fondo-demo-contenido {
+      position: relative;
+      z-index: 2;
+      padding: var(--espacio-xxl) var(--espacio-xl);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 320px;
+      text-align: center;
+    }
+
+    .fondo-demo-contenido h3 {
+      color: #fff;
+      font-size: clamp(1.4rem, 4vw, 2.5rem);
+      margin-top: 0;
+      text-shadow: 0 2px 20px rgba(0,0,0,0.5);
+      letter-spacing: -0.02em;
+    }
+
+    .fondo-demo-contenido p {
+      color: rgba(255,255,255,0.75);
+      margin: 0 auto;
+      font-size: 0.95rem;
+      max-width: 40ch;
+    }
+
+    .fondo-demo-contenido .scroll-hint {
+      margin-top: var(--espacio-lg);
+      font-family: var(--fuente-codigo);
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.45);
+      letter-spacing: 0.08em;
+    }
+
+
+    /* ============================================================
+       SECCIÓN ESPECIAL: RAYCASTING — CLICK EN OBJETOS 3D
+       ============================================================ */
+    .raycast-info {
+      position: absolute;
+      bottom: var(--espacio-md);
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(10,10,18,0.85);
+      color: var(--three-acento);
+      font-family: var(--fuente-codigo);
+      font-size: 0.78rem;
+      padding: var(--espacio-xs) var(--espacio-lg);
+      border-radius: var(--radio-pill);
+      border: 1px solid rgba(255,107,53,0.3);
+      pointer-events: none;
+      z-index: 10;
+      white-space: nowrap;
+      transition: opacity 0.3s;
+    }
+
+
+    /* ============================================================
+       ASIDE Y RESUMEN
+       ============================================================ */
+    .aside-resumen {
+      background: #eeedfe;
+      border-left: 4px solid var(--color-primario);
+      padding: var(--espacio-lg) var(--espacio-xl);
+      border-radius: 0 var(--radio-lg) var(--radio-lg) 0;
+      margin: var(--espacio-xxl) 0;
+    }
+
+    .aside-resumen h3 {
+      margin-top: var(--espacio-sm);
+      color: var(--color-primario);
+      font-size: 1.1rem;
+    }
+
+    .aside-resumen table { margin: var(--espacio-md) 0 0; font-size: 0.85rem; background: transparent; }
+    .aside-resumen th    { background: rgba(26,58,74,0.15); color: var(--color-primario); }
+    .aside-resumen td    { border-color: rgba(26,58,74,0.15); }
+
+
+    /* ============================================================
+       PROYECTO APLICADO
+       ============================================================ */
+    .proyecto-descripcion {
+      background: var(--color-superficie);
+      border: 1px solid var(--color-borde);
+      border-radius: var(--radio-lg);
+      padding: var(--espacio-xl);
+      box-shadow: var(--sombra-md);
+      margin-bottom: var(--espacio-xl);
+    }
+
+    .checklist { list-style: none; padding: 0; margin: var(--espacio-md) 0; }
+
+    .checklist li {
+      padding: var(--espacio-sm) 0;
+      border-bottom: 1px solid var(--color-borde);
+      display: flex;
+      align-items: flex-start;
+      gap: var(--espacio-sm);
+      font-size: 0.9rem;
+    }
+
+    .checklist li:last-child { border-bottom: none; }
+
+    .check-icon {
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.7rem; flex-shrink: 0; margin-top: 2px;
+    }
+
+    .check-icon.done { background: var(--color-secundario); color: white; }
+    .check-icon.todo { background: var(--color-borde); color: var(--color-texto-suave); }
+
+    .criterios-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: var(--espacio-md);
+      margin: var(--espacio-lg) 0;
+    }
+
+    @media (min-width: 600px) { .criterios-grid { grid-template-columns: repeat(2, 1fr); } }
+
+    .criterio-card {
+      background: var(--color-superficie);
+      border: 1px solid var(--color-borde);
+      border-radius: var(--radio-md);
+      padding: var(--espacio-lg);
+      box-shadow: var(--sombra-sm);
+    }
+
+    .criterio-card h4 { font-size: 1rem; margin-top: 0; margin-bottom: var(--espacio-sm); display: flex; align-items: center; gap: var(--espacio-sm); }
+    .criterio-card ul  { font-size: 0.875rem; color: var(--color-texto-suave); }
+
+    .criterio-puntaje {
+      display: inline-block;
+      background: var(--three-acento);
+      color: #fff;
+      font-family: var(--fuente-codigo);
+      font-size: 0.7rem; font-weight: bold;
+      padding: 2px 8px;
+      border-radius: var(--radio-pill);
+      margin-left: auto;
+    }
+
+
+    /* ============================================================
+       FOOTER
+       ============================================================ */
+    .site-footer {
+      border-top: 1px solid var(--color-borde);
+      margin-top: var(--espacio-xxl);
+      padding: var(--espacio-xl) 0 var(--espacio-xxl);
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--color-texto-suave);
+    }
+
+    .site-footer .nav-semanas {
+      display: flex;
+      justify-content: center;
+      gap: var(--espacio-md);
+      flex-wrap: wrap;
+      margin-bottom: var(--espacio-lg);
+    }
+
+    .site-footer a { font-size: 0.85rem; color: var(--color-primario); border-bottom: none; }
+    .site-footer a:hover { text-decoration: underline; }
+    .site-footer a.activa { background: var(--three-bg); color: var(--three-acento); padding: 3px 12px; border-radius: var(--radio-pill); }
+
+    /* Accesibilidad */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <header class="site-header">
+    <div class="pagina-wrapper">
+      <span class="badge-semana">SEMANA 09 / 12</span>
+      <h1>Three.js + Eventos JS</h1>
+      <p>Integración de escenas 3D con el DOM · click · scroll · mousemove · resize · Raycasting</p>
+    </div>
+  </header>
+
+
+  <div class="pagina-wrapper">
+
+    <nav class="nav-interna">
+      <h2>Contenido de esta semana</h2>
+      <ul>
+        <li><a href="#eventos-js">1. Eventos en JavaScript</a></li>
+        <li><a href="#integracion">2. Three.js en un div</a></li>
+        <li><a href="#fondo">3. Canvas como fondo</a></li>
+        <li><a href="#scroll">4. Scroll → animación 3D</a></li>
+        <li><a href="#mousemove">5. mousemove → escena 3D</a></li>
+        <li><a href="#raycasting">6. Raycasting (click en objetos)</a></li>
+        <li><a href="#proyecto">7. Proyecto Aplicado</a></li>
+      </ul>
+    </nav>
+
+
+    <!-- ============================================================
+         SECCIÓN 1: EVENTOS EN JAVASCRIPT
+         ============================================================ -->
+    <section class="seccion" id="eventos-js">
+      <span class="etiqueta js">javascript</span>
+      <h2>1. Eventos en JavaScript</h2>
+
+      <p>
+        Un <strong>evento</strong> es cualquier cosa que ocurre en el navegador:
+        un click, mover el mouse, hacer scroll, redimensionar la ventana, presionar
+        una tecla... JavaScript puede "escuchar" esos eventos con
+        <code>addEventListener</code> y ejecutar una función de respuesta.
+      </p>
+
+      <pre class="js-only"><code><span class="cm">// ── SINTAXIS BÁSICA ───────────────────────────────────────────</span>
+<span class="cm">// elemento.addEventListener(tipo, callback, opciones?)</span>
+
+<span class="kw">const</span> boton = document.<span class="fn">querySelector</span>(<span class="str">'#mi-boton'</span>);
+
+boton.<span class="fn">addEventListener</span>(<span class="str">'click'</span>, <span class="kw">function</span>(event) {
+  console.<span class="fn">log</span>(<span class="str">'¡Clic!'</span>, event);
+});
+
+<span class="cm">// Con arrow function (más conciso):</span>
+boton.<span class="fn">addEventListener</span>(<span class="str">'click'</span>, (e) => {
+  e.<span class="fn">preventDefault</span>(); <span class="cm">// cancela el comportamiento por defecto</span>
+  e.<span class="fn">stopPropagation</span>(); <span class="cm">// detiene la propagación hacia padres</span>
+});
+
+<span class="cm">// ── REMOVER UN LISTENER ──────────────────────────────────────</span>
+<span class="cm">// IMPORTANTE: para poder quitar un listener, la función</span>
+<span class="cm">// debe ser referenciada (no inline anónima).</span>
+<span class="kw">const</span> manejador = (e) => console.<span class="fn">log</span>(e);
+boton.<span class="fn">addEventListener</span>(<span class="str">'click'</span>, manejador);
+boton.<span class="fn">removeEventListener</span>(<span class="str">'click'</span>, manejador); <span class="cm">// ← quita el listener</span></code></pre>
+
+
+      <h3>Eventos más usados</h3>
+
+      <div class="tabla-wrapper">
+        <table>
+          <thead>
+            <tr><th>Evento</th><th>Cuándo se dispara</th><th>Propiedades útiles del Event</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>click</code></td><td>Al hacer click con el mouse</td><td><code>clientX, clientY, target, button</code></td></tr>
+            <tr><td><code>mousemove</code></td><td>Al mover el cursor</td><td><code>clientX, clientY, movementX, movementY</code></td></tr>
+            <tr><td><code>scroll</code></td><td>Al hacer scroll en la ventana o elemento</td><td><code>window.scrollY, scrollTop</code></td></tr>
+            <tr><td><code>resize</code></td><td>Al cambiar el tamaño de la ventana</td><td><code>window.innerWidth, innerHeight</code></td></tr>
+            <tr><td><code>keydown</code></td><td>Al presionar una tecla</td><td><code>key, code, ctrlKey, shiftKey</code></td></tr>
+            <tr><td><code>keyup</code></td><td>Al soltar una tecla</td><td><code>key, code</code></td></tr>
+            <tr><td><code>input</code></td><td>Al cambiar el valor de un input</td><td><code>target.value</code></td></tr>
+            <tr><td><code>DOMContentLoaded</code></td><td>Al terminar de cargar el HTML</td><td>— (sin datos relevantes)</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+
+      <!-- DEMO: click -->
+      <h3>Demo — <code>click</code></h3>
+      <div class="demo-box">
+        <h4>addEventListener('click', ...)</h4>
+        <div class="btn-fila">
+          <button class="btn-demo" id="btn-click-1">Click normal</button>
+          <button class="btn-demo lila" id="btn-click-2">Click con info del evento</button>
+          <button class="btn-demo three" id="btn-click-clear">Limpiar consola</button>
+        </div>
+        <div class="output-consola" id="consola-click">
+          <div class="output-linea" style="color:rgba(255,255,255,0.3)">Esperando eventos de click...</div>
+        </div>
+      </div>
+
+
+      <!-- DEMO: mousemove -->
+      <h3>Demo — <code>mousemove</code></h3>
+      <div class="demo-box">
+        <h4>addEventListener('mousemove', ...) — mueve el cursor sobre esta área</h4>
+        <div class="mouse-tracker" id="mouse-tracker">
+          <div class="mouse-dot" id="mouse-dot"></div>
+          <div class="mouse-label" id="mouse-label">x: — · y: —</div>
+        </div>
+        <div class="output-consola" id="consola-mouse" style="min-height:40px;">
+          <div class="output-linea" style="color:rgba(255,255,255,0.3)">Mueve el cursor sobre la zona de arriba...</div>
+        </div>
+      </div>
+
+
+      <!-- DEMO: scroll -->
+      <h3>Demo — <code>scroll</code></h3>
+      <div class="demo-box">
+        <h4>window.addEventListener('scroll', ...) — desplázate por la página</h4>
+        <div style="margin-bottom: var(--espacio-sm);">
+          <div style="font-family: var(--fuente-codigo); font-size: 0.78rem; color: var(--color-texto-suave); margin-bottom: 4px;">
+            Progreso de scroll en la página:
+          </div>
+          <div class="scroll-bar-wrap">
+            <div class="scroll-bar-fill" id="scroll-bar"></div>
+          </div>
+        </div>
+        <div class="output-consola" id="consola-scroll" style="min-height:40px;">
+          <div class="output-linea" style="color:rgba(255,255,255,0.3)">Desplázate por la página para ver el evento scroll...</div>
+        </div>
+      </div>
+
+
+      <pre class="js-only"><code><span class="cm">// ── MOUSEMOVE: coordenadas normalizadas ───────────────────────</span>
+<span class="cm">// Para Three.js, necesitamos valores entre -1 y +1 (NDC)</span>
+<span class="kw">const</span> mouse = { x: <span class="num">0</span>, y: <span class="num">0</span> };
+
+window.<span class="fn">addEventListener</span>(<span class="str">'mousemove'</span>, (e) => {
+  <span class="cm">// normalizar: -1 (izquierda/abajo) a +1 (derecha/arriba)</span>
+  mouse.x = (e.clientX / window.innerWidth)  * <span class="num">2</span> - <span class="num">1</span>;
+  mouse.y = -(e.clientY / window.innerHeight) * <span class="num">2</span> + <span class="num">1</span>;
+});
+
+<span class="cm">// ── SCROLL: porcentaje de la página ──────────────────────────</span>
+<span class="kw">let</span> scrollY = <span class="num">0</span>;
+
+window.<span class="fn">addEventListener</span>(<span class="str">'scroll'</span>, () => {
+  scrollY = window.scrollY;
+
+  <span class="cm">// Porcentaje total de scroll (0 = inicio, 1 = final)</span>
+  <span class="kw">const</span> maxScroll = document.body.scrollHeight - window.innerHeight;
+  <span class="kw">const</span> progreso  = scrollY / maxScroll; <span class="cm">// 0.0 a 1.0</span>
+});
+
+<span class="cm">// ── RESIZE: actualizar Three.js al cambiar la ventana ────────</span>
+window.<span class="fn">addEventListener</span>(<span class="str">'resize'</span>, () => {
+  camera.<span class="prop">aspect</span> = window.innerWidth / window.innerHeight;
+  camera.<span class="fn">updateProjectionMatrix</span>();
+  renderer.<span class="fn">setSize</span>(window.innerWidth, window.innerHeight);
+});</code></pre>
+
+    </section>
+
+
+    <!-- ============================================================
+         SECCIÓN 2: THREE.JS DENTRO DE UN DIV
+         ============================================================ -->
+    <section class="seccion" id="integracion">
+      <span class="etiqueta three">integración dom</span>
+      <h2>2. Three.js dentro de un <code>&lt;div&gt;</code></h2>
+
+      <p>
+        En la semana 08 el canvas ocupaba toda la pantalla. Esta semana lo integramos
+        como cualquier otro elemento HTML: dentro de un <code>&lt;div&gt;</code> con
+        dimensiones definidas, conviviendo con texto y otros elementos.
+      </p>
+
+      <div class="nota ambar">
+        <p>
+          <strong>La diferencia clave:</strong> en lugar de usar <code>window.innerWidth</code>
+          para el tamaño del renderer, usamos el ancho y alto del contenedor
+          (<code>contenedor.clientWidth</code>). El <code>aspect ratio</code> de la cámara
+          también cambia en consecuencia.
+        </p>
+      </div>
+
+      <pre><code><span class="cm">// ── THREE.JS EN UN DIV ESPECÍFICO ────────────────────────────</span>
+<span class="kw">const</span> contenedor = document.<span class="fn">getElementById</span>(<span class="str">'mi-contenedor-3d'</span>);
+
+<span class="cm">// Obtener dimensiones del contenedor (no de la ventana)</span>
+<span class="kw">const</span> W = contenedor.clientWidth;
+<span class="kw">const</span> H = contenedor.clientHeight;
+
+<span class="kw">const</span> scene  = <span class="kw">new</span> <span class="cls">THREE.Scene</span>();
+<span class="kw">const</span> camera = <span class="kw">new</span> <span class="cls">THREE.PerspectiveCamera</span>(<span class="num">60</span>, W / H, <span class="num">0.1</span>, <span class="num">100</span>);
+camera.<span class="prop">position</span>.<span class="fn">set</span>(<span class="num">0</span>, <span class="num">0</span>, <span class="num">4</span>);
+
+<span class="kw">const</span> renderer = <span class="kw">new</span> <span class="cls">THREE.WebGLRenderer</span>({ antialias: <span class="kw">true</span> });
+renderer.<span class="fn">setSize</span>(W, H);        <span class="cm">// tamaño del contenedor, NO de window</span>
+renderer.<span class="fn">setPixelRatio</span>(Math.<span class="fn">min</span>(window.devicePixelRatio, <span class="num">2</span>));
+
+<span class="cm">// Añadir el canvas generado al div contenedor</span>
+contenedor.<span class="fn">appendChild</span>(renderer.domElement); <span class="cm">// ← key line</span>
+
+<span class="cm">// CSS necesario en el div contenedor:</span>
+<span class="cm">// #mi-contenedor-3d { width: 100%; height: 400px; position: relative; }</span></code></pre>
+
+      <!-- DEMO: Three.js en un div -->
+      <h3>Demo en vivo — escena dentro de un div</h3>
+      <div class="demo-3d-wrap" id="div-demo-wrap">
+        <div class="demo-3d-label">canvas dentro de un div (no fullscreen)</div>
+        <canvas id="canvas-div"></canvas>
+        <div class="demo-3d-controles">
+          <span>🖱 Arrastra para orbitar · Scroll para zoom</span>
+          <button class="btn-demo three" id="btn-div-add">+ Añadir objeto</button>
+          <button class="btn-demo secundario" id="btn-div-clear">Limpiar</button>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ============================================================
+         SECCIÓN 3: CANVAS COMO FONDO
+         ============================================================ -->
+    <section class="seccion" id="fondo">
+      <span class="etiqueta three">canvas fondo</span>
+      <h2>3. Canvas como fondo de una sección</h2>
+
+      <p>
+        Un patrón muy usado en sitios modernos es poner el canvas 3D como
+        <strong>fondo</strong> detrás del contenido HTML. Así el texto y los botones
+        flotan sobre la escena 3D.
+      </p>
+
+      <pre><code><span class="cm">/* CSS: canvas fijo detrás de todo el contenido */</span>
+<span class="cls">canvas</span> {
+  <span class="prop">position</span>: <span class="str">fixed</span>;   <span class="cm">/* fijo en el viewport */</span>
+  <span class="prop">top</span>: <span class="str">0</span>;  <span class="prop">left</span>: <span class="str">0</span>;
+  <span class="prop">width</span>: <span class="str">100%</span>;  <span class="prop">height</span>: <span class="str">100%</span>;
+  <span class="prop">z-index</span>: <span class="num">-1</span>;  <span class="cm">/* detrás de todo el HTML */</span>
+  <span class="prop">pointer-events</span>: <span class="str">none</span>; <span class="cm">/* los clicks pasan al HTML */</span>
+}</code></pre>
+
+      <!-- DEMO: fondo 3D + contenido HTML -->
+      <h3>Demo en vivo — texto HTML sobre escena 3D</h3>
+      <div class="fondo-demo-wrap" id="fondo-wrap">
+        <canvas id="canvas-fondo" class="fondo-demo-canvas"></canvas>
+        <div class="fondo-demo-contenido">
+          <h3>Contenido HTML<br>sobre escena 3D</h3>
+          <p>Este texto está en el DOM normal. El canvas está en <code style="background:rgba(255,255,255,0.15);color:#fff">position: absolute</code> detrás.</p>
+          <div class="scroll-hint">↕ MUEVE EL CURSOR SOBRE ESTA ZONA</div>
+        </div>
+      </div>
+
+      <div class="nota three">
+        <p>
+          <strong>pointer-events: none</strong> en el canvas es esencial cuando el canvas
+          está como fondo: permite que los clicks "atraviesen" el canvas y lleguen al HTML
+          que está debajo en el z-index. Sin esto, los links y botones dejarían de funcionar.
+        </p>
+      </div>
+    </section>
+
+
+    <!-- ============================================================
+         SECCIÓN 4: SCROLL → ANIMACIÓN 3D
+         ============================================================ -->
+    <section class="seccion" id="scroll">
+      <span class="etiqueta verde">scroll</span>
+      <h2>4. Scroll → animación 3D</h2>
+
+      <p>
+        El evento <code>scroll</code> nos da la posición vertical de la página.
+        Podemos mapear ese valor para mover la cámara, rotar objetos o cambiar
+        cualquier propiedad de la escena 3D.
+      </p>
+
+      <pre><code><span class="cm">// ── PATRÓN: scroll controla la cámara ────────────────────────</span>
+<span class="kw">let</span> scrollY = <span class="num">0</span>;
+<span class="kw">let</span> currentSection = <span class="num">0</span>;
+
+window.<span class="fn">addEventListener</span>(<span class="str">'scroll'</span>, () => {
+  scrollY = window.scrollY;
+
+  <span class="cm">// Calcular sección actual (asumiendo secciones de 100vh)</span>
+  currentSection = Math.<span class="fn">round</span>(scrollY / window.innerHeight);
+});
+
+<span class="cm">// En el loop de animación — movimiento suave con lerp</span>
+<span class="kw">let</span> cameraY = <span class="num">0</span>; <span class="cm">// posición actual suavizada</span>
+
+<span class="kw">function</span> <span class="fn">animate</span>() {
+  requestAnimationFrame(<span class="fn">animate</span>);
+
+  <span class="cm">// lerp = interpolación lineal. Fórmula: actual + (destino - actual) * velocidad</span>
+  <span class="cm">// Hace que la cámara se "arrastre" suavemente hacia la posición destino.</span>
+  cameraY += (-scrollY * <span class="num">0.002</span> - cameraY) * <span class="num">0.08</span>;
+  camera.<span class="prop">position</span>.<span class="prop">y</span> = cameraY;
+
+  <span class="cm">// Alternativamente, rotar un objeto proporcional al scroll</span>
+  mesh.<span class="prop">rotation</span>.<span class="prop">y</span> = scrollY * <span class="num">0.001</span>;
+
+  renderer.<span class="fn">render</span>(scene, camera);
+}</code></pre>
+
+      <!-- DEMO: scroll → rotación de objetos -->
+      <h3>Demo en vivo — scroll controla la escena</h3>
+      <div class="demo-3d-wrap">
+        <div class="demo-3d-label">window.scrollY → rotación y posición 3D</div>
+        <canvas id="canvas-scroll"></canvas>
+        <div class="demo-3d-controles">
+          <span>↕ Desplázate por la página para animar la escena</span>
+          <span id="scroll-val-3d" style="color: var(--three-acento);">scrollY: 0</span>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ============================================================
+         SECCIÓN 5: MOUSEMOVE → ESCENA 3D
+         ============================================================ -->
+    <section class="seccion" id="mousemove">
+      <span class="etiqueta azul3">mousemove</span>
+      <h2>5. <code>mousemove</code> → escena 3D</h2>
+
+      <p>
+        El evento <code>mousemove</code> nos da las coordenadas del cursor. Al
+        <strong>normalizar</strong> esas coordenadas (convertir de píxeles a valores
+        entre -1 y +1), podemos usarlas para inclinar la cámara o mover objetos
+        en respuesta al movimiento del mouse.
+      </p>
+
+      <pre><code><span class="cm">// ── COORDENADAS NORMALIZADAS (NDC) ───────────────────────────</span>
+<span class="cm">// Three.js usa el sistema NDC: centro = (0,0), esquinas = (±1, ±1)</span>
+<span class="cm">// Necesitamos convertir píxeles del DOM a ese sistema.</span>
+
+<span class="kw">const</span> mouse = <span class="kw">new</span> <span class="cls">THREE.Vector2</span>(); <span class="cm">// x, y normalizados</span>
+
+window.<span class="fn">addEventListener</span>(<span class="str">'mousemove'</span>, (e) => {
+  mouse.x = (e.clientX / window.innerWidth)  * <span class="num">2</span> - <span class="num">1</span>;
+  mouse.y = -(e.clientY / window.innerHeight) * <span class="num">2</span> + <span class="num">1</span>;
+  <span class="cm">// El eje Y se invierte porque DOM: Y crece hacia abajo</span>
+  <span class="cm">//                              Three.js: Y crece hacia arriba</span>
+});
+
+<span class="cm">// En el loop: mover la cámara o un objeto con lerp para suavidad</span>
+<span class="kw">let</span> targetX = <span class="num">0</span>, targetY = <span class="num">0</span>;
+
+<span class="kw">function</span> <span class="fn">animate</span>() {
+  requestAnimationFrame(<span class="fn">animate</span>);
+
+  <span class="cm">// La cámara "sigue" al mouse con inercia</span>
+  targetX += (mouse.x * <span class="num">0.5</span> - targetX) * <span class="num">0.05</span>; <span class="cm">// lerp X</span>
+  targetY += (mouse.y * <span class="num">0.3</span> - targetY) * <span class="num">0.05</span>; <span class="cm">// lerp Y</span>
+
+  camera.<span class="prop">position</span>.<span class="prop">x</span> = targetX;
+  camera.<span class="prop">position</span>.<span class="prop">y</span> = targetY;
+  camera.<span class="fn">lookAt</span>(<span class="num">0</span>, <span class="num">0</span>, <span class="num">0</span>); <span class="cm">// siempre mirando al centro</span>
+
+  renderer.<span class="fn">render</span>(scene, camera);
+}</code></pre>
+
+      <!-- DEMO: mousemove en la escena 3D -->
+      <h3>Demo en vivo — cursor mueve la cámara</h3>
+      <div class="demo-3d-wrap">
+        <div class="demo-3d-label">mousemove → cámara con lerp · coordenadas normalizadas</div>
+        <canvas id="canvas-mouse"></canvas>
+        <div class="demo-3d-controles">
+          <span>Mueve el cursor sobre la escena · La cámara te sigue con inercia</span>
+          <span id="mouse-ndc" style="color: var(--three-azul);">NDC: (0.00, 0.00)</span>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ============================================================
+         SECCIÓN 6: RAYCASTING — CLICKS EN OBJETOS 3D
+         ============================================================ -->
+    <section class="seccion" id="raycasting">
+      <span class="etiqueta lila">raycasting</span>
+      <h2>6. Raycasting — detectar clicks en objetos 3D</h2>
+
+      <p>
+        <strong>Raycasting</strong> es la técnica para detectar qué objeto 3D está
+        bajo el cursor del mouse. Three.js proyecta un rayo invisible desde la cámara
+        en la dirección del cursor y detecta con qué objetos intersecta.
+      </p>
+
+      <pre><code><span class="cm">// ── RAYCASTER: detectar clicks sobre objetos 3D ───────────────</span>
+<span class="kw">const</span> raycaster = <span class="kw">new</span> <span class="cls">THREE.Raycaster</span>();
+<span class="kw">const</span> mouse     = <span class="kw">new</span> <span class="cls">THREE.Vector2</span>();
+
+<span class="kw">const</span> objetos   = [mesh1, mesh2, mesh3]; <span class="cm">// los objetos "clicables"</span>
+
+window.<span class="fn">addEventListener</span>(<span class="str">'click'</span>, (e) => {
+  <span class="cm">// 1. Normalizar coordenadas del click</span>
+  mouse.x = (e.clientX / window.innerWidth)  * <span class="num">2</span> - <span class="num">1</span>;
+  mouse.y = -(e.clientY / window.innerHeight) * <span class="num">2</span> + <span class="num">1</span>;
+
+  <span class="cm">// 2. Lanzar el rayo desde la cámara hacia el punto del click</span>
+  raycaster.<span class="fn">setFromCamera</span>(mouse, camera);
+
+  <span class="cm">// 3. Calcular intersecciones con los objetos</span>
+  <span class="kw">const</span> intersecciones = raycaster.<span class="fn">intersectObjects</span>(objetos);
+
+  <span class="kw">if</span> (intersecciones.length > <span class="num">0</span>) {
+    <span class="kw">const</span> objetoCliqueado = intersecciones[<span class="num">0</span>].object; <span class="cm">// el más cercano</span>
+    <span class="kw">const</span> punto = intersecciones[<span class="num">0</span>].point;           <span class="cm">// punto 3D exacto</span>
+
+    console.<span class="fn">log</span>(<span class="str">'Clicaste:'</span>, objetoCliqueado.name);
+    objetoCliqueado.material.color.<span class="fn">setHex</span>(<span class="num">0xff6b35</span>); <span class="cm">// cambiar color</span>
+  }
+});
+
+<span class="cm">// Para hover (mousemove en lugar de click):</span>
+window.<span class="fn">addEventListener</span>(<span class="str">'mousemove'</span>, (e) => {
+  mouse.x = (e.clientX / window.innerWidth)  * <span class="num">2</span> - <span class="num">1</span>;
+  mouse.y = -(e.clientY / window.innerHeight) * <span class="num">2</span> + <span class="num">1</span>;
+  raycaster.<span class="fn">setFromCamera</span>(mouse, camera);
+  <span class="kw">const</span> hits = raycaster.<span class="fn">intersectObjects</span>(objetos);
+  document.body.style.cursor = hits.length > <span class="num">0</span> ? <span class="str">'pointer'</span> : <span class="str">'default'</span>;
+});</code></pre>
+
+      <!-- DEMO: raycasting -->
+      <h3>Demo en vivo — click en objetos 3D</h3>
+      <div class="demo-3d-wrap" style="position:relative">
+        <div class="demo-3d-label">THREE.Raycaster · click detecta el objeto exacto</div>
+        <canvas id="canvas-raycast"></canvas>
+        <div class="raycast-info" id="raycast-info">Haz click sobre cualquier cubo</div>
+        <div class="demo-3d-controles">
+          <span>🖱 Click sobre un cubo para seleccionarlo · Hover cambia el cursor</span>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ============================================================
+         ASIDE: RESUMEN
+         ============================================================ -->
+    <aside class="aside-resumen">
+      <span class="etiqueta">Resumen</span>
+      <h3>Cheat Sheet — Eventos JS + Three.js integrado</h3>
+      <div class="tabla-wrapper">
+        <table>
+          <thead>
+            <tr><th>Técnica</th><th>Evento / API</th><th>Uso en Three.js</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Click en HTML</td><td><code>addEventListener('click')</code></td><td>Cambiar materiales, iniciar animaciones</td></tr>
+            <tr><td>Posición del mouse</td><td><code>mousemove → clientX/Y</code></td><td>Mover cámara, mover objetos</td></tr>
+            <tr><td>Coords normalizadas</td><td><code>(x/W)*2-1 · -(y/H)*2+1</code></td><td>Raycasting, inclinación de cámara</td></tr>
+            <tr><td>Scroll → animación</td><td><code>window.scrollY</code></td><td>Rotar objetos, mover cámara</td></tr>
+            <tr><td>Suavizado (lerp)</td><td><code>val += (target - val) * 0.05</code></td><td>Movimiento fluido en el loop</td></tr>
+            <tr><td>Canvas en div</td><td><code>contenedor.appendChild(renderer.domElement)</code></td><td>Three.js parcial en la página</td></tr>
+            <tr><td>Canvas como fondo</td><td><code>position:fixed; z-index:-1</code></td><td>Fondo 3D detrás del HTML</td></tr>
+            <tr><td>Click en objeto 3D</td><td><code>THREE.Raycaster</code></td><td>Seleccionar / interactuar con meshes</td></tr>
+            <tr><td>Resize</td><td><code>window.addEventListener('resize')</code></td><td>Actualizar camera.aspect + renderer.setSize</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </aside>
+
+
+    <!-- ============================================================
+         SECCIÓN 7: PROYECTO APLICADO
+         ============================================================ -->
+    <section class="seccion" id="proyecto">
+      <span class="etiqueta ambar">entregable</span>
+      <h2>7. Proyecto Aplicado</h2>
+
+      <div class="proyecto-descripcion">
+        <h3 style="margin-top:0">🌐 Interfaz web con escena 3D integrada</h3>
+        <p>
+          Construye una página web completa donde una escena Three.js sea
+          <strong>parte de la interfaz</strong> (no toda la pantalla), y que reaccione
+          a al menos dos eventos del usuario: scroll, mousemove, click o teclas.
+        </p>
+
+        <h4>Requisitos mínimos</h4>
+        <ul class="checklist">
+          <li><span class="check-icon done">✓</span>Canvas Three.js dentro de un <code>&lt;div&gt;</code> con dimensiones definidas (no pantalla completa).</li>
+          <li><span class="check-icon done">✓</span>Contenido HTML conviviendo con la escena 3D: al menos un título, un párrafo y un botón.</li>
+          <li><span class="check-icon done">✓</span>Evento <code>scroll</code>: la escena reacciona al desplazamiento (rotación, movimiento o cambio de color).</li>
+          <li><span class="check-icon todo">○</span>Evento <code>mousemove</code>: la cámara o un objeto sigue al cursor con suavizado (lerp).</li>
+          <li><span class="check-icon todo">○</span>Evento <code>click</code> con <code>Raycaster</code>: al hacer click sobre un objeto 3D ocurre algo visible.</li>
+          <li><span class="check-icon todo">○</span>Evento <code>resize</code>: la escena se adapta al cambiar el tamaño de ventana.</li>
+          <li><span class="check-icon todo">○</span>Al menos un efecto de <strong>lerp</strong> para movimiento fluido.</li>
+        </ul>
+      </div>
+
+      <h3>Criterios de evaluación</h3>
+      <div class="criterios-grid">
+        <div class="criterio-card">
+          <h4>🧩 Integración DOM <span class="criterio-puntaje">25 pts</span></h4>
+          <ul>
+            <li>Canvas en un contenedor, no fullscreen</li>
+            <li>HTML y Three.js conviven correctamente</li>
+            <li>CSS y layout bien estructurado</li>
+          </ul>
+        </div>
+        <div class="criterio-card">
+          <h4>🎛 Eventos JS <span class="criterio-puntaje">25 pts</span></h4>
+          <ul>
+            <li>Mínimo 2 eventos diferentes</li>
+            <li>Uso correcto de <code>addEventListener</code></li>
+            <li>Coordenadas normalizadas para mouse</li>
+          </ul>
+        </div>
+        <div class="criterio-card">
+          <h4>🌐 Escena 3D <span class="criterio-puntaje">25 pts</span></h4>
+          <ul>
+            <li>Escena completa: luces, materiales, loop</li>
+            <li>Resize listener implementado</li>
+            <li>Lerp para movimiento suave</li>
+          </ul>
+        </div>
+        <div class="criterio-card">
+          <h4>✨ Calidad <span class="criterio-puntaje">25 pts</span></h4>
+          <ul>
+            <li>Código limpio y comentado</li>
+            <li>Raycasting funcional (bonus)</li>
+            <li>Experiencia visual coherente</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="nota three">
+        <p>
+          <strong>💡 Tip:</strong> Empieza por la estructura HTML y CSS, luego añade Three.js.
+          Es más fácil integrar una escena 3D en una interfaz ya diseñada que diseñar la interfaz
+          alrededor de una escena 3D ya existente. El lerp es tu mejor amigo para todo movimiento.
+        </p>
+      </div>
+    </section>
+
+
+    <footer class="site-footer">
+      <nav class="nav-semanas">
+        <a href="semana-07-js.html">← Sem. 07 JavaScript</a>
+        <a href="semana-08-threejs.html">← Sem. 08 Three.js</a>
+        <a href="#" class="activa">Sem. 09 Eventos + Three.js</a>
+        <a href="#">Sem. 10 GSAP →</a>
+      </nav>
+      <address>
+        Diseño Web &bull; Semana 09 &bull;
+        <a href="mailto:docente@curso.edu">docente@curso.edu</a>
+      </address>
+      <p style="margin-top:0.5rem">&copy; 2025 — Ejercicio práctico de Three.js + Eventos JS</p>
+    </footer>
+
+  </div>
+
+
+  <!-- ============================================================
+       TODOS LOS DEMOS — un solo script modular
+       ============================================================ -->
+  <script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+    /* ─── UTILIDAD: renderer mini ─────────────────────────────── */
+    function mkRenderer(canvasId, W, H, bg = 0x0a0a12) {
+      const canvas = document.getElementById(canvasId);
+      if (!canvas) return null;
+      const r = new THREE.WebGLRenderer({ canvas, antialias: true });
+      r.setSize(W, H); r.setPixelRatio(Math.min(devicePixelRatio, 2));
+      r.setClearColor(bg); return r;
+    }
+
+    function addLights(scene, amb = 0.5, dirInt = 1.5) {
+      scene.add(new THREE.AmbientLight(0xffffff, amb));
+      const d = new THREE.DirectionalLight(0xffffff, dirInt);
+      d.position.set(5, 8, 5); scene.add(d);
+      return d;
+    }
+
+    /* ─── DEMO 1: CLICK ─────────────────────────────────────────
+       Evento click en botones HTML → salida en consola simulada
+    ─────────────────────────────────────────────────────────────*/
+    const consolaClick = document.getElementById('consola-click');
+
+    function logClick(html) {
+      const d = document.createElement('div');
+      d.className = 'output-linea';
+      d.innerHTML = html;
+      consolaClick.appendChild(d);
+      consolaClick.scrollTop = consolaClick.scrollHeight;
+    }
+
+    let clickCount = 0;
+    document.getElementById('btn-click-1')?.addEventListener('click', () => {
+      clickCount++;
+      logClick(`<span class="out-evento">click</span> → llamada #<span class="out-valor">${clickCount}</span>`);
+    });
+
+    document.getElementById('btn-click-2')?.addEventListener('click', (e) => {
+      logClick(`<span class="out-evento">click</span> → clientX: <span class="out-valor">${e.clientX}</span> · clientY: <span class="out-valor">${e.clientY}</span> · target: <span class="out-ok">&lt;${e.target.tagName.toLowerCase()}&gt;</span>`);
+    });
+
+    document.getElementById('btn-click-clear')?.addEventListener('click', () => {
+      consolaClick.innerHTML = '<div class="output-linea" style="color:rgba(255,255,255,0.3)">Consola limpiada.</div>';
+      clickCount = 0;
+    });
+
+
+    /* ─── DEMO 2: MOUSEMOVE ─────────────────────────────────────
+       Mueve el dot dentro del tracker y muestra coords
+    ─────────────────────────────────────────────────────────────*/
+    const tracker   = document.getElementById('mouse-tracker');
+    const dot       = document.getElementById('mouse-dot');
+    const mouseLabel = document.getElementById('mouse-label');
+    const consolaMouse = document.getElementById('consola-mouse');
+    let mouseThrottle = 0;
+
+    tracker?.addEventListener('mousemove', (e) => {
+      const rect = tracker.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      dot.style.left = x + 'px';
+      dot.style.top  = y + 'px';
+      mouseLabel.textContent = `x: ${Math.round(x)} · y: ${Math.round(y)}`;
+
+      // Throttle a consola cada 120ms
+      const now = Date.now();
+      if (now - mouseThrottle > 120) {
+        mouseThrottle = now;
+        const ndcX = ((x / rect.width) * 2 - 1).toFixed(2);
+        const ndcY = (-(y / rect.height) * 2 + 1).toFixed(2);
+        consolaMouse.innerHTML = `<div class="output-linea"><span class="out-evento">mousemove</span> → px(<span class="out-valor">${Math.round(x)}, ${Math.round(y)}</span>) · NDC(<span class="out-ok">${ndcX}, ${ndcY}</span>)</div>`;
+      }
+    });
+
+
+    /* ─── DEMO 3: SCROLL ────────────────────────────────────────
+       Barra de progreso + consola
+    ─────────────────────────────────────────────────────────────*/
+    const scrollBar    = document.getElementById('scroll-bar');
+    const consolaScroll = document.getElementById('consola-scroll');
+    const scrollVal3d   = document.getElementById('scroll-val-3d');
+
+    window.addEventListener('scroll', () => {
+      const max = document.body.scrollHeight - window.innerHeight;
+      const p   = Math.min(window.scrollY / max, 1);
+      if (scrollBar) scrollBar.style.width = (p * 100).toFixed(1) + '%';
+      if (consolaScroll) consolaScroll.innerHTML = `<div class="output-linea"><span class="out-evento">scroll</span> → scrollY: <span class="out-valor">${Math.round(window.scrollY)}</span> · progreso: <span class="out-ok">${(p * 100).toFixed(1)}%</span></div>`;
+      if (scrollVal3d) scrollVal3d.textContent = `scrollY: ${Math.round(window.scrollY)}`;
+    });
+
+
+    /* ─── DEMO 4: THREE.JS EN UN DIV ────────────────────────────
+       Canvas dentro de un div con OrbitControls
+       Botón añade esferas aleatoriamente
+    ─────────────────────────────────────────────────────────────*/
+    ;(function initDemoDiv() {
+      const wrap = document.getElementById('div-demo-wrap');
+      if (!wrap) return;
+      const W = wrap.clientWidth || 860, H = 300;
+      const renderer = mkRenderer('canvas-div', W, H);
+      if (!renderer) return;
+
+      const scene  = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(60, W / H, 0.1, 100);
+      camera.position.set(0, 2, 7);
+
+      addLights(scene);
+      const pl = new THREE.PointLight(0xff6b35, 3, 12);
+      pl.position.set(-3, 3, 2); scene.add(pl);
+
+      // Suelo
+      scene.add(Object.assign(new THREE.Mesh(
+        new THREE.PlaneGeometry(20, 20),
+        new THREE.MeshStandardMaterial({ color: 0x0d0d20, roughness: 0.95 })
+      ), { rotation: new THREE.Euler(-Math.PI / 2, 0, 0), position: new THREE.Vector3(0, -1.2, 0) }));
+
+      const objetos = [];
+      const colores = [0xff6b35, 0x4aa8ff, 0x50fa7b, 0xf7df1e, 0xbd93f9, 0xff79c6];
+      const geos    = [
+        new THREE.BoxGeometry(0.8, 0.8, 0.8),
+        new THREE.SphereGeometry(0.45, 24, 24),
+        new THREE.ConeGeometry(0.4, 1, 24),
+        new THREE.TorusGeometry(0.35, 0.15, 12, 60),
+      ];
+
+      function addObj() {
+        const g = geos[Math.floor(Math.random() * geos.length)];
+        const c = colores[Math.floor(Math.random() * colores.length)];
+        const m = new THREE.Mesh(g, new THREE.MeshStandardMaterial({ color: c, roughness: 0.3, metalness: 0.2 }));
+        m.position.set((Math.random() - 0.5) * 6, 0, (Math.random() - 0.5) * 4);
+        m.userData.velY = Math.random() * 0.5 + 0.3;
+        m.userData.rotX = (Math.random() - 0.5) * 0.02;
+        m.userData.rotY = (Math.random() - 0.5) * 0.02;
+        scene.add(m); objetos.push(m);
+        if (objetos.length > 20) { scene.remove(objetos.shift()); }
+      }
+
+      // Añadir 3 objetos iniciales
+      for (let i = 0; i < 3; i++) addObj();
+
+      document.getElementById('btn-div-add')?.addEventListener('click', addObj);
+      document.getElementById('btn-div-clear')?.addEventListener('click', () => {
+        objetos.forEach(o => scene.remove(o));
+        objetos.length = 0;
+      });
+
+      const controls = new OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true; controls.dampingFactor = 0.05;
+
+      const clock = new THREE.Clock();
+      function animate() {
+        requestAnimationFrame(animate);
+        const t = clock.getElapsedTime();
+        objetos.forEach(o => {
+          o.rotation.x += o.userData.rotX;
+          o.rotation.y += o.userData.rotY;
+          o.position.y = Math.sin(t * o.userData.velY) * 0.4;
+        });
+        controls.update();
+        renderer.render(scene, camera);
+      }
+      animate();
+    })();
+
+
+    /* ─── DEMO 5: CANVAS COMO FONDO ─────────────────────────────
+       Canvas position:absolute detrás del contenido HTML
+       Reacciona al mousemove del contenedor
+    ─────────────────────────────────────────────────────────────*/
+    ;(function initDemoFondo() {
+      const wrap = document.getElementById('fondo-wrap');
+      const canvas = document.getElementById('canvas-fondo');
+      if (!wrap || !canvas) return;
+
+      const W = wrap.clientWidth || 860, H = 320;
+      const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+      renderer.setSize(W, H); renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+      renderer.setClearColor(0x0a0a12, 1);
+
+      const scene  = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(70, W / H, 0.1, 100);
+      camera.position.set(0, 0, 5);
+
+      scene.add(new THREE.AmbientLight(0xffffff, 0.4));
+      const dl = new THREE.DirectionalLight(0xffffff, 1); dl.position.set(5, 5, 5); scene.add(dl);
+
+      // Partículas de fondo
+      const ptGeo = new THREE.BufferGeometry();
+      const count = 200;
+      const pos   = new Float32Array(count * 3);
+      for (let i = 0; i < count * 3; i++) pos[i] = (Math.random() - 0.5) * 16;
+      ptGeo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+      const particles = new THREE.Points(ptGeo, new THREE.PointsMaterial({ color: 0xffffff, size: 0.06, transparent: true, opacity: 0.6 }));
+      scene.add(particles);
+
+      // Esferas flotantes
+      const esferas = [0xff6b35, 0x4aa8ff, 0x50fa7b].map((c, i) => {
+        const m = new THREE.Mesh(
+          new THREE.SphereGeometry(0.5, 24, 24),
+          new THREE.MeshStandardMaterial({ color: c, roughness: 0.25, metalness: 0.3 })
+        );
+        m.position.set((i - 1) * 2.5, 0, -1);
+        scene.add(m); return m;
+      });
+
+      // mousemove sobre el contenedor → inclinar cámara
+      let mx = 0, my = 0, cx = 0, cy = 0;
+      wrap.addEventListener('mousemove', (e) => {
+        const r = wrap.getBoundingClientRect();
+        mx = ((e.clientX - r.left) / r.width)  * 2 - 1;
+        my = -((e.clientY - r.top)  / r.height) * 2 + 1;
+      });
+
+      const clock = new THREE.Clock();
+      function animate() {
+        requestAnimationFrame(animate);
+        const t = clock.getElapsedTime();
+        cx += (mx * 1.5 - cx) * 0.05;
+        cy += (my * 0.8 - cy) * 0.05;
+        camera.position.x = cx;
+        camera.position.y = cy;
+        camera.lookAt(0, 0, 0);
+        esferas.forEach((e, i) => {
+          e.position.y = Math.sin(t * 0.7 + i * 1.2) * 0.5;
+          e.rotation.y = t * 0.4 + i;
+        });
+        particles.rotation.y = t * 0.03;
+        renderer.render(scene, camera);
+      }
+      animate();
+    })();
+
+
+    /* ─── DEMO 6: SCROLL → ESCENA 3D ────────────────────────────
+       scrollY controla rotación y posición de objetos en la escena
+    ─────────────────────────────────────────────────────────────*/
+    ;(function initDemoScroll() {
+      const wrap = document.querySelector('#canvas-scroll')?.parentElement;
+      if (!wrap) return;
+      const W = wrap.clientWidth || 860, H = 300;
+      const renderer = mkRenderer('canvas-scroll', W, H);
+      if (!renderer) return;
+
+      const scene  = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(60, W / H, 0.1, 100);
+      camera.position.set(0, 1, 6);
+
+      addLights(scene, 0.5, 1.5);
+      scene.add(Object.assign(new THREE.PointLight(0x4aa8ff, 2, 10), { position: new THREE.Vector3(-2, 2, 3) }));
+
+      // Grupo de cubos que rota con el scroll
+      const grupo = new THREE.Group();
+      const colores = [0xff6b35, 0x4aa8ff, 0x50fa7b, 0xf7df1e, 0xbd93f9];
+      for (let i = 0; i < 5; i++) {
+        const m = new THREE.Mesh(
+          new THREE.BoxGeometry(0.9, 0.9, 0.9),
+          new THREE.MeshStandardMaterial({ color: colores[i], roughness: 0.3, metalness: 0.2 })
+        );
+        const ang = (i / 5) * Math.PI * 2;
+        m.position.set(Math.cos(ang) * 2, 0, Math.sin(ang) * 2);
+        grupo.add(m);
+      }
+      scene.add(grupo);
+
+      // Esfera central
+      const esfera = new THREE.Mesh(
+        new THREE.SphereGeometry(0.6, 32, 32),
+        new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.1, metalness: 0.8 })
+      );
+      scene.add(esfera);
+
+      const suelo = new THREE.Mesh(
+        new THREE.PlaneGeometry(20, 20),
+        new THREE.MeshStandardMaterial({ color: 0x0d0d20, roughness: 0.9 })
+      );
+      suelo.rotation.x = -Math.PI / 2; suelo.position.y = -1.5; scene.add(suelo);
+
+      let scrollCurrent = 0;
+      const clock = new THREE.Clock();
+
+      function animate() {
+        requestAnimationFrame(animate);
+        const t = clock.getElapsedTime();
+        const scrollTarget = window.scrollY * 0.001;
+        scrollCurrent += (scrollTarget - scrollCurrent) * 0.06; // lerp
+
+        grupo.rotation.y = scrollCurrent * 3;
+        esfera.rotation.y = t * 0.5;
+        esfera.scale.setScalar(1 + Math.sin(scrollCurrent * 5) * 0.15);
+        camera.position.y = 1 + scrollCurrent * 0.5;
+        camera.lookAt(0, 0, 0);
+
+        renderer.render(scene, camera);
+      }
+      animate();
+    })();
+
+
+    /* ─── DEMO 7: MOUSEMOVE → CÁMARA 3D ─────────────────────────
+       Coordenadas NDC del mouse inclinan suavemente la cámara
+    ─────────────────────────────────────────────────────────────*/
+    ;(function initDemoMouse() {
+      const wrap   = document.querySelector('#canvas-mouse')?.parentElement;
+      const canvas = document.getElementById('canvas-mouse');
+      const ndcLabel = document.getElementById('mouse-ndc');
+      if (!wrap || !canvas) return;
+      const W = wrap.clientWidth || 860, H = 300;
+      const renderer = mkRenderer('canvas-mouse', W, H);
+      if (!renderer) return;
+
+      const scene  = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(60, W / H, 0.1, 100);
+      camera.position.set(0, 0, 6);
+
+      addLights(scene, 0.4, 1.5);
+      scene.add(Object.assign(new THREE.PointLight(0xff6b35, 2, 10), { position: new THREE.Vector3(-3, 2, 2) }));
+      scene.add(Object.assign(new THREE.PointLight(0x4aa8ff, 2, 10), { position: new THREE.Vector3(3, -2, 2) }));
+
+      // Grupo de objetos
+      const grupo = new THREE.Group();
+      const formas = [
+        new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshStandardMaterial({ color: 0xff6b35, roughness: 0.2, metalness: 0.3 })),
+        new THREE.Mesh(new THREE.SphereGeometry(0.6, 24, 24), new THREE.MeshStandardMaterial({ color: 0x4aa8ff, roughness: 0.2, metalness: 0.5 })),
+        new THREE.Mesh(new THREE.TorusGeometry(0.5, 0.18, 12, 60), new THREE.MeshStandardMaterial({ color: 0x50fa7b, roughness: 0.3, metalness: 0.1 })),
+      ];
+      formas[0].position.set(-2.2, 0, 0);
+      formas[2].position.set(2.2, 0, 0);
+      formas.forEach(f => grupo.add(f));
+      scene.add(grupo);
+
+      let mx = 0, my = 0, cx = 0, cy = 0;
+
+      canvas.addEventListener('mousemove', (e) => {
+        const r = canvas.getBoundingClientRect();
+        mx = ((e.clientX - r.left) / r.width)  * 2 - 1;
+        my = -((e.clientY - r.top)  / r.height) * 2 + 1;
+        if (ndcLabel) ndcLabel.textContent = `NDC: (${mx.toFixed(2)}, ${my.toFixed(2)})`;
+      });
+
+      const clock = new THREE.Clock();
+      function animate() {
+        requestAnimationFrame(animate);
+        const t = clock.getElapsedTime();
+        // lerp hacia la posición del mouse
+        cx += (mx * 2.0 - cx) * 0.05;
+        cy += (my * 1.2 - cy) * 0.05;
+        camera.position.x = cx;
+        camera.position.y = cy;
+        camera.lookAt(0, 0, 0);
+
+        grupo.rotation.y = t * 0.3;
+        formas.forEach(f => { f.rotation.x = t * 0.4; f.rotation.y = t * 0.5; });
+        renderer.render(scene, camera);
+      }
+      animate();
+    })();
+
+
+    /* ─── DEMO 8: RAYCASTING ─────────────────────────────────────
+       Click y hover sobre cubos con THREE.Raycaster
+    ─────────────────────────────────────────────────────────────*/
+    ;(function initDemoRaycast() {
+      const wrap   = document.querySelector('#canvas-raycast')?.parentElement;
+      const canvas = document.getElementById('canvas-raycast');
+      const infoEl = document.getElementById('raycast-info');
+      if (!wrap || !canvas) return;
+      const W = wrap.clientWidth || 860, H = 300;
+      const renderer = mkRenderer('canvas-raycast', W, H);
+      if (!renderer) return;
+
+      const scene  = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(60, W / H, 0.1, 100);
+      camera.position.set(0, 2, 8);
+      camera.lookAt(0, 0, 0);
+
+      addLights(scene, 0.5, 1.5);
+      scene.add(Object.assign(new THREE.PointLight(0xff6b35, 2, 12), { position: new THREE.Vector3(-3, 3, 3) }));
+
+      const suelo = new THREE.Mesh(
+        new THREE.PlaneGeometry(20, 20),
+        new THREE.MeshStandardMaterial({ color: 0x0d0d20, roughness: 0.9 })
+      );
+      suelo.rotation.x = -Math.PI / 2; suelo.position.y = -1.2; scene.add(suelo);
+
+      // Cubos interactivos
+      const nombresColores = [
+        { nombre: 'Rojo', color: 0xaa2020 },
+        { nombre: 'Verde', color: 0x1a7a3a },
+        { nombre: 'Azul', color: 0x1a4aaa },
+        { nombre: 'Lila', color: 0x7a3a8a },
+        { nombre: 'Naranja', color: 0xff6b35 },
+      ];
+
+      const cubos = nombresColores.map(({ nombre, color }, i) => {
+        const m = new THREE.Mesh(
+          new THREE.BoxGeometry(1, 1, 1),
+          new THREE.MeshStandardMaterial({ color, roughness: 0.4, metalness: 0.2 })
+        );
+        m.position.set((i - 2) * 2.2, 0, 0);
+        m.name = nombre;
+        m.userData.colorBase  = color;
+        m.userData.colorHover = 0xffffff;
+        scene.add(m);
+        return m;
+      });
+
+      const raycaster = new THREE.Raycaster();
+      const mouse     = new THREE.Vector2();
+      let hovered     = null;
+      let selected    = null;
+
+      function updateMouse(e) {
+        const r = canvas.getBoundingClientRect();
+        mouse.x = ((e.clientX - r.left) / r.width)  * 2 - 1;
+        mouse.y = -((e.clientY - r.top)  / r.height) * 2 + 1;
+      }
+
+      canvas.addEventListener('mousemove', (e) => {
+        updateMouse(e);
+        raycaster.setFromCamera(mouse, camera);
+        const hits = raycaster.intersectObjects(cubos);
+
+        if (hovered && hovered !== selected) {
+          hovered.material.color.setHex(hovered.userData.colorBase);
+          hovered.material.emissive.setHex(0x000000);
+        }
+        hovered = hits.length > 0 ? hits[0].object : null;
+        if (hovered && hovered !== selected) {
+          hovered.material.emissive.setHex(0x333333);
+        }
+        canvas.style.cursor = hits.length > 0 ? 'pointer' : 'default';
+      });
+
+      canvas.addEventListener('click', (e) => {
+        updateMouse(e);
+        raycaster.setFromCamera(mouse, camera);
+        const hits = raycaster.intersectObjects(cubos);
+        if (hits.length > 0) {
+          if (selected) {
+            selected.material.color.setHex(selected.userData.colorBase);
+            selected.material.emissive.setHex(0x000000);
+          }
+          selected = hits[0].object;
+          selected.material.color.setHex(0xffd166);
+          selected.material.emissive.setHex(0x442200);
+          if (infoEl) infoEl.textContent = `✔ Seleccionado: cubo "${selected.name}"`;
+        }
+      });
+
+      const controls = new OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true; controls.dampingFactor = 0.05;
+      controls.target.set(0, 0, 0);
+
+      const clock = new THREE.Clock();
+      function animate() {
+        requestAnimationFrame(animate);
+        const t = clock.getElapsedTime();
+        cubos.forEach((c, i) => {
+          if (c !== selected) c.rotation.y = t * 0.4 + i * 0.5;
+          else { c.rotation.y += 0.03; c.position.y = 0.3 + Math.sin(t * 3) * 0.1; }
+        });
+        controls.update();
+        renderer.render(scene, camera);
+      }
+      animate();
+    })();
+
+  </script>
+
+</body>
+</html>

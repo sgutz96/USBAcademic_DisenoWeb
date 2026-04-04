@@ -1,0 +1,2037 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VLTX — Tech Store</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+
+  <style>
+
+    /* =====================================================
+       SEMANA 05 — CSS AVANZADO
+       Técnicas demostradas en este archivo:
+       1. Variables CSS (:root, sobreescritura local, fallback)
+       2. Pseudo-clases (:hover, :focus, :nth-child, :not, :checked)
+       3. Pseudo-elementos (::before, ::after, ::placeholder, ::selection)
+       4. Transiciones (timing-functions, delay, múltiples props)
+       5. Animaciones @keyframes (infinite, forwards, fill-mode)
+       6. transform (translate, scale, rotate, skew, combos)
+       7. filter (grayscale, brightness, blur, drop-shadow)
+       8. backdrop-filter (glassmorphism)
+       ===================================================== */
+
+    /* =====================================================
+       1. VARIABLES CSS — :root global
+       Toda la paleta, tipografía y espaciados en un solo lugar.
+       Cambiar --acento aquí afecta a TODA la página.
+       ===================================================== */
+    :root {
+      /* Paleta oscura tech */
+      --negro:        #080810;
+      --negro-suave:  #0f0f1a;
+      --panel:        #13131f;
+      --panel-borde:  #1e1e32;
+      --panel-hover:  #1a1a2e;
+
+      --blanco:       #f0f0ff;
+      --gris:         #8080a0;
+      --gris-suave:   #3a3a58;
+
+      /* Acento principal — cambia este para re-temear toda la tienda */
+      --acento:       #00e5ff;
+      --acento-rgb:   0, 229, 255;          /* para rgba() */
+      --acento-oscuro:#00a8bd;
+      --acento-glow:  rgba(0,229,255,0.25);
+
+      /* Acentos secundarios */
+      --verde:        #00ff88;
+      --verde-rgb:    0, 255, 136;
+      --rojo:         #ff3860;
+      --ambar:        #ffd060;
+
+      /* Tipografía */
+      --f-display: 'Syne', 'Trebuchet MS', sans-serif;
+      --f-mono:    'JetBrains Mono', 'Courier New', monospace;
+
+      /* Tamaños fluidos */
+      --fs-hero:  clamp(3rem, 8vw, 6rem);
+      --fs-h2:    clamp(1.6rem, 3vw, 2.2rem);
+
+      /* Espaciado */
+      --gap:    clamp(1rem, 2.5vw, 1.5rem);
+      --radio:  8px;
+
+      /* Sombras luminosas */
+      --glow-acento: 0 0 20px rgba(var(--acento-rgb), 0.35);
+      --glow-verde:  0 0 20px rgba(var(--verde-rgb), 0.35);
+
+      /* Duraciones — variables para animaciones */
+      --t-rapido: 150ms;
+      --t-medio:  300ms;
+      --t-lento:  600ms;
+      --ease-rebote: cubic-bezier(0.34, 1.56, 0.64, 1);
+      --ease-suave:  cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* =====================================================
+       RESET Y BASE
+       ===================================================== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    img  { max-width: 100%; display: block; }
+
+    body {
+      font-family: var(--f-mono);
+      background: var(--negro);
+      color: var(--blanco);
+      font-size: 15px;
+      line-height: 1.6;
+      /* Cursor personalizado con CSS puro */
+      cursor: crosshair;
+    }
+
+    /* ::selection — selección de texto personalizada */
+    ::selection {
+      background: var(--acento);
+      color: var(--negro);
+    }
+
+    /* =====================================================
+       KEYFRAMES — todas las animaciones declaradas aquí
+       ===================================================== */
+
+    /* Aparición suave desde abajo */
+    @keyframes aparecer {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Parpadeo del cursor en el hero */
+    @keyframes cursor-blink {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0; }
+    }
+
+    /* Rotación continua */
+    @keyframes girar {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Pulso de glow */
+    @keyframes glow-pulso {
+      0%, 100% { box-shadow: 0 0 10px rgba(var(--acento-rgb), 0.3); }
+      50%       { box-shadow: 0 0 30px rgba(var(--acento-rgb), 0.7), 0 0 60px rgba(var(--acento-rgb), 0.2); }
+    }
+
+    /* Ticker horizontal */
+    @keyframes ticker {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+
+    /* Scan line animada (efecto CRT) */
+    @keyframes scan {
+      from { transform: translateY(-100%); }
+      to   { transform: translateY(100vh); }
+    }
+
+    /* Entrada desde izquierda con stagger */
+    @keyframes entrada-izq {
+      from { opacity: 0; transform: translateX(-20px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+
+    /* Flotación */
+    @keyframes flotar {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-8px); }
+    }
+
+    /* Barra de progreso */
+    @keyframes llenar {
+      from { width: 0%; }
+    }
+
+    /* Shake al agregar al carrito */
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%       { transform: translateX(-4px); }
+      40%       { transform: translateX(4px); }
+      60%       { transform: translateX(-3px); }
+      80%       { transform: translateX(3px); }
+    }
+
+
+    /* =====================================================
+       EFECTO CRT — scan line global decorativa
+       pseudo-elemento en body
+       ===================================================== */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: rgba(var(--acento-rgb), 0.15);
+      z-index: 9999;
+      pointer-events: none;
+      /* Animación infinita de scan */
+      animation: scan 8s linear infinite;
+    }
+
+
+    /* =====================================================
+       NAVEGACIÓN — Variables + pseudo-clases + transiciones
+       ===================================================== */
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(8, 8, 16, 0.85);
+      /* backdrop-filter: glassmorphism */
+      backdrop-filter: blur(20px) saturate(1.5);
+      -webkit-backdrop-filter: blur(20px) saturate(1.5);
+      border-bottom: 1px solid var(--panel-borde);
+
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--gap);
+      padding: 1rem 2rem;
+    }
+
+    /* ::before en el nav — línea de acento animada */
+    .nav::after {
+      content: "";
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(90deg,
+        transparent,
+        var(--acento) 20%,
+        var(--acento) 80%,
+        transparent
+      );
+      animation: glow-pulso 3s ease-in-out infinite;
+    }
+
+    .nav-logo {
+      font-family: var(--f-display);
+      font-weight: 800;
+      font-size: 1.4rem;
+      letter-spacing: 0.06em;
+      color: var(--blanco);
+      text-decoration: none;
+
+      /* ::before — punto de acento */
+      position: relative;
+    }
+
+    /* Pseudo-elemento: punto parpadeante en el logo */
+    .nav-logo::after {
+      content: "·";
+      color: var(--acento);
+      animation: cursor-blink 1.2s ease-in-out infinite;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: var(--gris);
+      text-decoration: none;
+      font-size: 0.8rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      position: relative;
+      /* Transición en propiedades múltiples */
+      transition: color var(--t-medio) var(--ease-suave);
+    }
+
+    /* ::after — línea de subrayado animada con transform */
+    .nav-links a::after {
+      content: "";
+      position: absolute;
+      bottom: -3px;
+      left: 0;
+      width: 100%;
+      height: 1px;
+      background: var(--acento);
+      /* transform: scaleX(0) — invisible por defecto */
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform var(--t-medio) var(--ease-suave);
+    }
+
+    /* :hover → color + aparición de línea */
+    .nav-links a:hover {
+      color: var(--acento);
+    }
+
+    .nav-links a:hover::after {
+      transform: scaleX(1);
+    }
+
+    .nav-icons {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .nav-icon-btn {
+      background: none;
+      border: none;
+      color: var(--gris);
+      font-size: 1.1rem;
+      cursor: crosshair;
+      padding: 0.4rem;
+      border-radius: var(--radio);
+      transition: color var(--t-rapido), background var(--t-rapido);
+      position: relative;
+    }
+
+    /* :hover en botones del nav */
+    .nav-icon-btn:hover {
+      color: var(--acento);
+      background: rgba(var(--acento-rgb), 0.08);
+    }
+
+    /* Badge del carrito */
+    .nav-icon-btn.carrito::after {
+      content: "3";
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      width: 16px;
+      height: 16px;
+      background: var(--acento);
+      color: var(--negro);
+      font-size: 0.6rem;
+      font-weight: 700;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      /* Animación de pulso en el badge */
+      animation: glow-pulso 2s ease-in-out infinite;
+    }
+
+    @media (max-width: 640px) {
+      .nav-links { display: none; }
+    }
+
+
+    /* =====================================================
+       HERO — @keyframes + transform + variables
+       ===================================================== */
+    .hero {
+      min-height: 90vh;
+      display: grid;
+      grid-template-columns: 1fr;
+      align-items: center;
+      padding: 4rem 2rem;
+      position: relative;
+      overflow: hidden;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    @media (min-width: 768px) {
+      .hero { grid-template-columns: 1.1fr 0.9fr; gap: 3rem; }
+    }
+
+    /* Fondo con cuadrícula — pseudo-elemento ::before */
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(var(--acento-rgb), 0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(var(--acento-rgb), 0.04) 1px, transparent 1px);
+      background-size: 60px 60px;
+      /* transform para inclinar la cuadrícula */
+      transform: perspective(600px) rotateX(8deg);
+      transform-origin: top;
+      pointer-events: none;
+    }
+
+    .hero-texto {
+      position: relative;
+      z-index: 1;
+      /* Animación de entrada con fill-mode: both */
+      animation: aparecer var(--t-lento) var(--ease-suave) both;
+    }
+
+    .hero-eyebrow {
+      font-size: 0.72rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--acento);
+      margin-bottom: 1.25rem;
+      /* ::before — guión decorativo */
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    /* Pseudo-elemento ::before en el eyebrow */
+    .hero-eyebrow::before {
+      content: "";
+      display: block;
+      width: 32px;
+      height: 1px;
+      background: var(--acento);
+      flex-shrink: 0;
+    }
+
+    .hero-titulo {
+      font-family: var(--f-display);
+      font-size: var(--fs-hero);
+      font-weight: 800;
+      line-height: 0.95;
+      margin-bottom: 1.5rem;
+      letter-spacing: -0.02em;
+    }
+
+    /* Parte del título con acento */
+    .hero-titulo .acento {
+      color: var(--acento);
+      position: relative;
+      display: inline-block;
+      /* Animación de flotación suave */
+      animation: flotar 3s ease-in-out infinite;
+    }
+
+    /* Cursor parpadeante al final del título */
+    .hero-titulo .cursor-blink {
+      color: var(--acento);
+      animation: cursor-blink 1s step-end infinite;
+      font-weight: 300;
+    }
+
+    .hero-desc {
+      color: var(--gris);
+      max-width: 44ch;
+      margin-bottom: 2rem;
+      line-height: 1.75;
+      font-size: 0.9rem;
+    }
+
+    .hero-ctas {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    /* Botón principal */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.7rem 1.6rem;
+      border-radius: var(--radio);
+      font-family: var(--f-mono);
+      font-size: 0.82rem;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      text-decoration: none;
+      cursor: crosshair;
+      border: none;
+      /* Transición con todas las propiedades relevantes */
+      transition:
+        transform    var(--t-medio) var(--ease-rebote),
+        box-shadow   var(--t-medio) var(--ease-suave),
+        background   var(--t-medio) var(--ease-suave),
+        color        var(--t-medio) var(--ease-suave);
+    }
+
+    .btn-primary {
+      background: var(--acento);
+      color: var(--negro);
+    }
+
+    /* :hover — transform + glow */
+    .btn-primary:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--glow-acento), 0 8px 24px rgba(0,0,0,0.4);
+    }
+
+    /* :active — vuelve a su posición */
+    .btn-primary:active {
+      transform: translateY(0);
+      animation: shake 0.3s ease;
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--blanco);
+      border: 1px solid var(--panel-borde);
+    }
+
+    .btn-ghost:hover {
+      border-color: var(--acento);
+      color: var(--acento);
+      transform: translateY(-2px);
+    }
+
+    /* Producto flotante hero */
+    .hero-producto {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: aparecer var(--t-lento) var(--ease-suave) 200ms both;
+    }
+
+    .hero-card-producto {
+      background: var(--panel);
+      border: 1px solid var(--panel-borde);
+      border-radius: 20px;
+      padding: 2.5rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      width: 100%;
+      max-width: 360px;
+      /* Animación de glow pulsante */
+      animation: glow-pulso 4s ease-in-out infinite;
+    }
+
+    /* ::before — degradado de fondo en la card del hero */
+    .hero-card-producto::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 60%;
+      background: radial-gradient(ellipse at top, rgba(var(--acento-rgb), 0.08), transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-emoji {
+      font-size: 5rem;
+      display: block;
+      margin-bottom: 1.25rem;
+      /* Animación de flotación en el emoji del producto */
+      animation: flotar 3.5s ease-in-out infinite;
+    }
+
+    .hero-prod-nombre {
+      font-family: var(--f-display);
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-bottom: 0.4rem;
+    }
+
+    .hero-prod-precio {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--acento);
+      margin-bottom: 1.25rem;
+    }
+
+    /* Badge "en stock" */
+    .badge-stock {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: rgba(var(--verde-rgb), 0.1);
+      color: var(--verde);
+      border: 1px solid rgba(var(--verde-rgb), 0.25);
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      letter-spacing: 0.06em;
+    }
+
+    /* ::before — punto verde parpadeante */
+    .badge-stock::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      background: var(--verde);
+      border-radius: 50%;
+      animation: glow-pulso 1.5s ease-in-out infinite;
+      flex-shrink: 0;
+    }
+
+    /* Stats pequeñas bajo la card */
+    .hero-stats {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      margin-top: 1.5rem;
+    }
+
+    .hero-stat {
+      text-align: center;
+    }
+
+    .hero-stat-num {
+      font-family: var(--f-display);
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--acento);
+      display: block;
+      line-height: 1;
+    }
+
+    .hero-stat-label {
+      font-size: 0.68rem;
+      color: var(--gris);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+
+    /* =====================================================
+       TICKER — @keyframes + flex
+       ===================================================== */
+    .ticker-wrap {
+      background: var(--acento);
+      overflow: hidden;
+      padding: 0.5rem 0;
+    }
+
+    .ticker-track {
+      display: flex;
+      gap: 3rem;
+      white-space: nowrap;
+      animation: ticker 25s linear infinite;
+    }
+
+    .ticker-item {
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--negro);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      flex-shrink: 0;
+    }
+
+    /* ::before — separador */
+    .ticker-item::before {
+      content: "★ ";
+    }
+
+
+    /* =====================================================
+       FILTROS DE CATEGORÍA
+       Demuestra: :checked pseudo-clase + hermano ~
+       ===================================================== */
+    .categorias-seccion {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 4rem 2rem;
+    }
+
+    .seccion-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .seccion-titulo {
+      font-family: var(--f-display);
+      font-size: var(--fs-h2);
+      font-weight: 800;
+      /* ::before — número de sección */
+      position: relative;
+    }
+
+    .seccion-titulo::before {
+      content: attr(data-num);
+      position: absolute;
+      top: -1.2rem;
+      left: 0;
+      font-size: 0.65rem;
+      color: var(--acento);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+
+    .seccion-link {
+      color: var(--gris);
+      text-decoration: none;
+      font-size: 0.8rem;
+      letter-spacing: 0.06em;
+      transition: color var(--t-medio);
+    }
+
+    .seccion-link:hover { color: var(--acento); }
+
+    /* Chips de filtro */
+    .filtros {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-bottom: 2rem;
+    }
+
+    .filtro-btn {
+      padding: 0.4rem 1rem;
+      border-radius: 999px;
+      border: 1px solid var(--panel-borde);
+      background: transparent;
+      color: var(--gris);
+      font-family: var(--f-mono);
+      font-size: 0.75rem;
+      letter-spacing: 0.04em;
+      cursor: crosshair;
+      transition:
+        border-color var(--t-medio),
+        color        var(--t-medio),
+        background   var(--t-medio),
+        transform    var(--t-medio) var(--ease-rebote);
+    }
+
+    /* :hover en los filtros */
+    .filtro-btn:hover {
+      border-color: var(--acento);
+      color: var(--acento);
+      transform: translateY(-2px);
+    }
+
+    /* :focus — accesibilidad teclado */
+    .filtro-btn:focus-visible {
+      outline: 2px solid var(--acento);
+      outline-offset: 3px;
+    }
+
+    /* Estado activo */
+    .filtro-btn.activo {
+      background: var(--acento);
+      color: var(--negro);
+      border-color: var(--acento);
+    }
+
+
+    /* =====================================================
+       GRID DE PRODUCTOS
+       Variables locales por card + pseudo-clases + animaciones
+       ===================================================== */
+    .productos-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: var(--gap);
+    }
+
+    /* ---- CARD DE PRODUCTO ---- */
+    .producto-card {
+      /* Variable local: cada card puede tener su acento */
+      --card-acento: var(--acento);
+
+      background: var(--panel);
+      border: 1px solid var(--panel-borde);
+      border-radius: 16px;
+      overflow: hidden;
+      position: relative;
+      cursor: crosshair;
+
+      /* Transición: múltiples propiedades */
+      transition:
+        transform    var(--t-medio) var(--ease-rebote),
+        box-shadow   var(--t-medio) var(--ease-suave),
+        border-color var(--t-medio) var(--ease-suave);
+
+      /* Animación de entrada con delay por :nth-child */
+      animation: aparecer var(--t-lento) var(--ease-suave) both;
+    }
+
+    /* :nth-child → delay escalonado en la entrada */
+    .producto-card:nth-child(1) { animation-delay: 0ms; }
+    .producto-card:nth-child(2) { animation-delay: 80ms; }
+    .producto-card:nth-child(3) { animation-delay: 160ms; }
+    .producto-card:nth-child(4) { animation-delay: 240ms; }
+    .producto-card:nth-child(5) { animation-delay: 320ms; }
+    .producto-card:nth-child(6) { animation-delay: 400ms; }
+
+    /* Variables locales por categoría de producto */
+    .producto-card.tipo-audio    { --card-acento: var(--acento); }
+    .producto-card.tipo-video    { --card-acento: #b06aff; }
+    .producto-card.tipo-gaming   { --card-acento: var(--verde); }
+    .producto-card.tipo-foto     { --card-acento: var(--ambar); }
+    .producto-card.tipo-comp     { --card-acento: var(--rojo); }
+
+    /* :hover — elevación + glow usando la variable local */
+    .producto-card:hover {
+      transform: translateY(-6px);
+      border-color: var(--card-acento);
+      box-shadow: 0 0 30px rgba(0,0,0,0.5),
+                  0 0 0 1px var(--card-acento);
+    }
+
+    /* ::before — franja de color superior por card */
+    .producto-card::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: var(--card-acento);
+      /* transform: scaleX(0) → se revela en hover */
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform var(--t-medio) var(--ease-suave);
+    }
+
+    .producto-card:hover::before {
+      transform: scaleX(1);
+    }
+
+    /* Zona de imagen */
+    .card-img {
+      height: 180px;
+      background: var(--negro-suave);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 4rem;
+      position: relative;
+      overflow: hidden;
+
+      /* filter base — levemente desaturado */
+      transition: filter var(--t-medio) var(--ease-suave);
+    }
+
+    /* ::after — degradado de fondo por tipo */
+    .card-img::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(
+        circle at 50% 100%,
+        rgba(var(--acento-rgb), 0.08),
+        transparent 70%
+      );
+      transition: opacity var(--t-medio);
+    }
+
+    /* :hover en la imagen — filter + transform en el emoji */
+    .producto-card:hover .card-img {
+      filter: brightness(1.1);
+    }
+
+    .card-emoji {
+      position: relative;
+      z-index: 1;
+      transition: transform var(--t-medio) var(--ease-rebote);
+    }
+
+    .producto-card:hover .card-emoji {
+      transform: scale(1.15) translateY(-4px);
+    }
+
+    /* Badge de descuento */
+    .card-badge {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: var(--rojo);
+      color: #fff;
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 4px;
+      z-index: 2;
+      letter-spacing: 0.04em;
+    }
+
+    .card-badge.nuevo {
+      background: var(--verde);
+      color: var(--negro);
+    }
+
+    /* Cuerpo de la card */
+    .card-body {
+      padding: 1.25rem;
+    }
+
+    .card-categoria {
+      font-size: 0.65rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--card-acento);
+      margin-bottom: 0.4rem;
+    }
+
+    .card-nombre {
+      font-family: var(--f-display);
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin-bottom: 0.4rem;
+      line-height: 1.2;
+    }
+
+    .card-desc {
+      font-size: 0.78rem;
+      color: var(--gris);
+      margin-bottom: 1rem;
+      line-height: 1.55;
+      /* Limitar a 2 líneas */
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    /* Specs rápidas */
+    .card-specs {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-bottom: 1rem;
+    }
+
+    .spec-chip {
+      font-size: 0.65rem;
+      padding: 2px 8px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--panel-borde);
+      border-radius: 4px;
+      color: var(--gris);
+      letter-spacing: 0.04em;
+    }
+
+    /* Pie de la card */
+    .card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid var(--panel-borde);
+      padding-top: 1rem;
+    }
+
+    .card-precio-wrap { }
+
+    .card-precio-original {
+      font-size: 0.72rem;
+      color: var(--gris);
+      text-decoration: line-through;
+    }
+
+    .card-precio {
+      font-family: var(--f-display);
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: var(--card-acento);
+      line-height: 1;
+    }
+
+    /* Botón añadir — usa variable --card-acento local */
+    .card-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      border: 1px solid var(--card-acento);
+      background: rgba(var(--acento-rgb), 0.08);
+      color: var(--card-acento);
+      font-size: 1.1rem;
+      cursor: crosshair;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition:
+        background  var(--t-medio),
+        transform   var(--t-medio) var(--ease-rebote),
+        box-shadow  var(--t-medio);
+    }
+
+    /* :hover en el botón de añadir */
+    .card-btn:hover {
+      background: var(--card-acento);
+      color: var(--negro);
+      transform: scale(1.1);
+      box-shadow: 0 0 16px rgba(var(--acento-rgb), 0.4);
+    }
+
+    /* :active — rebote hacia abajo */
+    .card-btn:active {
+      transform: scale(0.92);
+    }
+
+    /* Estrellas de rating */
+    .card-rating {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .estrellas {
+      color: var(--ambar);
+      font-size: 0.75rem;
+      letter-spacing: -0.05em;
+    }
+
+    .rating-num {
+      font-size: 0.72rem;
+      color: var(--gris);
+    }
+
+    /* :not — tarjetas que NO tienen descuento quedan sin badge */
+    /* (Se maneja con la clase .card-badge que solo existe en algunas) */
+
+
+    /* =====================================================
+       SECCIÓN DESTACADA — PRODUCTO DEL MES
+       transform + filter + backdrop-filter
+       ===================================================== */
+    .seccion-featured {
+      background: var(--negro-suave);
+      border-top: 1px solid var(--panel-borde);
+      border-bottom: 1px solid var(--panel-borde);
+      padding: 5rem 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* ::before — cuadrícula de fondo */
+    .seccion-featured::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(var(--acento-rgb), 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(var(--acento-rgb), 0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+    }
+
+    .featured-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 3rem;
+      align-items: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    @media (min-width: 768px) {
+      .featured-inner { grid-template-columns: 1fr 1fr; }
+    }
+
+    .featured-visual {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Anillo giratorio decorativo */
+    .featured-ring {
+      width: 280px;
+      height: 280px;
+      border-radius: 50%;
+      border: 1px solid rgba(var(--acento-rgb), 0.2);
+      position: absolute;
+      /* Animación de rotación lenta */
+      animation: girar 20s linear infinite;
+    }
+
+    .featured-ring::after {
+      content: "";
+      position: absolute;
+      top: -4px;
+      left: 50%;
+      width: 8px;
+      height: 8px;
+      background: var(--acento);
+      border-radius: 50%;
+      transform: translateX(-50%);
+      box-shadow: var(--glow-acento);
+    }
+
+    .featured-emoji {
+      font-size: 7rem;
+      position: relative;
+      z-index: 1;
+      animation: flotar 4s ease-in-out infinite;
+      /* filter — drop-shadow que sigue la forma del emoji */
+      filter: drop-shadow(0 0 30px rgba(var(--acento-rgb), 0.5));
+    }
+
+    .featured-texto h2 {
+      font-family: var(--f-display);
+      font-size: var(--fs-h2);
+      font-weight: 800;
+      margin-bottom: 1rem;
+      line-height: 1.1;
+    }
+
+    .featured-texto h2 span { color: var(--acento); }
+
+    .featured-texto p {
+      color: var(--gris);
+      font-size: 0.9rem;
+      max-width: 44ch;
+      margin-bottom: 1.5rem;
+      line-height: 1.75;
+    }
+
+    /* Specs del producto destacado */
+    .featured-specs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+      margin-bottom: 2rem;
+    }
+
+    .featured-spec {
+      background: var(--panel);
+      border: 1px solid var(--panel-borde);
+      border-radius: var(--radio);
+      padding: 0.75rem 1rem;
+      transition: border-color var(--t-medio);
+    }
+
+    /* :hover en las specs */
+    .featured-spec:hover {
+      border-color: var(--acento);
+    }
+
+    .featured-spec-label {
+      font-size: 0.65rem;
+      color: var(--gris);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 0.2rem;
+    }
+
+    .featured-spec-val {
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--blanco);
+    }
+
+    /* Precio destacado */
+    .featured-precio-wrap {
+      display: flex;
+      align-items: baseline;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .featured-precio {
+      font-family: var(--f-display);
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: var(--acento);
+    }
+
+    .featured-precio-ant {
+      font-size: 1rem;
+      color: var(--gris);
+      text-decoration: line-through;
+    }
+
+    .featured-ahorro {
+      font-size: 0.75rem;
+      color: var(--verde);
+      background: rgba(var(--verde-rgb), 0.1);
+      padding: 3px 10px;
+      border-radius: 999px;
+    }
+
+    /* Barra de "quedan pocas unidades" */
+    .stock-barra-wrap {
+      margin-bottom: 1.5rem;
+    }
+
+    .stock-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.72rem;
+      color: var(--gris);
+      margin-bottom: 0.5rem;
+    }
+
+    .stock-label span:first-child::before {
+      content: "🔥 ";
+    }
+
+    .stock-track {
+      height: 4px;
+      background: var(--panel-borde);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .stock-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--acento), var(--verde));
+      border-radius: 999px;
+      width: 72%;
+      /* Animación de llenado al cargar */
+      animation: llenar 1.5s var(--ease-suave) 0.5s both;
+    }
+
+    .featured-botones {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+
+    /* =====================================================
+       SECCIÓN DE MARCAS — filter en hover
+       ===================================================== */
+    .seccion-marcas {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 4rem 2rem;
+    }
+
+    .marcas-titulo {
+      font-size: 0.72rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gris);
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .marcas-grid {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 1rem 3rem;
+      align-items: center;
+    }
+
+    .marca-item {
+      font-family: var(--f-display);
+      font-size: 1.1rem;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      color: var(--gris-suave);
+      /* filter: grayscale por defecto */
+      filter: grayscale(100%) opacity(0.4);
+      transition:
+        filter    var(--t-medio) var(--ease-suave),
+        color     var(--t-medio) var(--ease-suave),
+        transform var(--t-medio) var(--ease-rebote);
+      cursor: default;
+      padding: 0.5rem;
+    }
+
+    /* :hover — quita filtro, agrega color y escala */
+    .marca-item:hover {
+      filter: grayscale(0%) opacity(1);
+      color: var(--blanco);
+      transform: scale(1.08);
+    }
+
+
+    /* =====================================================
+       SECCIÓN NEWSLETTER — :focus + ::placeholder + transiciones
+       ===================================================== */
+    .seccion-newsletter {
+      background: var(--negro-suave);
+      border-top: 1px solid var(--panel-borde);
+      padding: 5rem 2rem;
+    }
+
+    .newsletter-inner {
+      max-width: 600px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .newsletter-inner h2 {
+      font-family: var(--f-display);
+      font-size: var(--fs-h2);
+      font-weight: 800;
+      margin-bottom: 0.75rem;
+    }
+
+    .newsletter-inner h2 span { color: var(--acento); }
+
+    .newsletter-inner p {
+      color: var(--gris);
+      font-size: 0.875rem;
+      margin-bottom: 2rem;
+      max-width: none;
+    }
+
+    .newsletter-form {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    /* Campo de email — múltiples pseudo-clases */
+    .newsletter-input {
+      flex: 1;
+      min-width: 240px;
+      padding: 0.75rem 1.25rem;
+      background: var(--panel);
+      border: 1px solid var(--panel-borde);
+      border-radius: var(--radio);
+      color: var(--blanco);
+      font-family: var(--f-mono);
+      font-size: 0.875rem;
+      outline: none;
+      /* Transición en múltiples propiedades */
+      transition:
+        border-color var(--t-medio),
+        box-shadow   var(--t-medio),
+        background   var(--t-medio);
+    }
+
+    /* ::placeholder — estilo del texto de ayuda */
+    .newsletter-input::placeholder {
+      color: var(--gris);
+      font-style: italic;
+      font-size: 0.82rem;
+    }
+
+    /* :focus — anillo de acento */
+    .newsletter-input:focus {
+      border-color: var(--acento);
+      box-shadow: 0 0 0 3px rgba(var(--acento-rgb), 0.15);
+      background: var(--negro-suave);
+    }
+
+    /* :valid — borde verde cuando el email es válido */
+    .newsletter-input:valid:not(:placeholder-shown) {
+      border-color: var(--verde);
+    }
+
+    /* :invalid — borde rojo cuando el email es inválido */
+    .newsletter-input:invalid:not(:placeholder-shown) {
+      border-color: var(--rojo);
+    }
+
+
+    /* =====================================================
+       SECCIÓN FEATURES — Pseudo-elementos decorativos
+       ===================================================== */
+    .seccion-features {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 4rem 2rem;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: var(--gap);
+      margin-top: 2rem;
+    }
+
+    .feature-card {
+      background: var(--panel);
+      border: 1px solid var(--panel-borde);
+      border-radius: 12px;
+      padding: 1.5rem;
+      position: relative;
+      overflow: hidden;
+      transition:
+        transform    var(--t-medio) var(--ease-rebote),
+        border-color var(--t-medio),
+        box-shadow   var(--t-medio);
+    }
+
+    /* ::before — esquina de acento animada */
+    .feature-card::before {
+      content: "";
+      position: absolute;
+      top: 0; right: 0;
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, transparent 50%, var(--acento) 50%);
+      opacity: 0;
+      transition: opacity var(--t-medio);
+    }
+
+    .feature-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--acento);
+      box-shadow: var(--glow-acento);
+    }
+
+    /* :hover → aparece la esquina */
+    .feature-card:hover::before {
+      opacity: 0.4;
+    }
+
+    .feature-icon {
+      font-size: 1.8rem;
+      margin-bottom: 0.75rem;
+      display: block;
+    }
+
+    .feature-titulo {
+      font-family: var(--f-display);
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin-bottom: 0.4rem;
+    }
+
+    .feature-desc {
+      font-size: 0.78rem;
+      color: var(--gris);
+      line-height: 1.6;
+    }
+
+
+    /* =====================================================
+       FOOTER
+       ===================================================== */
+    .footer {
+      background: var(--negro-suave);
+      border-top: 1px solid var(--panel-borde);
+      padding: 4rem 2rem 2rem;
+    }
+
+    .footer-grid {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 2.5rem;
+      margin-bottom: 3rem;
+    }
+
+    @media (min-width: 640px) {
+      .footer-grid { grid-template-columns: 2fr 1fr 1fr 1fr; }
+    }
+
+    .footer-marca {
+      font-family: var(--f-display);
+      font-size: 1.3rem;
+      font-weight: 800;
+      margin-bottom: 0.75rem;
+      color: var(--blanco);
+    }
+
+    /* ::after — punto de acento */
+    .footer-marca::after {
+      content: "·";
+      color: var(--acento);
+    }
+
+    .footer-desc {
+      font-size: 0.82rem;
+      color: var(--gris);
+      line-height: 1.7;
+    }
+
+    .footer-col h4 {
+      font-size: 0.68rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--gris);
+      margin-bottom: 1rem;
+    }
+
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 0.5rem; }
+
+    .footer-col a {
+      color: var(--gris);
+      text-decoration: none;
+      font-size: 0.82rem;
+      transition: color var(--t-medio);
+      position: relative;
+    }
+
+    /* :hover en links del footer */
+    .footer-col a:hover { color: var(--acento); }
+
+    /* ::before decorativo en links */
+    .footer-col a::before {
+      content: "";
+      display: inline-block;
+      width: 0;
+      height: 1px;
+      background: var(--acento);
+      vertical-align: middle;
+      margin-right: 0;
+      transition: width var(--t-medio), margin-right var(--t-medio);
+    }
+
+    .footer-col a:hover::before {
+      width: 8px;
+      margin-right: 6px;
+    }
+
+    .footer-bottom {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--panel-borde);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      font-size: 0.72rem;
+      color: var(--gris);
+    }
+
+    /* Indicadores de técnicas CSS en el footer */
+    .tecnica-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      background: rgba(var(--acento-rgb), 0.08);
+      border: 1px solid rgba(var(--acento-rgb), 0.2);
+      border-radius: 4px;
+      font-size: 0.65rem;
+      color: var(--acento);
+      letter-spacing: 0.04em;
+      margin: 2px;
+    }
+
+    /* prefers-reduced-motion — accesibilidad */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <!-- =====================================================
+       NAVEGACIÓN
+       Técnicas: backdrop-filter · ::after (línea glow) ·
+       .nav-logo::after (punto parpadeante) ·
+       a:hover + a::after (underline animado) ·
+       .carrito::after (badge) · :hover en botones
+       ===================================================== -->
+  <nav class="nav">
+    <a href="#" class="nav-logo">VLTX</a>
+
+    <ul class="nav-links">
+      <li><a href="#productos">Productos</a></li>
+      <li><a href="#featured">Destacado</a></li>
+      <li><a href="#marcas">Marcas</a></li>
+      <li><a href="#newsletter">Ofertas</a></li>
+    </ul>
+
+    <div class="nav-icons">
+      <button class="nav-icon-btn" aria-label="Buscar">🔍</button>
+      <button class="nav-icon-btn" aria-label="Favoritos">♡</button>
+      <button class="nav-icon-btn carrito" aria-label="Carrito (3 items)">🛒</button>
+    </div>
+  </nav>
+
+
+  <!-- =====================================================
+       HERO
+       Técnicas: @keyframes aparecer, flotar, cursor-blink,
+       glow-pulso · .hero::before (cuadrícula perspectiva) ·
+       .hero-card-producto::before (degradado) ·
+       .badge-stock::before (punto parpadeante) ·
+       .hero-eyebrow::before · transform: perspective()
+       ===================================================== -->
+  <section class="hero">
+
+    <div class="hero-texto">
+      <p class="hero-eyebrow">Nueva colección 2025</p>
+
+      <h1 class="hero-titulo">
+        Tech que<br>
+        <span class="acento">cambia</span><br>
+        tu mundo<span class="cursor-blink">_</span>
+      </h1>
+
+      <p class="hero-desc">
+        Equipos de última generación, curados por expertos.
+        Envío en 24h, garantía de 2 años y soporte técnico especializado.
+      </p>
+
+      <div class="hero-ctas">
+        <a href="#productos" class="btn btn-primary">Ver catálogo →</a>
+        <a href="#featured" class="btn btn-ghost">Producto del mes</a>
+      </div>
+    </div>
+
+    <div class="hero-producto">
+      <div class="hero-card-producto">
+        <span class="hero-emoji">🎧</span>
+        <div class="hero-prod-nombre">SoundMax Pro X</div>
+        <div class="hero-prod-precio">$2.890.000</div>
+        <span class="badge-stock">En stock</span>
+
+        <div class="hero-stats">
+          <div class="hero-stat">
+            <span class="hero-stat-num">40h</span>
+            <span class="hero-stat-label">Batería</span>
+          </div>
+          <div class="hero-stat">
+            <span class="hero-stat-num">ANC</span>
+            <span class="hero-stat-label">Activo</span>
+          </div>
+          <div class="hero-stat">
+            <span class="hero-stat-num">Hi-Fi</span>
+            <span class="hero-stat-label">Audio</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- Ticker animado -->
+  <div class="ticker-wrap" aria-hidden="true">
+    <div class="ticker-track">
+      <span class="ticker-item">Envío gratis +$200.000</span>
+      <span class="ticker-item">Garantía 2 años</span>
+      <span class="ticker-item">Pago en cuotas sin interés</span>
+      <span class="ticker-item">Soporte 24/7</span>
+      <span class="ticker-item">Devolución 30 días</span>
+      <span class="ticker-item">Nuevos productos cada semana</span>
+      <span class="ticker-item">Envío gratis +$200.000</span>
+      <span class="ticker-item">Garantía 2 años</span>
+      <span class="ticker-item">Pago en cuotas sin interés</span>
+      <span class="ticker-item">Soporte 24/7</span>
+      <span class="ticker-item">Devolución 30 días</span>
+      <span class="ticker-item">Nuevos productos cada semana</span>
+    </div>
+  </div>
+
+
+  <!-- =====================================================
+       PRODUCTOS
+       Técnicas: --card-acento variable local por tipo ·
+       ::before (franja de color) · :nth-child (delay) ·
+       :hover múltiples propiedades · :active en botones ·
+       filter en imágenes · transform en emojis
+       ===================================================== -->
+  <section class="categorias-seccion" id="productos">
+
+    <div class="seccion-header">
+      <h2 class="seccion-titulo" data-num="// Catálogo">Productos</h2>
+      <a href="#" class="seccion-link">Ver todo →</a>
+    </div>
+
+    <div class="filtros">
+      <button class="filtro-btn activo">Todos</button>
+      <button class="filtro-btn">Audio</button>
+      <button class="filtro-btn">Video</button>
+      <button class="filtro-btn">Gaming</button>
+      <button class="filtro-btn">Fotografía</button>
+      <button class="filtro-btn">Computación</button>
+    </div>
+
+    <div class="productos-grid">
+
+      <!-- Card 1: Audio — --card-acento: var(--acento) cian -->
+      <article class="producto-card tipo-audio">
+        <div class="card-img">
+          <span class="card-emoji">🎧</span>
+          <div class="card-badge">-20%</div>
+        </div>
+        <div class="card-body">
+          <div class="card-categoria">Audio</div>
+          <h3 class="card-nombre">SoundMax Pro X</h3>
+          <div class="card-rating">
+            <span class="estrellas">★★★★★</span>
+            <span class="rating-num">(4.9 · 342 reseñas)</span>
+          </div>
+          <p class="card-desc">Cancelación activa de ruido con 40h de batería y audio Hi-Fi lossless.</p>
+          <div class="card-specs">
+            <span class="spec-chip">ANC</span>
+            <span class="spec-chip">Bluetooth 5.3</span>
+            <span class="spec-chip">40h</span>
+          </div>
+          <div class="card-footer">
+            <div class="card-precio-wrap">
+              <div class="card-precio-original">$3.620.000</div>
+              <div class="card-precio">$2.890.000</div>
+            </div>
+            <button class="card-btn" aria-label="Agregar al carrito">+</button>
+          </div>
+        </div>
+      </article>
+
+      <!-- Card 2: Video — --card-acento: #b06aff lila -->
+      <article class="producto-card tipo-video">
+        <div class="card-img">
+          <span class="card-emoji">📺</span>
+          <div class="card-badge nuevo">Nuevo</div>
+        </div>
+        <div class="card-body">
+          <div class="card-categoria">Video</div>
+          <h3 class="card-nombre">VisualPro 4K OLED</h3>
+          <div class="card-rating">
+            <span class="estrellas">★★★★☆</span>
+            <span class="rating-num">(4.7 · 118 reseñas)</span>
+          </div>
+          <p class="card-desc">Panel OLED 120Hz con procesador de imagen IA y HDR Dolby Vision.</p>
+          <div class="card-specs">
+            <span class="spec-chip">4K OLED</span>
+            <span class="spec-chip">120Hz</span>
+            <span class="spec-chip">Dolby</span>
+          </div>
+          <div class="card-footer">
+            <div class="card-precio-wrap">
+              <div class="card-precio">$5.490.000</div>
+            </div>
+            <button class="card-btn" aria-label="Agregar al carrito">+</button>
+          </div>
+        </div>
+      </article>
+
+      <!-- Card 3: Gaming — --card-acento: var(--verde) -->
+      <article class="producto-card tipo-gaming">
+        <div class="card-img">
+          <span class="card-emoji">🎮</span>
+          <div class="card-badge">-15%</div>
+        </div>
+        <div class="card-body">
+          <div class="card-categoria">Gaming</div>
+          <h3 class="card-nombre">GameAxis Elite Pro</h3>
+          <div class="card-rating">
+            <span class="estrellas">★★★★★</span>
+            <span class="rating-num">(4.8 · 567 reseñas)</span>
+          </div>
+          <p class="card-desc">Control inalámbrico con gatillos adaptativos y hápticos avanzados.</p>
+          <div class="card-specs">
+            <span class="spec-chip">RGB</span>
+            <span class="spec-chip">Háptico</span>
+            <span class="spec-chip">30h</span>
+          </div>
+          <div class="card-footer">
+            <div class="card-precio-wrap">
+              <div class="card-precio-original">$890.000</div>
+              <div class="card-precio">$756.000</div>
+            </div>
+            <button class="card-btn" aria-label="Agregar al carrito">+</button>
+          </div>
+        </div>
+      </article>
+
+      <!-- Card 4: Fotografía — --card-acento: var(--ambar) -->
+      <article class="producto-card tipo-foto">
+        <div class="card-img">
+          <span class="card-emoji">📷</span>
+        </div>
+        <div class="card-body">
+          <div class="card-categoria">Fotografía</div>
+          <h3 class="card-nombre">LensX Mirrorless 50MP</h3>
+          <div class="card-rating">
+            <span class="estrellas">★★★★★</span>
+            <span class="rating-num">(5.0 · 89 reseñas)</span>
+          </div>
+          <p class="card-desc">Sensor full-frame de 50MP, 8K video y estabilización de 7 ejes.</p>
+          <div class="card-specs">
+            <span class="spec-chip">50MP</span>
+            <span class="spec-chip">8K</span>
+            <span class="spec-chip">7-Axis</span>
+          </div>
+          <div class="card-footer">
+            <div class="card-precio-wrap">
+              <div class="card-precio">$8.990.000</div>
+            </div>
+            <button class="card-btn" aria-label="Agregar al carrito">+</button>
+          </div>
+        </div>
+      </article>
+
+      <!-- Card 5: Computación — --card-acento: var(--rojo) -->
+      <article class="producto-card tipo-comp">
+        <div class="card-img">
+          <span class="card-emoji">💻</span>
+          <div class="card-badge">-25%</div>
+        </div>
+        <div class="card-body">
+          <div class="card-categoria">Computación</div>
+          <h3 class="card-nombre">CoreBook Ultra M4</h3>
+          <div class="card-rating">
+            <span class="estrellas">★★★★☆</span>
+            <span class="rating-num">(4.6 · 231 reseñas)</span>
+          </div>
+          <p class="card-desc">Procesador M4, 32GB RAM unificada y 1TB SSD ultrarrápido.</p>
+          <div class="card-specs">
+            <span class="spec-chip">M4</span>
+            <span class="spec-chip">32GB</span>
+            <span class="spec-chip">1TB</span>
+          </div>
+          <div class="card-footer">
+            <div class="card-precio-wrap">
+              <div class="card-precio-original">$12.990.000</div>
+              <div class="card-precio">$9.740.000</div>
+            </div>
+            <button class="card-btn" aria-label="Agregar al carrito">+</button>
+          </div>
+        </div>
+      </article>
+
+      <!-- Card 6: Audio — tipo repetido para llenar grid -->
+      <article class="producto-card tipo-audio">
+        <div class="card-img">
+          <span class="card-emoji">🔊</span>
+          <div class="card-badge nuevo">Nuevo</div>
+        </div>
+        <div class="card-body">
+          <div class="card-categoria">Audio</div>
+          <h3 class="card-nombre">BassPod Studio 360</h3>
+          <div class="card-rating">
+            <span class="estrellas">★★★★★</span>
+            <span class="rating-num">(4.9 · 156 reseñas)</span>
+          </div>
+          <p class="card-desc">Altavoz omnidireccional con audio espacial 360° y Dolby Atmos.</p>
+          <div class="card-specs">
+            <span class="spec-chip">360°</span>
+            <span class="spec-chip">Atmos</span>
+            <span class="spec-chip">150W</span>
+          </div>
+          <div class="card-footer">
+            <div class="card-precio-wrap">
+              <div class="card-precio">$1.890.000</div>
+            </div>
+            <button class="card-btn" aria-label="Agregar al carrito">+</button>
+          </div>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+
+  <!-- =====================================================
+       PRODUCTO DESTACADO
+       Técnicas: filter drop-shadow · @keyframes flotar, girar ·
+       .seccion-featured::before (cuadrícula) ·
+       .featured-ring::after (punto giratorio) ·
+       @keyframes llenar (barra de stock) ·
+       backdrop-filter en el glassmorphism de specs
+       ===================================================== -->
+  <section class="seccion-featured" id="featured">
+    <div class="featured-inner">
+
+      <div class="featured-visual">
+        <!-- Anillo giratorio decorativo — animation: girar -->
+        <div class="featured-ring"></div>
+        <!-- Emoji con filter: drop-shadow + @keyframes flotar -->
+        <span class="featured-emoji" role="img" aria-label="Laptop gaming">🖥️</span>
+      </div>
+
+      <div class="featured-texto">
+        <p class="hero-eyebrow" style="margin-bottom:1rem;">// Producto del mes</p>
+        <h2>Titan Station <span>Ultra X</span></h2>
+        <p>
+          La estación de trabajo definitiva. Procesador de 24 núcleos, GPU dedicada
+          de última generación y pantalla mini-LED de 27" con ProMotion 240Hz.
+          Para creadores que no aceptan límites.
+        </p>
+
+        <div class="featured-specs">
+          <div class="featured-spec">
+            <div class="featured-spec-label">Procesador</div>
+            <div class="featured-spec-val">Core Ultra 9 185H</div>
+          </div>
+          <div class="featured-spec">
+            <div class="featured-spec-label">RAM</div>
+            <div class="featured-spec-val">64GB DDR5</div>
+          </div>
+          <div class="featured-spec">
+            <div class="featured-spec-label">GPU</div>
+            <div class="featured-spec-val">RTX 5090 24GB</div>
+          </div>
+          <div class="featured-spec">
+            <div class="featured-spec-label">Almacenamiento</div>
+            <div class="featured-spec-val">4TB NVMe Gen5</div>
+          </div>
+        </div>
+
+        <div class="featured-precio-wrap">
+          <div class="featured-precio">$18.490.000</div>
+          <div class="featured-precio-ant">$24.990.000</div>
+          <span class="featured-ahorro">Ahorra $6.5M</span>
+        </div>
+
+        <!-- Barra de stock — @keyframes llenar -->
+        <div class="stock-barra-wrap">
+          <div class="stock-label">
+            <span>Solo quedan 7 unidades</span>
+            <span>72% vendido</span>
+          </div>
+          <div class="stock-track">
+            <div class="stock-fill"></div>
+          </div>
+        </div>
+
+        <div class="featured-botones">
+          <button class="btn btn-primary">Agregar al carrito</button>
+          <button class="btn btn-ghost">Ver especificaciones</button>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- =====================================================
+       FEATURES — :hover + ::before esquina + transform
+       ===================================================== -->
+  <section class="seccion-features">
+    <div class="seccion-header">
+      <h2 class="seccion-titulo" data-num="// Por qué elegirnos">Ventajas</h2>
+    </div>
+
+    <div class="features-grid">
+      <div class="feature-card">
+        <span class="feature-icon">⚡</span>
+        <div class="feature-titulo">Envío ultrarrápido</div>
+        <div class="feature-desc">Recibe tu pedido en 24h en Bogotá y 48h en el resto del país.</div>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">🛡️</span>
+        <div class="feature-titulo">Garantía extendida</div>
+        <div class="feature-desc">2 años de garantía oficial en todos los productos. Sin letra pequeña.</div>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">💳</span>
+        <div class="feature-titulo">Cuotas sin interés</div>
+        <div class="feature-desc">Hasta 24 cuotas sin interés con tarjetas de crédito participantes.</div>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">🔧</span>
+        <div class="feature-titulo">Soporte experto</div>
+        <div class="feature-desc">Técnicos especializados disponibles 24/7 por chat, llamada y WhatsApp.</div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- =====================================================
+       MARCAS — filter: grayscale + :hover lo quita
+       ===================================================== */
+  <section class="seccion-marcas" id="marcas">
+    <p class="marcas-titulo">// Marcas oficiales</p>
+    <div class="marcas-grid">
+      <span class="marca-item">SONY</span>
+      <span class="marca-item">SAMSUNG</span>
+      <span class="marca-item">LG</span>
+      <span class="marca-item">APPLE</span>
+      <span class="marca-item">ASUS</span>
+      <span class="marca-item">BOSE</span>
+      <span class="marca-item">CANON</span>
+      <span class="marca-item">NVIDIA</span>
+    </div>
+  </section>
+
+
+  <!-- =====================================================
+       NEWSLETTER — ::placeholder + :focus + :valid/:invalid
+       ===================================================== -->
+  <section class="seccion-newsletter" id="newsletter">
+    <div class="newsletter-inner">
+      <h2>Ofertas <span>exclusivas</span></h2>
+      <p>
+        Suscríbete y recibe alertas de precios, lanzamientos y descuentos
+        de hasta 30% antes que nadie.
+      </p>
+
+      <div class="newsletter-form">
+        <!--
+          ::placeholder → "tu@correo.com" en gris cursiva
+          :focus        → anillo de acento
+          :valid        → borde verde
+          :invalid      → borde rojo
+        -->
+        <input
+          class="newsletter-input"
+          type="email"
+          placeholder="tu@correo.com"
+          required
+          aria-label="Correo electrónico"
+        >
+        <button class="btn btn-primary">Suscribirme →</button>
+      </div>
+
+      <p style="font-size:0.72rem; color:var(--gris); margin-top:1rem;">
+        Sin spam. Cancela cuando quieras.
+      </p>
+    </div>
+  </section>
+
+
+  <!-- =====================================================
+       FOOTER
+       ===================================================== -->
+  <footer class="footer">
+    <div class="footer-grid">
+
+      <div>
+        <div class="footer-marca">VLTX</div>
+        <p class="footer-desc">
+          Tu tienda de tecnología de confianza.<br>
+          Desde 2018, llevando el futuro a tu puerta.
+        </p>
+        <div style="margin-top:1rem;">
+          <!-- Tags de técnicas CSS usadas -->
+          <span class="tecnica-badge">variables CSS</span>
+          <span class="tecnica-badge">::before/after</span>
+          <span class="tecnica-badge">@keyframes</span>
+          <span class="tecnica-badge">:hover/:focus</span>
+          <span class="tecnica-badge">filter</span>
+          <span class="tecnica-badge">transform</span>
+          <span class="tecnica-badge">backdrop-filter</span>
+        </div>
+      </div>
+
+      <div class="footer-col">
+        <h4>Tienda</h4>
+        <ul>
+          <li><a href="#">Audio</a></li>
+          <li><a href="#">Video</a></li>
+          <li><a href="#">Gaming</a></li>
+          <li><a href="#">Fotografía</a></li>
+          <li><a href="#">Computación</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Cuenta</h4>
+        <ul>
+          <li><a href="#">Mi perfil</a></li>
+          <li><a href="#">Mis pedidos</a></li>
+          <li><a href="#">Favoritos</a></li>
+          <li><a href="#">Devoluciones</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Clases</h4>
+        <ul>
+          <li><a href="#">Sem 01 — HTML</a></li>
+          <li><a href="#">Sem 02 — CSS</a></li>
+          <li><a href="#">Sem 03 — Responsive</a></li>
+          <li><a href="#">Sem 04 — Grid/Flex</a></li>
+          <li><a href="#" style="color:var(--acento);">Sem 05 — CSS Avanzado ←</a></li>
+        </ul>
+      </div>
+
+    </div>
+
+    <div class="footer-bottom">
+      <span>&copy; 2025 VLTX Tech — Diseño Web · Semana 05 · CSS Avanzado</span>
+      <span>Hecho con CSS puro · sin JavaScript</span>
+    </div>
+  </footer>
+
+</body>
+</html>

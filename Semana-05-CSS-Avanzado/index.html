@@ -1,0 +1,2315 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Semana 05 — CSS Avanzado</title>
+
+  <!--
+    CSS AVANZADO: VARIABLES, PSEUDO-CLASES, ANIMACIONES Y EFECTOS VISUALES
+    ========================================================================
+    Esta semana profundizamos en técnicas CSS que llevan los estilos al
+    siguiente nivel:
+
+    1. VARIABLES CSS (Custom Properties)
+       → Almacenan valores reutilizables con --nombre-variable
+       → Se leen con var(--nombre-variable)
+       → Permiten theming dinámico y mantenimiento fácil
+
+    2. PSEUDO-CLASES Y PSEUDO-ELEMENTOS
+       → :hover, :focus, :active, :nth-child(), :not(), :is(), :where()
+       → ::before, ::after, ::placeholder, ::selection
+       → Permiten seleccionar estados y partes específicas sin HTML extra
+
+    3. TRANSICIONES
+       → transition: propiedad duración timing-function retraso
+       → Animaciones automáticas entre dos estados CSS
+
+    4. ANIMACIONES @keyframes
+       → Control total sobre cada fotograma de la animación
+       → Se asignan con animation: nombre duración iteración
+
+    5. EFECTOS VISUALES
+       → filter: blur, brightness, contrast, grayscale, drop-shadow
+       → transform: translate, rotate, scale, skew
+       → clip-path, backdrop-filter, mix-blend-mode
+  -->
+
+  <style>
+
+    /* ============================================================
+       SECCIÓN 1: VARIABLES CSS (CUSTOM PROPERTIES)
+       ============================================================
+       Las variables CSS (oficialmente "Custom Properties") se
+       declaran con el prefijo -- dentro de un selector.
+
+       Se suelen declarar en :root porque es el elemento raíz
+       del documento (equivale a <html>), lo que las hace
+       disponibles globalmente en toda la hoja de estilos.
+
+       SINTAXIS DE DECLARACIÓN:
+         :root {
+           --nombre-variable: valor;
+         }
+
+       SINTAXIS DE USO:
+         propiedad: var(--nombre-variable);
+         propiedad: var(--nombre-variable, valor-fallback);
+
+       VENTAJAS:
+       - Un solo lugar para cambiar un color en toda la web
+       - Se pueden modificar con JavaScript en tiempo real
+       - Heredan por el árbol DOM igual que otras propiedades
+       - Soportan cualquier valor CSS (colores, tamaños, sombras…)
+    */
+
+    :root {
+      /* ── Paleta de color ── */
+      --color-primario:    #1a3a4a;   /* Azul marino profundo */
+      --color-secundario:  #2d7d5f;   /* Verde esmeralda */
+      --color-acento:      #e8a020;   /* Ámbar */
+      --color-fondo:       #f4f1ec;   /* Crema cálido */
+      --color-superficie:  #ffffff;
+      --color-texto:       #1e1e1e;
+      --color-texto-suave: #5a5a5a;
+      --color-borde:       #d6cfc4;
+
+      /* ── Tipografía ── */
+      --fuente-titulos: 'Georgia', 'Times New Roman', serif;
+      --fuente-cuerpo:  'Trebuchet MS', 'Gill Sans', sans-serif;
+      --fuente-codigo:  'Courier New', 'Lucida Console', monospace;
+
+      /* ── Espaciado (escala modular) ── */
+      --espacio-xs:  0.25rem;   /*  4px */
+      --espacio-sm:  0.5rem;    /*  8px */
+      --espacio-md:  1rem;      /* 16px */
+      --espacio-lg:  1.5rem;    /* 24px */
+      --espacio-xl:  2rem;      /* 32px */
+      --espacio-xxl: 3rem;      /* 48px */
+
+      /* ── Bordes ── */
+      --radio-sm:   4px;
+      --radio-md:   8px;
+      --radio-lg:   16px;
+      --radio-pill: 999px;
+
+      /* ── Sombras ── */
+      --sombra-sm: 0 1px 3px rgba(0,0,0,0.12);
+      --sombra-md: 0 4px 12px rgba(0,0,0,0.10);
+      --sombra-lg: 0 8px 24px rgba(0,0,0,0.12);
+
+      /* ── Variables para animaciones ── */
+      --duracion-rapida:  150ms;
+      --duracion-media:   300ms;
+      --duracion-lenta:   600ms;
+      --timing-suave:     ease;
+      --timing-rebote:    cubic-bezier(0.34, 1.56, 0.64, 1);
+      --timing-entrada:   cubic-bezier(0.0, 0.0, 0.2, 1);
+      --timing-salida:    cubic-bezier(0.4, 0.0, 1, 1);
+    }
+
+
+    /* ============================================================
+       RESET Y ESTILOS BASE
+       ============================================================ */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--fuente-cuerpo);
+      font-size: 16px;
+      line-height: 1.7;
+      color: var(--color-texto);
+      background-color: var(--color-fondo);
+    }
+
+    p {
+      margin-bottom: var(--espacio-md);
+      max-width: 65ch;
+    }
+
+    h1, h2, h3, h4 {
+      font-family: var(--fuente-titulos);
+      color: var(--color-primario);
+      line-height: 1.2;
+      margin-bottom: var(--espacio-md);
+    }
+
+    h2, h3 { margin-top: var(--espacio-xl); }
+
+    a {
+      color: var(--color-secundario);
+      text-decoration: none;
+      border-bottom: 1px solid transparent;
+      transition: border-color var(--duracion-media) var(--timing-suave);
+    }
+    a:hover { border-bottom-color: var(--color-secundario); }
+
+    code {
+      font-family: var(--fuente-codigo);
+      font-size: 0.875em;
+      background-color: #e8e0f0;
+      color: #4a1a6a;
+      padding: 2px 6px;
+      border-radius: var(--radio-sm);
+    }
+
+    pre {
+      background: var(--color-primario);
+      color: #a8d8c0;
+      padding: var(--espacio-md);
+      border-radius: var(--radio-md);
+      overflow-x: auto;
+      font-family: var(--fuente-codigo);
+      font-size: 0.875rem;
+      line-height: 1.8;
+      margin-bottom: var(--espacio-lg);
+      tab-size: 2;
+    }
+
+    pre code {
+      background: none;
+      color: inherit;
+      padding: 0;
+      font-size: inherit;
+    }
+
+    ul, ol { padding-left: 1.5rem; }
+    li { margin-bottom: var(--espacio-xs); }
+
+    ::selection {
+      background-color: var(--color-acento);
+      color: var(--color-primario);
+    }
+
+
+    /* ============================================================
+       LAYOUT GENERAL
+       ============================================================ */
+    .pagina-wrapper {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 var(--espacio-md);
+    }
+
+
+    /* ============================================================
+       ENCABEZADO DE SITIO
+       ============================================================ */
+    .site-header {
+      background-color: var(--color-primario);
+      color: #ffffff;
+      padding: var(--espacio-xl) var(--espacio-md);
+      margin-bottom: var(--espacio-xxl);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .site-header::before {
+      content: "";
+      position: absolute;
+      top: -40px;
+      right: -40px;
+      width: 200px;
+      height: 200px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 50%;
+    }
+
+    .site-header::after {
+      content: "";
+      position: absolute;
+      bottom: -60px;
+      right: 60px;
+      width: 130px;
+      height: 130px;
+      background: rgba(255,255,255,0.04);
+      border-radius: 50%;
+    }
+
+    .site-header h1 {
+      color: #ffffff;
+      font-size: 2.5rem;
+      margin-bottom: var(--espacio-sm);
+    }
+
+    .site-header p {
+      color: rgba(255,255,255,0.75);
+      max-width: none;
+    }
+
+    .badge-semana {
+      display: inline-block;
+      background: var(--color-acento);
+      color: var(--color-primario);
+      font-family: var(--fuente-codigo);
+      font-size: 0.75rem;
+      font-weight: bold;
+      padding: 3px 10px;
+      border-radius: var(--radio-pill);
+      margin-bottom: var(--espacio-md);
+      letter-spacing: 0.05em;
+    }
+
+
+    /* ============================================================
+       NAVEGACIÓN INTERNA
+       ============================================================ */
+    .nav-interna {
+      background: var(--color-superficie);
+      border: 1px solid var(--color-borde);
+      border-radius: var(--radio-lg);
+      padding: var(--espacio-lg);
+      margin-bottom: var(--espacio-xxl);
+      box-shadow: var(--sombra-sm);
+    }
+
+    .nav-interna h2 {
+      font-size: 1rem;
+      margin-top: 0;
+      margin-bottom: var(--espacio-md);
+      color: var(--color-texto-suave);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-family: var(--fuente-cuerpo);
+    }
+
+    .nav-interna ul {
+      list-style: none;
+      padding: 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--espacio-sm);
+    }
+
+    .nav-interna a {
+      display: inline-block;
+      padding: var(--espacio-xs) var(--espacio-md);
+      background: var(--color-fondo);
+      border: 1px solid var(--color-borde);
+      border-radius: var(--radio-pill);
+      font-size: 0.875rem;
+      color: var(--color-primario);
+      border-bottom: none;
+      transition: background var(--duracion-media), border-color var(--duracion-media);
+    }
+
+    .nav-interna a:hover {
+      background: var(--color-primario);
+      color: #fff;
+      border-color: var(--color-primario);
+    }
+
+
+    /* ============================================================
+       ETIQUETA IDENTIFICADORA
+       ============================================================ */
+    .etiqueta {
+      display: inline-block;
+      background: var(--color-primario);
+      color: #ffffff;
+      font-family: var(--fuente-codigo);
+      font-size: 0.72rem;
+      padding: 2px 8px;
+      border-radius: var(--radio-sm);
+      margin-bottom: var(--espacio-sm);
+      letter-spacing: 0.03em;
+    }
+
+    .etiqueta.verde  { background: var(--color-secundario); }
+    .etiqueta.ambar  { background: var(--color-acento); color: var(--color-primario); }
+    .etiqueta.lila   { background: #5c3a8a; }
+    .etiqueta.rojo   { background: #a02020; }
+
+
+    /* ============================================================
+       SECCIÓN DE CONTENIDO
+       ============================================================ */
+    .seccion {
+      margin-bottom: var(--espacio-xxl);
+      scroll-margin-top: 2rem;
+    }
+
+    .seccion > h2 {
+      border-bottom: 2px solid var(--color-borde);
+      padding-bottom: var(--espacio-sm);
+    }
+
+
+    /* ============================================================
+       BLOQUE DE NOTA
+       ============================================================ */
+    .nota {
+      border-left: 4px solid var(--color-secundario);
+      background: #edf7f3;
+      padding: var(--espacio-md) var(--espacio-lg);
+      border-radius: 0 var(--radio-md) var(--radio-md) 0;
+      margin: var(--espacio-lg) 0;
+    }
+
+    .nota.ambar {
+      border-color: var(--color-acento);
+      background: #fdf5e6;
+    }
+
+    .nota.azul {
+      border-color: var(--color-primario);
+      background: #eef2f5;
+    }
+
+    .nota.lila {
+      border-color: #5c3a8a;
+      background: #f2eef9;
+    }
+
+    .nota p { margin-bottom: 0; }
+    .nota p + p { margin-top: var(--espacio-sm); }
+
+
+    /* ============================================================
+       TABLA DE REFERENCIA
+       ============================================================ */
+    .tabla-wrapper {
+      overflow-x: auto;
+      margin: var(--espacio-lg) 0;
+      border-radius: var(--radio-md);
+      box-shadow: var(--sombra-sm);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+      background: var(--color-superficie);
+    }
+
+    th, td {
+      border: 1px solid var(--color-borde);
+      padding: 0.6rem 1rem;
+      text-align: left;
+    }
+
+    th {
+      background-color: var(--color-primario);
+      color: #ffffff;
+      font-family: var(--fuente-titulos);
+      font-weight: normal;
+    }
+
+    tr:nth-child(even) { background-color: #f0ece6; }
+    td code { font-size: 0.8rem; }
+
+
+    /* ============================================================
+       COMPARATIVA DOS COLUMNAS
+       ============================================================ */
+    .comparativa {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: var(--espacio-md);
+      margin: var(--espacio-lg) 0;
+    }
+
+    @media (min-width: 620px) {
+      .comparativa { grid-template-columns: 1fr 1fr; }
+    }
+
+    .comparativa-item {
+      border-radius: var(--radio-md);
+      overflow: hidden;
+      border: 1px solid var(--color-borde);
+    }
+
+    .comparativa-item .cab {
+      padding: var(--espacio-sm) var(--espacio-md);
+      font-family: var(--fuente-codigo);
+      font-size: 0.8rem;
+      font-weight: bold;
+    }
+
+    .comparativa-item.var-col .cab  { background: #edf7f3; color: var(--color-secundario); }
+    .comparativa-item.sin-col .cab  { background: #fdf5e6; color: #a05010; }
+    .comparativa-item pre { margin: 0; border-radius: 0; font-size: 0.78rem; }
+
+
+    /* ============================================================
+       SECCIÓN 1: DEMOS DE VARIABLES CSS
+       ============================================================ */
+
+    /* Demo de herencia de variables */
+    .demo-vars-herencia {
+      --color-demo: var(--color-primario);
+      background: #f0ece6;
+      border: 2px dashed var(--color-borde);
+      border-radius: var(--radio-md);
+      padding: var(--espacio-md);
+      margin: var(--espacio-md) 0;
+    }
+
+    .demo-vars-herencia .hijo {
+      background: var(--color-demo);
+      color: #fff;
+      padding: var(--espacio-sm) var(--espacio-md);
+      border-radius: var(--radio-sm);
+      font-family: var(--fuente-codigo);
+      font-size: 0.85rem;
+      margin-bottom: var(--espacio-sm);
+      transition: background var(--duracion-media);
+    }
+
+    /* Sobreescritura local de la variable */
+    .demo-vars-herencia .hijo.verde {
+      --color-demo: var(--color-secundario);
+    }
+
+    .demo-vars-herencia .hijo.ambar {
+      --color-demo: var(--color-acento);
+      color: var(--color-primario);
+    }
+
+    .demo-vars-herencia .hijo.lila {
+      --color-demo: #5c3a8a;
+    }
+
+    /* Demo de fallback */
+    .demo-fallback {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: var(--espacio-sm);
+      margin: var(--espacio-md) 0;
+    }
+
+    .fallback-box {
+      padding: var(--espacio-md);
+      border-radius: var(--radio-md);
+      text-align: center;
+      font-family: var(--fuente-codigo);
+      font-size: 0.75rem;
+      color: #fff;
+    }
+
+    /* Usa --color-inexistente con fallback a rojo */
+    .fallback-box.usa-fallback {
+      background: var(--color-inexistente, #a02020);
+    }
+
+    /* Usa variable definida normalmente */
+    .fallback-box.usa-var {
+      background: var(--color-secundario);
+    }
+
+    /* Usa variable local */
+    .fallback-box.usa-local {
+      --color-local: #5c3a8a;
+      background: var(--color-local);
+    }
+
+
+    /* ============================================================
+       SECCIÓN 2: PSEUDO-CLASES Y PSEUDO-ELEMENTOS
+       ============================================================
+       PSEUDO-CLASES → seleccionan un estado o posición del elemento
+       Sintaxis: selector:pseudo-clase { ... }
+
+       PSEUDO-ELEMENTOS → seleccionan una parte del elemento
+       Sintaxis: selector::pseudo-elemento { ... }
+       (doble dos-puntos es el estándar CSS3)
+
+       Pseudo-clases de estado:
+       :hover     → cuando el cursor está encima
+       :focus     → cuando el elemento tiene el foco (teclado/click)
+       :active    → mientras se hace clic
+       :visited   → enlace ya visitado
+       :disabled  → elemento de formulario deshabilitado
+       :checked   → checkbox/radio marcado
+
+       Pseudo-clases estructurales:
+       :first-child    → primer hijo de su padre
+       :last-child     → último hijo de su padre
+       :nth-child(n)   → hijo en posición n
+       :nth-child(2n)  → hijos pares (even)
+       :nth-child(2n+1)→ hijos impares (odd)
+       :not(selector)  → todo lo que NO coincida
+
+       Pseudo-elementos:
+       ::before    → inserta contenido ANTES del elemento
+       ::after     → inserta contenido DESPUÉS del elemento
+       ::placeholder → estilo del texto de ayuda en inputs
+       ::selection → texto seleccionado por el usuario
+       ::first-line  → primera línea de un párrafo
+       ::first-letter→ primera letra de un párrafo
+    */
+
+    /* ── Grid de demo para pseudo-clases ── */
+    .demo-pseudo-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: var(--espacio-md);
+      margin: var(--espacio-md) 0;
+    }
+
+    .demo-pseudo-item {
+      background: var(--color-superficie);
+      border: 1px solid var(--color-borde);
+      border-radius: var(--radio-md);
+      padding: var(--espacio-md);
+      box-shadow: var(--sombra-sm);
+    }
+
+    .demo-pseudo-item h4 {
+      font-family: var(--fuente-codigo);
+      font-size: 0.8rem;
+      color: var(--color-texto-suave);
+      margin-top: 0;
+      margin-bottom: var(--espacio-sm);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* :hover demo */
+    .btn-hover-demo {
+      display: inline-block;
+      padding: var(--espacio-sm) var(--espacio-lg);
+      background: var(--color-primario);
+      color: #fff;
+      border-radius: var(--radio-pill);
+      font-family: var(--fuente-codigo);
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: background var(--duracion-media) var(--timing-suave),
+                  transform  var(--duracion-media) var(--timing-rebote),
+                  box-shadow var(--duracion-media) var(--timing-suave);
+    }
+
+    .btn-hover-demo:hover {
+      background: var(--color-secundario);
+      transform: translateY(-3px);
+      box-shadow: var(--sombra-md);
+    }
+
+    /* :focus demo */
+    .input-focus-demo {
+      width: 100%;
+      padding: var(--espacio-sm) var(--espacio-md);
+      border: 2px solid var(--color-borde);
+      border-radius: var(--radio-md);
+      font-family: var(--fuente-cuerpo);
+      font-size: 0.9rem;
+      background: var(--color-fondo);
+      color: var(--color-texto);
+      outline: none;
+      transition: border-color var(--duracion-media),
+                  box-shadow   var(--duracion-media),
+                  background   var(--duracion-media);
+    }
+
+    .input-focus-demo:focus {
+      border-color: var(--color-secundario);
+      box-shadow: 0 0 0 3px rgba(45,125,95,0.2);
+      background: var(--color-superficie);
+    }
+
+    .input-focus-demo::placeholder {
+      color: #aaa;
+      font-style: italic;
+    }
+
+    /* :active demo */
+    .btn-active-demo {
+      display: inline-block;
+      padding: var(--espacio-sm) var(--espacio-lg);
+      background: var(--color-acento);
+      color: var(--color-primario);
+      border-radius: var(--radio-md);
+      font-family: var(--fuente-codigo);
+      font-size: 0.85rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: transform var(--duracion-rapida),
+                  box-shadow var(--duracion-rapida);
+      box-shadow: 0 4px 0 #8a5800;
+    }
+
+    .btn-active-demo:active {
+      transform: translateY(3px);
+      box-shadow: 0 1px 0 #8a5800;
+    }
+
+    /* :nth-child demo */
+    .lista-nth {
+      list-style: none;
+      padding: 0;
+    }
+
+    .lista-nth li {
+      padding: var(--espacio-xs) var(--espacio-md);
+      border-radius: var(--radio-sm);
+      font-family: var(--fuente-codigo);
+      font-size: 0.85rem;
+      margin-bottom: 2px;
+      background: #f0ece6;
+      color: var(--color-texto);
+      transition: background var(--duracion-media);
+    }
+
+    /* Pares */
+    .lista-nth li:nth-child(even) {
+      background: var(--color-primario);
+      color: #fff;
+    }
+
+    /* Primero */
+    .lista-nth li:first-child {
+      border-left: 4px solid var(--color-acento);
+    }
+
+    /* Último */
+    .lista-nth li:last-child {
+      border-left: 4px solid var(--color-secundario);
+    }
+
+    /* :not demo */
+    .lista-not {
+      list-style: none;
+      padding: 0;
+    }
+
+    .lista-not li {
+      padding: var(--espacio-xs) var(--espacio-md);
+      border-radius: var(--radio-sm);
+      font-family: var(--fuente-codigo);
+      font-size: 0.85rem;
+      margin-bottom: 2px;
+      background: #f0ece6;
+    }
+
+    /* Todo EXCEPTO los marcados como .especial */
+    .lista-not li:not(.especial) {
+      opacity: 0.5;
+    }
+
+    .lista-not li.especial {
+      background: var(--color-secundario);
+      color: #fff;
+    }
+
+    /* ::before y ::after */
+    .demo-pseudo-elementos p {
+      position: relative;
+      padding-left: 1.5rem;
+      margin-bottom: var(--espacio-sm);
+    }
+
+    .demo-pseudo-elementos p::before {
+      content: "→";
+      position: absolute;
+      left: 0;
+      color: var(--color-acento);
+      font-weight: bold;
+    }
+
+    .cita-decorada {
+      position: relative;
+      font-style: italic;
+      color: var(--color-texto-suave);
+      padding: var(--espacio-sm) var(--espacio-xl);
+      margin: var(--espacio-md) 0;
+      max-width: 65ch;
+    }
+
+    .cita-decorada::before {
+      content: "\201C";    /* " tipográfico de apertura */
+      position: absolute;
+      left: 0;
+      top: -0.25rem;
+      font-size: 3rem;
+      font-family: Georgia, serif;
+      color: var(--color-acento);
+      line-height: 1;
+    }
+
+    .cita-decorada::after {
+      content: "\201D";    /* " tipográfico de cierre */
+      position: absolute;
+      right: 0;
+      bottom: -0.75rem;
+      font-size: 3rem;
+      font-family: Georgia, serif;
+      color: var(--color-acento);
+      line-height: 1;
+    }
+
+    /* ::selection personalizada */
+    .demo-selection p::selection {
+      background: var(--color-acento);
+      color: var(--color-primario);
+    }
+
+    /* ::first-letter */
+    .parrafo-capitular::first-letter {
+      font-size: 3.5rem;
+      font-family: Georgia, serif;
+      font-weight: bold;
+      color: var(--color-primario);
+      float: left;
+      line-height: 0.8;
+      margin-right: 0.1em;
+      margin-top: 0.05em;
+    }
+
+    /* ::first-line */
+    .parrafo-primera-linea::first-line {
+      color: var(--color-secundario);
+      font-weight: bold;
+      letter-spacing: 0.03em;
+    }
+
+
+    /* ============================================================
+       SECCIÓN 3: TRANSICIONES
+       ============================================================
+       Las transiciones permiten que un cambio de estado CSS
+       ocurra de forma suave a lo largo del tiempo.
+
+       PROPIEDAD transition:
+         transition: propiedad duración timing-function retraso;
+
+       Parámetros:
+       - propiedad    → qué propiedad animar (o "all")
+       - duración     → cuánto tiempo dura (s o ms)
+       - timing-function → curva de velocidad:
+           ease          → lento-rápido-lento (por defecto)
+           ease-in       → arranca lento
+           ease-out      → frena al final
+           ease-in-out   → lento en ambos extremos
+           linear        → velocidad constante
+           cubic-bezier  → curva personalizada
+           steps(n)      → pasos discretos
+       - retraso      → cuánto esperar antes de iniciar (s o ms)
+
+       PROPIEDADES ANIMABLES:
+       La mayoría de propiedades numéricas o de color son animables:
+       color, background, border, width, height, padding, margin,
+       opacity, transform, box-shadow, font-size, etc.
+
+       NO son animables: display, visibility (usa opacity+pointer-events)
+    */
+
+    .demo-transiciones-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: var(--espacio-md);
+      margin: var(--espacio-md) 0;
+    }
+
+    .trans-caja {
+      background: var(--color-superficie);
+      border: 1px solid var(--color-borde);
+      border-radius: var(--radio-md);
+      padding: var(--espacio-lg);
+      text-align: center;
+      cursor: pointer;
+    }
+
+    .trans-caja span {
+      display: block;
+      font-family: var(--fuente-codigo);
+      font-size: 0.7rem;
+      color: var(--color-texto-suave);
+      margin-top: var(--espacio-xs);
+    }
+
+    /* ease (por defecto) */
+    .trans-ease {
+      transition: background var(--duracion-lenta) ease,
+                  color       var(--duracion-lenta) ease;
+    }
+    .trans-ease:hover { background: var(--color-primario); color: #fff; }
+
+    /* ease-in */
+    .trans-ease-in {
+      transition: background var(--duracion-lenta) ease-in,
+                  color       var(--duracion-lenta) ease-in;
+    }
+    .trans-ease-in:hover { background: var(--color-secundario); color: #fff; }
+
+    /* ease-out */
+    .trans-ease-out {
+      transition: background var(--duracion-lenta) ease-out,
+                  color       var(--duracion-lenta) ease-out;
+    }
+    .trans-ease-out:hover { background: var(--color-acento); color: var(--color-primario); }
+
+    /* linear */
+    .trans-linear {
+      transition: background var(--duracion-lenta) linear,
+                  color       var(--duracion-lenta) linear;
+    }
+    .trans-linear:hover { background: #5c3a8a; color: #fff; }
+
+    /* cubic-bezier con rebote */
+    .trans-rebote {
+      transition: transform var(--duracion-lenta) var(--timing-rebote),
+                  background var(--duracion-lenta) ease;
+    }
+    .trans-rebote:hover {
+      transform: scale(1.12);
+      background: var(--color-primario);
+      color: #fff;
+    }
+
+    /* steps() */
+    .trans-steps {
+      transition: background 0.8s steps(5),
+                  color       0.8s steps(5);
+    }
+    .trans-steps:hover { background: #a02020; color: #fff; }
+
+    /* Multiple propiedades */
+    .trans-multiple {
+      transition:
+        background   var(--duracion-media) ease,
+        transform    var(--duracion-media) var(--timing-rebote),
+        box-shadow   var(--duracion-media) ease,
+        border-radius var(--duracion-media) ease;
+    }
+    .trans-multiple:hover {
+      background: var(--color-secundario);
+      color: #fff;
+      transform: rotate(-3deg) scale(1.05);
+      box-shadow: var(--sombra-lg);
+      border-radius: var(--radio-pill);
+    }
+
+    /* Delay */
+    .demo-delay {
+      display: flex;
+      gap: var(--espacio-sm);
+      flex-wrap: wrap;
+      margin: var(--espacio-md) 0;
+    }
+
+    .delay-item {
+      width: 50px;
+      height: 50px;
+      background: var(--color-primario);
+      border-radius: var(--radio-sm);
+      cursor: pointer;
+      transition: background var(--duracion-media) ease,
+                  transform  var(--duracion-media) var(--timing-rebote);
+    }
+
+    .delay-item:nth-child(1) { transition-delay: 0ms; }
+    .delay-item:nth-child(2) { transition-delay: 80ms; }
+    .delay-item:nth-child(3) { transition-delay: 160ms; }
+    .delay-item:nth-child(4) { transition-delay: 240ms; }
+    .delay-item:nth-child(5) { transition-delay: 320ms; }
+
+    .demo-delay:hover .delay-item {
+      background: var(--color-acento);
+      transform: translateY(-8px) rotate(10deg);
+    }
+
+
+    /* ============================================================
+       SECCIÓN 4: ANIMACIONES @keyframes
+       ============================================================
+       Las animaciones permiten definir una secuencia completa
+       de estados intermedios (fotogramas clave).
+
+       SINTAXIS DE DECLARACIÓN:
+         @keyframes nombre-animacion {
+           from { ... }        /* o 0% */
+           to   { ... }        /* o 100% */
+         }
+
+         @keyframes nombre-compleja {
+           0%   { ... }
+           25%  { ... }
+           50%  { ... }
+           75%  { ... }
+           100% { ... }
+         }
+
+       SINTAXIS DE USO:
+         animation: nombre duración timing iteración dirección fill-mode;
+
+       Propiedades individuales:
+       - animation-name            → nombre del @keyframes
+       - animation-duration        → duración total (s o ms)
+       - animation-timing-function → curva de velocidad
+       - animation-delay           → retraso inicial
+       - animation-iteration-count → número de repeticiones (o infinite)
+       - animation-direction       → normal | reverse | alternate | alternate-reverse
+       - animation-fill-mode       → none | forwards | backwards | both
+       - animation-play-state      → running | paused
+    */
+
+    /* ── Definición de @keyframes ── */
+
+    @keyframes pulso {
+      0%, 100% { transform: scale(1); }
+      50%      { transform: scale(1.08); }
+    }
+
+    @keyframes girar {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
+    }
+
+    @keyframes rebotar {
+      0%, 100% { transform: translateY(0);    animation-timing-function: ease-in;  }
+      50%      { transform: translateY(-30px); animation-timing-function: ease-out; }
+    }
+
+    @keyframes parpadeo {
+      0%, 100% { opacity: 1; }
+      50%      { opacity: 0.15; }
+    }
+
+    @keyframes deslizarDesdeIzq {
+      from {
+        opacity: 0;
+        transform: translateX(-30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    @keyframes colorCiclico {
+      0%   { background-color: var(--color-primario); }
+      25%  { background-color: var(--color-secundario); }
+      50%  { background-color: var(--color-acento); }
+      75%  { background-color: #5c3a8a; }
+      100% { background-color: var(--color-primario); }
+    }
+
+    @keyframes ondaTexto {
+      0%, 100% { transform: translateY(0); }
+      50%      { transform: translateY(-10px); }
+    }
+
+    @keyframes aparecer {
+      from {
+        opacity: 0;
+        transform: scale(0.85) translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+
+    @keyframes dibujarBorde {
+      from { stroke-dashoffset: 283; }
+      to   { stroke-dashoffset: 0; }
+    }
+
+    /* ── Demos de animaciones ── */
+
+    .demo-anim-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: var(--espacio-md);
+      margin: var(--espacio-md) 0;
+    }
+
+    .anim-caja {
+      background: var(--color-superficie);
+      border: 1px solid var(--color-borde);
+      border-radius: var(--radio-md);
+      padding: var(--espacio-lg) var(--espacio-md);
+      text-align: center;
+    }
+
+    .anim-caja span {
+      display: block;
+      font-family: var(--fuente-codigo);
+      font-size: 0.7rem;
+      color: var(--color-texto-suave);
+      margin-top: var(--espacio-sm);
+    }
+
+    .anim-figura {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radio-md);
+      background: var(--color-primario);
+      margin: 0 auto;
+    }
+
+    .anim-pulso .anim-figura {
+      animation: pulso 1.5s ease-in-out infinite;
+    }
+
+    .anim-girar .anim-figura {
+      border-radius: 50%;
+      background: conic-gradient(var(--color-acento), var(--color-primario));
+      animation: girar 2s linear infinite;
+    }
+
+    .anim-rebotar .anim-figura {
+      border-radius: 50%;
+      background: var(--color-secundario);
+      animation: rebotar 1s ease infinite;
+    }
+
+    .anim-parpadeo .anim-figura {
+      background: var(--color-acento);
+      animation: parpadeo 1.2s ease-in-out infinite;
+    }
+
+    .anim-colores .anim-figura {
+      border-radius: var(--radio-pill);
+      animation: colorCiclico 4s linear infinite;
+    }
+
+    /* Animación de entrada con animation-fill-mode: forwards */
+    .demo-entrada {
+      margin: var(--espacio-md) 0;
+    }
+
+    .entrada-item {
+      background: var(--color-superficie);
+      border: 1px solid var(--color-borde);
+      border-left: 4px solid var(--color-primario);
+      border-radius: 0 var(--radio-md) var(--radio-md) 0;
+      padding: var(--espacio-sm) var(--espacio-md);
+      margin-bottom: var(--espacio-sm);
+      font-family: var(--fuente-codigo);
+      font-size: 0.85rem;
+      /* fill-mode: forwards → mantiene el estado final */
+      animation: deslizarDesdeIzq var(--duracion-lenta) var(--timing-entrada) both;
+    }
+
+    .entrada-item:nth-child(1) { animation-delay: 0ms; }
+    .entrada-item:nth-child(2) { animation-delay: 150ms; }
+    .entrada-item:nth-child(3) { animation-delay: 300ms; }
+    .entrada-item:nth-child(4) { animation-delay: 450ms; }
+
+    /* Onda de letras */
+    .texto-onda {
+      display: flex;
+      gap: 0;
+      justify-content: center;
+      font-family: var(--fuente-titulos);
+      font-size: 2rem;
+      color: var(--color-primario);
+      margin: var(--espacio-md) 0;
+    }
+
+    .texto-onda span {
+      display: inline-block;
+      animation: ondaTexto 1.2s ease-in-out infinite;
+    }
+
+    .texto-onda span:nth-child(1)  { animation-delay: 0ms; }
+    .texto-onda span:nth-child(2)  { animation-delay: 80ms; }
+    .texto-onda span:nth-child(3)  { animation-delay: 160ms; }
+    .texto-onda span:nth-child(4)  { animation-delay: 240ms; }
+    .texto-onda span:nth-child(5)  { animation-delay: 320ms; }
+    .texto-onda span:nth-child(6)  { animation-delay: 400ms; }
+    .texto-onda span:nth-child(7)  { animation-delay: 480ms; }
+    .texto-onda span:nth-child(8)  { animation-delay: 560ms; }
+    .texto-onda span:nth-child(9)  { animation-delay: 640ms; }
+    .texto-onda span:nth-child(10) { animation-delay: 720ms; }
+
+    /* animation-play-state */
+    .demo-play-state {
+      display: flex;
+      gap: var(--espacio-md);
+      align-items: center;
+      margin: var(--espacio-md) 0;
+    }
+
+    .spinner {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: conic-gradient(var(--color-secundario) 270deg, transparent 0deg);
+      animation: girar 1s linear infinite;
+    }
+
+    .spinner-contenedor {
+      cursor: pointer;
+    }
+
+    /* Pausa al hover del contenedor */
+    .spinner-contenedor:hover .spinner {
+      animation-play-state: paused;
+    }
+
+
+    /* ============================================================
+       SECCIÓN 5: EFECTOS VISUALES (transform y filter)
+       ============================================================
+       TRANSFORM → modifica posición, tamaño y rotación del elemento
+       SIN alterar el flujo del documento (no mueve otros elementos)
+
+       Funciones de transform:
+       - translate(x, y)   → mueve el elemento
+       - translateX(x)     → mueve horizontalmente
+       - translateY(y)     → mueve verticalmente
+       - scale(x, y)       → cambia tamaño
+       - scaleX(x)         → solo horizontal
+       - scaleY(y)         → solo vertical
+       - rotate(ángulo)    → gira (deg, rad, turn)
+       - skew(x, y)        → inclina
+       - skewX(x)          → inclina horizontalmente
+
+       Se pueden combinar: transform: rotate(45deg) scale(1.2);
+       El orden importa: no es lo mismo translate luego rotate
+       que rotate luego translate.
+
+       FILTER → aplica efectos visuales de procesamiento de imagen
+       - blur(px)           → desenfoque gaussiano
+       - brightness(%)      → brillo (100% = normal)
+       - contrast(%)        → contraste
+       - grayscale(%)       → escala de grises
+       - sepia(%)           → efecto sepia
+       - hue-rotate(deg)    → rota el matiz
+       - saturate(%)        → saturación
+       - invert(%)          → invierte colores
+       - opacity(%)         → opacidad (igual que la propiedad)
+       - drop-shadow(...)   → sombra que sigue la forma real del elemento
+    */
+
+    /* ── Demos de transform ── */
+    .demo-transform-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: var(--espacio-md);
+      margin: var(--espacio-md) 0;
+    }
+
+    .transform-caja {
+      background: var(--color-superficie);
+      border: 1px solid var(--color-borde);
+      border-radius: var(--radio-md);
+      padding: var(--espacio-lg) var(--espacio-md);
+      text-align: center;
+      cursor: pointer;
+      overflow: hidden;
+    }
+
+    .transform-caja span {
+      display: block;
+      font-family: var(--fuente-codigo);
+      font-size: 0.7rem;
+      color: var(--color-texto-suave);
+      margin-top: var(--espacio-sm);
+    }
+
+    .tf-figura {
+      width: 48px;
+      height: 48px;
+      background: var(--color-primario);
+      border-radius: var(--radio-md);
+      margin: 0 auto;
+      transition: transform var(--duracion-media) var(--timing-rebote);
+    }
+
+    .tf-translate:hover .tf-figura { transform: translate(10px, -10px); }
+    .tf-scale:hover    .tf-figura { transform: scale(1.5); }
+    .tf-rotate:hover   .tf-figura { transform: rotate(45deg); }
+    .tf-skew:hover     .tf-figura { transform: skew(20deg, 10deg); }
+
+    .tf-combo .tf-figura {
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--color-secundario), var(--color-primario));
+    }
+    .tf-combo:hover .tf-figura { transform: rotate(180deg) scale(1.3) translateY(-5px); }
+
+    .tf-origin .tf-figura {
+      border-radius: 0;
+      background: var(--color-acento);
+      transform-origin: bottom left;   /* punto de pivote */
+    }
+    .tf-origin:hover .tf-figura { transform: rotate(45deg); }
+
+    /* ── Demos de filter ── */
+    .demo-filter-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: var(--espacio-md);
+      margin: var(--espacio-md) 0;
+    }
+
+    .filter-caja {
+      border-radius: var(--radio-md);
+      overflow: hidden;
+      border: 1px solid var(--color-borde);
+      cursor: pointer;
+      position: relative;
+    }
+
+    .filter-inner {
+      height: 100px;
+      /* Fondo de demostración con patrón */
+      background:
+        radial-gradient(circle at 25% 40%, var(--color-acento) 15%, transparent 40%),
+        radial-gradient(circle at 75% 60%, var(--color-secundario) 15%, transparent 40%),
+        var(--color-primario);
+      transition: filter var(--duracion-media) ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .filter-inner::after {
+      content: "CSS";
+      color: #fff;
+      font-family: var(--fuente-titulos);
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+
+    .filter-caja span {
+      display: block;
+      padding: var(--espacio-xs) var(--espacio-sm);
+      font-family: var(--fuente-codigo);
+      font-size: 0.72rem;
+      color: var(--color-texto-suave);
+      text-align: center;
+      background: var(--color-superficie);
+    }
+
+    .filter-blur:hover     .filter-inner { filter: blur(4px); }
+    .filter-bright:hover   .filter-inner { filter: brightness(1.6); }
+    .filter-contrast:hover .filter-inner { filter: contrast(2); }
+    .filter-gray:hover     .filter-inner { filter: grayscale(100%); }
+    .filter-sepia:hover    .filter-inner { filter: sepia(100%); }
+    .filter-hue:hover      .filter-inner { filter: hue-rotate(180deg); }
+    .filter-sat:hover      .filter-inner { filter: saturate(0.2); }
+    .filter-invert:hover   .filter-inner { filter: invert(100%); }
+
+    /* backdrop-filter (requiere fondo semitransparente) */
+    .demo-backdrop {
+      position: relative;
+      height: 150px;
+      border-radius: var(--radio-md);
+      overflow: hidden;
+      margin: var(--espacio-md) 0;
+    }
+
+    .backdrop-fondo {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 20% 50%, var(--color-acento) 0%, transparent 50%),
+        radial-gradient(circle at 80% 30%, var(--color-secundario) 0%, transparent 50%),
+        radial-gradient(circle at 50% 80%, var(--color-primario) 0%, transparent 50%);
+    }
+
+    .backdrop-tarjeta {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(255,255,255,0.15);
+      backdrop-filter: blur(12px) saturate(1.8);
+      -webkit-backdrop-filter: blur(12px) saturate(1.8);
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: var(--radio-lg);
+      padding: var(--espacio-md) var(--espacio-xl);
+      color: #fff;
+      text-align: center;
+      font-family: var(--fuente-titulos);
+    }
+
+    .backdrop-tarjeta h3 {
+      color: #fff;
+      margin: 0 0 var(--espacio-xs);
+      font-size: 1.1rem;
+    }
+
+    .backdrop-tarjeta p {
+      margin: 0;
+      font-size: 0.85rem;
+      opacity: 0.85;
+    }
+
+
+    /* ============================================================
+       SECCIÓN 6: PROYECTO APLICADO — TARJETA INTERACTIVA
+       ============================================================
+       Proyecto que combina todos los conceptos de la semana:
+       - Variables CSS para theming
+       - Pseudo-clases (:hover, :focus, :nth-child)
+       - Pseudo-elementos (::before, ::after)
+       - Transiciones suaves
+       - Animaciones @keyframes
+       - transform y filter
+    */
+
+    @keyframes aparecer-tarjeta {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes brillo-borde {
+      0%, 100% { opacity: 0.4; }
+      50%       { opacity: 1; }
+    }
+
+    .proyecto-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: var(--espacio-xl);
+      margin: var(--espacio-xl) 0;
+    }
+
+    .tarjeta-proyecto {
+      --tarjeta-acento: var(--color-primario);   /* override por tarjeta */
+      position: relative;
+      background: var(--color-superficie);
+      border-radius: var(--radio-lg);
+      padding: var(--espacio-xl) var(--espacio-lg);
+      box-shadow: var(--sombra-md);
+      cursor: pointer;
+      overflow: hidden;
+      animation: aparecer-tarjeta var(--duracion-lenta) var(--timing-entrada) both;
+      transition:
+        transform    var(--duracion-media) var(--timing-rebote),
+        box-shadow   var(--duracion-media) ease;
+    }
+
+    .tarjeta-proyecto:nth-child(1) { animation-delay: 0ms;   --tarjeta-acento: var(--color-primario); }
+    .tarjeta-proyecto:nth-child(2) { animation-delay: 100ms; --tarjeta-acento: var(--color-secundario); }
+    .tarjeta-proyecto:nth-child(3) { animation-delay: 200ms; --tarjeta-acento: var(--color-acento); }
+    .tarjeta-proyecto:nth-child(4) { animation-delay: 300ms; --tarjeta-acento: #5c3a8a; }
+
+    /* Borde de acento (pseudo-elemento) */
+    .tarjeta-proyecto::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: var(--tarjeta-acento);
+    }
+
+    /* Fondo decorativo (pseudo-elemento) */
+    .tarjeta-proyecto::after {
+      content: "";
+      position: absolute;
+      bottom: -30px;
+      right: -30px;
+      width: 100px;
+      height: 100px;
+      background: var(--tarjeta-acento);
+      border-radius: 50%;
+      opacity: 0.07;
+      transition: transform var(--duracion-lenta) var(--timing-rebote),
+                  opacity   var(--duracion-lenta) ease;
+    }
+
+    .tarjeta-proyecto:hover {
+      transform: translateY(-6px);
+      box-shadow: var(--sombra-lg);
+    }
+
+    .tarjeta-proyecto:hover::after {
+      transform: scale(2.5);
+      opacity: 0.12;
+    }
+
+    .tarjeta-icono {
+      width: 48px;
+      height: 48px;
+      background: var(--tarjeta-acento);
+      border-radius: var(--radio-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      margin-bottom: var(--espacio-md);
+      transition: transform var(--duracion-media) var(--timing-rebote);
+    }
+
+    .tarjeta-proyecto:hover .tarjeta-icono {
+      transform: rotate(-8deg) scale(1.1);
+    }
+
+    .tarjeta-proyecto h3 {
+      font-size: 1.1rem;
+      margin-top: 0;
+      color: var(--color-texto);
+    }
+
+    .tarjeta-proyecto p {
+      font-size: 0.875rem;
+      color: var(--color-texto-suave);
+      margin-bottom: 0;
+    }
+
+    /* Tag con :nth-child para color */
+    .tarjeta-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--espacio-xs);
+      margin-top: var(--espacio-md);
+    }
+
+    .tarjeta-tag {
+      display: inline-block;
+      padding: 2px 8px;
+      background: var(--color-fondo);
+      border: 1px solid var(--color-borde);
+      border-radius: var(--radio-pill);
+      font-family: var(--fuente-codigo);
+      font-size: 0.7rem;
+      color: var(--color-texto-suave);
+      transition: background var(--duracion-media), color var(--duracion-media), border-color var(--duracion-media);
+    }
+
+    .tarjeta-proyecto:hover .tarjeta-tag {
+      background: var(--tarjeta-acento);
+      color: #fff;
+      border-color: var(--tarjeta-acento);
+    }
+
+    /* Acento especial para ámbar */
+    .tarjeta-proyecto:nth-child(3):hover .tarjeta-tag {
+      color: var(--color-primario);
+    }
+
+
+    /* ============================================================
+       PIE DE PÁGINA
+       ============================================================ */
+    .site-footer {
+      border-top: 1px solid var(--color-borde);
+      padding: var(--espacio-xl) var(--espacio-md);
+      margin-top: var(--espacio-xxl);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--espacio-md);
+      font-size: 0.875rem;
+      color: var(--color-texto-suave);
+    }
+
+    .footer-nav {
+      display: flex;
+      gap: var(--espacio-md);
+      flex-wrap: wrap;
+    }
+
+    .footer-nav a {
+      color: var(--color-texto-suave);
+      font-size: 0.875rem;
+      border-bottom: none;
+    }
+
+    .footer-nav a:hover {
+      color: var(--color-primario);
+    }
+
+
+    /* ============================================================
+       ACCESIBILIDAD — prefers-reduced-motion
+       ============================================================
+       Respetamos la preferencia del usuario de reducir movimiento.
+       Esto es importante para personas con epilepsia fotosensible
+       o trastornos vestibulares.
+    */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration:        0.01ms !important;
+        animation-iteration-count: 1      !important;
+        transition-duration:       0.01ms !important;
+      }
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <!-- ============================================================
+       ENCABEZADO DEL SITIO
+  ============================================================= -->
+  <header class="site-header">
+    <div class="pagina-wrapper">
+      <p class="badge-semana">SEMANA 05</p>
+      <h1>CSS Avanzado</h1>
+      <p>Variables CSS, pseudo-clases, pseudo-elementos, transiciones, animaciones y efectos visuales.</p>
+    </div>
+  </header>
+
+
+  <div class="pagina-wrapper">
+
+    <!-- Navegación interna -->
+    <nav class="nav-interna" aria-label="Contenido de esta página">
+      <h2>Contenido</h2>
+      <ul>
+        <li><a href="#variables">1. Variables CSS</a></li>
+        <li><a href="#pseudo">2. Pseudo-clases y Pseudo-elementos</a></li>
+        <li><a href="#transiciones">3. Transiciones</a></li>
+        <li><a href="#animaciones">4. Animaciones @keyframes</a></li>
+        <li><a href="#efectos">5. Transform y Filter</a></li>
+        <li><a href="#proyecto">6. Proyecto aplicado</a></li>
+      </ul>
+    </nav>
+
+
+    <!-- ============================================================
+         SECCIÓN 1 — VARIABLES CSS
+    ============================================================= -->
+    <section class="seccion" id="variables">
+      <h2>1. Variables CSS (Custom Properties)</h2>
+
+      <p>Las variables CSS permiten almacenar valores que se reusan en toda la hoja de estilos. Se declaran con el prefijo <code>--</code> y se leen con la función <code>var()</code>.</p>
+
+      <div class="nota azul">
+        <p><strong>Diferencia con variables de preprocesadores (SASS/LESS):</strong> las Custom Properties de CSS son <em>en vivo</em>: pueden cambiar con JavaScript, respetan la herencia del DOM y funcionan sin compilación.</p>
+      </div>
+
+      <h3>Declaración en <code>:root</code></h3>
+      <p>Al declarar variables en <code>:root</code> quedan disponibles en <strong>todo el documento</strong>. Es el patrón más común para colores, tipografías y espaciados globales.</p>
+
+      <pre><code>:root {
+  --color-primario:   #1a3a4a;
+  --color-secundario: #2d7d5f;
+  --espacio-md:       1rem;
+  --fuente-titulos:   'Georgia', serif;
+}
+
+/* Uso */
+h1 {
+  color: var(--color-primario);
+  font-family: var(--fuente-titulos);
+  margin-bottom: var(--espacio-md);
+}</code></pre>
+
+
+      <h3>Herencia y sobreescritura local</h3>
+      <p>Las variables CSS se heredan por el árbol DOM. Un descendiente puede <em>redefinir</em> la variable localmente, afectando solo a sí mismo y sus hijos.</p>
+
+      <pre><code>/* Variable global en :root */
+:root { --color-demo: navy; }
+
+/* Sobreescritura en un elemento específico */
+.hijo.verde { --color-demo: green; }
+.hijo.ambar { --color-demo: orange; }
+
+/* Los tres hijos leen la misma propiedad: var(--color-demo)
+   pero cada uno tiene un valor diferente */
+.hijo { background: var(--color-demo); }</code></pre>
+
+      <div class="demo-vars-herencia">
+        <div class="hijo">var(--color-demo) → hereda del :root (azul marino)</div>
+        <div class="hijo verde">var(--color-demo) → sobreescrito a verde</div>
+        <div class="hijo ambar">var(--color-demo) → sobreescrito a ámbar</div>
+        <div class="hijo lila">var(--color-demo) → sobreescrito a lila</div>
+      </div>
+
+
+      <h3>Valor de respaldo (fallback)</h3>
+      <p>Si una variable no está definida, <code>var()</code> acepta un segundo argumento como valor de respaldo:</p>
+
+      <pre><code>/* Si --color-inexistente no existe, usa el fallback */
+background: var(--color-inexistente, red);
+
+/* Fallback encadenado */
+color: var(--color-a, var(--color-b, black));</code></pre>
+
+      <div class="demo-fallback">
+        <div class="fallback-box usa-fallback">
+          var(--color-inexistente, #a02020)
+          <br>usa el <strong>fallback</strong>
+        </div>
+        <div class="fallback-box usa-var">
+          var(--color-secundario)
+          <br>usa la variable <strong>definida</strong>
+        </div>
+        <div class="fallback-box usa-local">
+          var(--color-local)
+          <br>variable <strong>local</strong> al elemento
+        </div>
+      </div>
+
+
+      <h3>Comparativa: con y sin variables</h3>
+      <div class="comparativa">
+        <div class="comparativa-item var-col">
+          <div class="cab">✅ Con variables CSS</div>
+          <pre><code>:root {
+  --azul: #1a3a4a;
+}
+
+h1 { color: var(--azul); }
+nav { background: var(--azul); }
+.btn { border: 2px solid var(--azul); }
+
+/* Cambiar un color: una sola línea */</code></pre>
+        </div>
+        <div class="comparativa-item sin-col">
+          <div class="cab">❌ Sin variables CSS</div>
+          <pre><code>/* Sin variables */
+
+h1 { color: #1a3a4a; }
+nav { background: #1a3a4a; }
+.btn { border: 2px solid #1a3a4a; }
+
+/* Cambiar: buscar y reemplazar N veces */</code></pre>
+        </div>
+      </div>
+
+
+      <h3>Referencia de tipos de valor</h3>
+      <div class="tabla-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Tipo de valor</th>
+              <th>Ejemplo de variable</th>
+              <th>Valor de ejemplo</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Color</td><td><code>--color-primario</code></td><td><code>#1a3a4a</code></td></tr>
+            <tr><td>Longitud</td><td><code>--espacio-md</code></td><td><code>1rem</code></td></tr>
+            <tr><td>Fuente</td><td><code>--fuente-titulos</code></td><td><code>'Georgia', serif</code></td></tr>
+            <tr><td>Sombra</td><td><code>--sombra-md</code></td><td><code>0 4px 12px rgba(0,0,0,0.1)</code></td></tr>
+            <tr><td>Tiempo</td><td><code>--duracion-media</code></td><td><code>300ms</code></td></tr>
+            <tr><td>Número</td><td><code>--z-modal</code></td><td><code>1000</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+    </section>
+
+
+    <!-- ============================================================
+         SECCIÓN 2 — PSEUDO-CLASES Y PSEUDO-ELEMENTOS
+    ============================================================= -->
+    <section class="seccion" id="pseudo">
+      <h2>2. Pseudo-clases y Pseudo-elementos</h2>
+
+      <p>Las <strong>pseudo-clases</strong> seleccionan un estado del elemento (<code>:hover</code>, <code>:focus</code>) o su posición en el DOM (<code>:nth-child</code>). Los <strong>pseudo-elementos</strong> seleccionan una parte del elemento o insertan contenido decorativo (<code>::before</code>, <code>::after</code>).</p>
+
+      <h3>Pseudo-clases de estado de interacción</h3>
+      <p>Pasa el cursor, haz clic o escribe en el campo para ver los efectos.</p>
+
+      <div class="demo-pseudo-grid">
+
+        <div class="demo-pseudo-item">
+          <h4>:hover</h4>
+          <div class="btn-hover-demo">Pasa el cursor</div>
+          <pre style="margin-top:0.5rem;font-size:0.7rem"><code>.btn:hover {
+  background: green;
+  transform: translateY(-3px);
+}</code></pre>
+        </div>
+
+        <div class="demo-pseudo-item">
+          <h4>:focus</h4>
+          <input class="input-focus-demo" type="text" placeholder="Haz clic aquí...">
+          <pre style="margin-top:0.5rem;font-size:0.7rem"><code>.input:focus {
+  border-color: green;
+  box-shadow: 0 0 0 3px ...;
+}</code></pre>
+        </div>
+
+        <div class="demo-pseudo-item">
+          <h4>:active</h4>
+          <div class="btn-active-demo">Mantén presionado</div>
+          <pre style="margin-top:0.5rem;font-size:0.7rem"><code>.btn:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 ...;
+}</code></pre>
+        </div>
+
+      </div>
+
+
+      <h3>Pseudo-clases estructurales</h3>
+      <div class="demo-pseudo-grid">
+
+        <div class="demo-pseudo-item">
+          <h4>:nth-child()</h4>
+          <ul class="lista-nth">
+            <li>Ítem 1 — :first-child</li>
+            <li>Ítem 2 — :nth-child(even)</li>
+            <li>Ítem 3</li>
+            <li>Ítem 4 — :nth-child(even)</li>
+            <li>Ítem 5 — :last-child</li>
+          </ul>
+        </div>
+
+        <div class="demo-pseudo-item">
+          <h4>:not()</h4>
+          <ul class="lista-not">
+            <li>Normal</li>
+            <li class="especial">Especial ✓</li>
+            <li>Normal</li>
+            <li class="especial">Especial ✓</li>
+            <li>Normal</li>
+          </ul>
+          <pre style="margin-top:0.5rem;font-size:0.7rem"><code>li:not(.especial) {
+  opacity: 0.5;
+}</code></pre>
+        </div>
+
+      </div>
+
+
+      <h3>Pseudo-clases de formularios</h3>
+      <pre><code>input:focus    { border-color: green; }
+input:disabled { opacity: 0.5; cursor: not-allowed; }
+input:required { border-left: 3px solid red; }
+input:valid    { border-color: green; }
+input:invalid  { border-color: red; }</code></pre>
+
+
+      <h3>Pseudo-elementos ::before y ::after</h3>
+      <p>Insertan contenido decorativo <em>antes</em> o <em>después</em> del contenido del elemento. <strong>Requieren la propiedad <code>content</code></strong> (puede ser vacía: <code>""</code>).</p>
+
+      <div class="demo-pseudo-elementos">
+        <p>Primera idea importante</p>
+        <p>Segunda idea importante</p>
+        <p>Tercera idea importante</p>
+      </div>
+
+      <pre><code>p::before {
+  content: "→";        /* texto, emoji, o vacío "" */
+  position: absolute;
+  left: 0;
+  color: orange;
+}</code></pre>
+
+
+      <h3>Cita decorada con ::before y ::after</h3>
+
+      <div class="cita-decorada">
+        Las variables CSS y las animaciones son las herramientas más poderosas para crear interfaces expresivas sin JavaScript.
+      </div>
+
+      <pre><code>.cita::before {
+  content: "\201C";  /* " tipográfico */
+  font-size: 3rem;
+  color: orange;
+}
+
+.cita::after {
+  content: "\201D";  /* " tipográfico */
+}</code></pre>
+
+
+      <h3>::placeholder, ::selection, ::first-letter</h3>
+
+      <div class="demo-selection">
+        <p class="parrafo-capitular">Selecciona este texto para ver el efecto <code>::selection</code> personalizado. La primera letra usa <code>::first-letter</code> para crear una letra capital decorativa, como en los manuscritos medievales.</p>
+      </div>
+
+      <p class="parrafo-primera-linea">Este párrafo tiene su primera línea estilizada con <code>::first-line</code>: color verde y mayor espaciado entre letras. Este efecto se aplica de forma inteligente según el ancho real del contenedor.</p>
+
+      <div class="tabla-wrapper">
+        <table>
+          <thead>
+            <tr><th>Pseudo</th><th>Qué selecciona</th><th>Caso de uso</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>::before</code></td><td>Antes del contenido</td><td>Iconos, decoraciones, contadores</td></tr>
+            <tr><td><code>::after</code></td><td>Después del contenido</td><td>Tooltips, clearfix, decoraciones</td></tr>
+            <tr><td><code>::placeholder</code></td><td>Texto de ayuda en inputs</td><td>Estilo del hint de formularios</td></tr>
+            <tr><td><code>::selection</code></td><td>Texto seleccionado</td><td>Branding en la selección de texto</td></tr>
+            <tr><td><code>::first-letter</code></td><td>Primera letra</td><td>Letra capital en artículos</td></tr>
+            <tr><td><code>::first-line</code></td><td>Primera línea visible</td><td>Énfasis tipográfico en párrafos</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+    </section>
+
+
+    <!-- ============================================================
+         SECCIÓN 3 — TRANSICIONES
+    ============================================================= -->
+    <section class="seccion" id="transiciones">
+      <h2>3. Transiciones</h2>
+
+      <p>La propiedad <code>transition</code> anima automáticamente el cambio entre dos estados CSS. Solo necesitas definir el estado inicial y el estado final (<code>:hover</code>, <code>:focus</code>, etc.) y el navegador calcula los fotogramas intermedios.</p>
+
+      <pre><code>/* Sintaxis completa */
+transition: propiedad duración timing-function retraso;
+
+/* Ejemplos */
+transition: background 300ms ease;
+transition: transform 600ms cubic-bezier(0.34, 1.56, 0.64, 1);
+transition: all 200ms ease-in-out;
+
+/* Múltiples propiedades */
+transition:
+  background 300ms ease,
+  transform  400ms cubic-bezier(0.34, 1.56, 0.64, 1),
+  box-shadow 300ms ease;</code></pre>
+
+
+      <h3>Curvas de tiempo (timing functions)</h3>
+      <p>Pasa el cursor sobre cada caja para comparar las curvas:</p>
+
+      <div class="demo-transiciones-grid">
+        <div class="trans-caja trans-ease">
+          ease
+          <span>lento → rápido → lento</span>
+        </div>
+        <div class="trans-caja trans-ease-in">
+          ease-in
+          <span>arranca lento</span>
+        </div>
+        <div class="trans-caja trans-ease-out">
+          ease-out
+          <span>frena al final</span>
+        </div>
+        <div class="trans-caja trans-linear">
+          linear
+          <span>velocidad constante</span>
+        </div>
+        <div class="trans-caja trans-rebote">
+          cubic-bezier
+          <span>efecto de rebote</span>
+        </div>
+        <div class="trans-caja trans-steps">
+          steps(5)
+          <span>pasos discretos</span>
+        </div>
+      </div>
+
+
+      <h3>Transición con múltiples propiedades</h3>
+      <p>Cada propiedad puede tener su propia curva y duración:</p>
+
+      <div class="demo-transiciones-grid">
+        <div class="trans-caja trans-multiple">
+          Múltiples propiedades
+          <span>background + transform + box-shadow + border-radius</span>
+        </div>
+      </div>
+
+      <pre><code>.trans-multiple {
+  transition:
+    background    300ms ease,
+    transform     300ms cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow    300ms ease,
+    border-radius 300ms ease;
+}
+
+.trans-multiple:hover {
+  background:    green;
+  transform:     rotate(-3deg) scale(1.05);
+  box-shadow:    0 8px 24px rgba(0,0,0,0.12);
+  border-radius: 999px;
+}</code></pre>
+
+
+      <h3>transition-delay: efecto cascada</h3>
+      <p>Pasa el cursor sobre el grupo para ver el efecto de entrada escalonada:</p>
+
+      <div class="demo-delay">
+        <div class="delay-item"></div>
+        <div class="delay-item"></div>
+        <div class="delay-item"></div>
+        <div class="delay-item"></div>
+        <div class="delay-item"></div>
+      </div>
+
+      <pre><code>.item:nth-child(1) { transition-delay: 0ms; }
+.item:nth-child(2) { transition-delay: 80ms; }
+.item:nth-child(3) { transition-delay: 160ms; }
+.item:nth-child(4) { transition-delay: 240ms; }
+.item:nth-child(5) { transition-delay: 320ms; }</code></pre>
+
+      <div class="nota ambar">
+        <p><strong>Regla de oro:</strong> usa <code>transition</code> en el estado <em>base</em> del elemento, no en el <code>:hover</code>. Así la animación también ocurre al salir del estado.</p>
+      </div>
+
+    </section>
+
+
+    <!-- ============================================================
+         SECCIÓN 4 — ANIMACIONES @keyframes
+    ============================================================= -->
+    <section class="seccion" id="animaciones">
+      <h2>4. Animaciones <code>@keyframes</code></h2>
+
+      <p>Mientras las transiciones requieren un cambio de estado externo (hover, focus), las <strong>animaciones</strong> se reproducen de forma autónoma. Se definen con <code>@keyframes</code> y se aplican con la propiedad <code>animation</code>.</p>
+
+      <pre><code>/* 1. Definir la animación */
+@keyframes nombre {
+  from { transform: scale(1); }
+  to   { transform: scale(1.1); }
+}
+
+/* Con porcentajes para mayor control */
+@keyframes rebotar {
+  0%, 100% { transform: translateY(0);     }
+  50%       { transform: translateY(-30px); }
+}
+
+/* 2. Aplicar la animación */
+.elemento {
+  animation: nombre 1.5s ease-in-out infinite;
+  /* nombre | duración | timing | iteración */
+}</code></pre>
+
+
+      <h3>Propiedades individuales de animation</h3>
+      <div class="tabla-wrapper">
+        <table>
+          <thead>
+            <tr><th>Propiedad</th><th>Valores comunes</th><th>Descripción</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>animation-name</code></td><td>nombre del @keyframes</td><td>Qué animación usar</td></tr>
+            <tr><td><code>animation-duration</code></td><td><code>1s</code>, <code>300ms</code></td><td>Duración total</td></tr>
+            <tr><td><code>animation-timing-function</code></td><td><code>ease</code>, <code>linear</code>, <code>cubic-bezier</code></td><td>Curva de velocidad</td></tr>
+            <tr><td><code>animation-delay</code></td><td><code>0ms</code>, <code>200ms</code></td><td>Retraso antes de iniciar</td></tr>
+            <tr><td><code>animation-iteration-count</code></td><td><code>1</code>, <code>3</code>, <code>infinite</code></td><td>Número de repeticiones</td></tr>
+            <tr><td><code>animation-direction</code></td><td><code>normal</code>, <code>reverse</code>, <code>alternate</code></td><td>Dirección de reproducción</td></tr>
+            <tr><td><code>animation-fill-mode</code></td><td><code>none</code>, <code>forwards</code>, <code>backwards</code>, <code>both</code></td><td>Estado antes/después</td></tr>
+            <tr><td><code>animation-play-state</code></td><td><code>running</code>, <code>paused</code></td><td>Reproducir o pausar</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+
+      <h3>Demos de animaciones básicas</h3>
+
+      <div class="demo-anim-grid">
+        <div class="anim-caja anim-pulso">
+          <div class="anim-figura"></div>
+          <span>pulso<br>ease-in-out infinite</span>
+        </div>
+        <div class="anim-caja anim-girar">
+          <div class="anim-figura"></div>
+          <span>girar<br>linear infinite</span>
+        </div>
+        <div class="anim-caja anim-rebotar">
+          <div class="anim-figura"></div>
+          <span>rebotar<br>ease infinite</span>
+        </div>
+        <div class="anim-caja anim-parpadeo">
+          <div class="anim-figura"></div>
+          <span>parpadeo<br>ease-in-out infinite</span>
+        </div>
+        <div class="anim-caja anim-colores">
+          <div class="anim-figura"></div>
+          <span>colorCiclico<br>linear infinite</span>
+        </div>
+      </div>
+
+
+      <h3>animation-fill-mode: forwards — entrada escalonada</h3>
+      <p><code>fill-mode: both</code> aplica los estilos del primer fotograma antes de que inicie y mantiene los del último al terminar. Ideal para animaciones de entrada que se ejecutan una sola vez:</p>
+
+      <div class="demo-entrada">
+        <div class="entrada-item">animation-delay: 0ms</div>
+        <div class="entrada-item">animation-delay: 150ms</div>
+        <div class="entrada-item">animation-delay: 300ms</div>
+        <div class="entrada-item">animation-delay: 450ms</div>
+      </div>
+
+      <pre><code>@keyframes deslizarDesdeIzq {
+  from { opacity: 0; transform: translateX(-30px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.item { animation: deslizarDesdeIzq 600ms ease both; }
+.item:nth-child(2) { animation-delay: 150ms; }
+.item:nth-child(3) { animation-delay: 300ms; }</code></pre>
+
+
+      <h3>Animación de texto en onda</h3>
+
+      <div class="texto-onda" aria-label="CSS Avanzado">
+        <span>C</span><span>S</span><span>S</span>
+        <span>&nbsp;</span>
+        <span>A</span><span>v</span><span>a</span><span>n</span><span>z</span><span>a</span><span>d</span><span>o</span>
+      </div>
+
+      <pre><code>/* Cada letra es un <span> con animation-delay distinto */
+.letra { animation: ondaTexto 1.2s ease-in-out infinite; }
+.letra:nth-child(1) { animation-delay: 0ms; }
+.letra:nth-child(2) { animation-delay: 80ms; }
+/* ... */</code></pre>
+
+
+      <h3>animation-play-state: pausa interactiva</h3>
+      <p>Pasa el cursor sobre el spinner para pausarlo:</p>
+
+      <div class="demo-play-state">
+        <div class="spinner-contenedor" title="Hover para pausar">
+          <div class="spinner"></div>
+        </div>
+        <pre style="flex:1"><code>.contenedor:hover .spinner {
+  animation-play-state: paused;
+}</code></pre>
+      </div>
+
+
+      <div class="nota lila">
+        <p><strong>Accesibilidad:</strong> siempre incluye <code>@media (prefers-reduced-motion: reduce)</code> para respetar la preferencia del sistema operativo del usuario. Las animaciones excesivas pueden causar malestar a personas con trastornos vestibulares.</p>
+      </div>
+
+    </section>
+
+
+    <!-- ============================================================
+         SECCIÓN 5 — TRANSFORM Y FILTER
+    ============================================================= -->
+    <section class="seccion" id="efectos">
+      <h2>5. Transform y Filter</h2>
+
+      <h3>transform — sin alterar el flujo</h3>
+      <p><code>transform</code> mueve, escala, rota o inclina un elemento <strong>sin afectar el espacio que ocupa en el layout</strong>. El resto de elementos no se mueven. Por eso es ideal para animaciones (y más eficiente que animar <code>top/left</code>).</p>
+
+      <p>Pasa el cursor sobre cada caja para ver la transformación:</p>
+
+      <div class="demo-transform-grid">
+        <div class="transform-caja tf-translate">
+          <div class="tf-figura"></div>
+          <span>translate(10px, -10px)</span>
+        </div>
+        <div class="transform-caja tf-scale">
+          <div class="tf-figura"></div>
+          <span>scale(1.5)</span>
+        </div>
+        <div class="transform-caja tf-rotate">
+          <div class="tf-figura"></div>
+          <span>rotate(45deg)</span>
+        </div>
+        <div class="transform-caja tf-skew">
+          <div class="tf-figura"></div>
+          <span>skew(20deg, 10deg)</span>
+        </div>
+        <div class="transform-caja tf-combo">
+          <div class="tf-figura"></div>
+          <span>rotate + scale + translateY</span>
+        </div>
+        <div class="transform-caja tf-origin">
+          <div class="tf-figura"></div>
+          <span>transform-origin: bottom left</span>
+        </div>
+      </div>
+
+      <pre><code>/* transform-origin cambia el punto de pivote */
+.elemento {
+  transform-origin: center center; /* por defecto */
+  transform-origin: top left;
+  transform-origin: bottom right;
+  transform-origin: 25% 75%;
+}
+
+/* Combinar transformaciones (el orden importa) */
+transform: rotate(45deg) scale(1.2) translateX(10px);</code></pre>
+
+      <div class="nota ambar">
+        <p><strong>Rendimiento:</strong> <code>transform</code> y <code>opacity</code> son las dos propiedades CSS más eficientes de animar porque se procesan en la GPU (compositor), no en el hilo principal del navegador.</p>
+      </div>
+
+
+      <h3>filter — efectos de imagen en CSS puro</h3>
+      <p>Pasa el cursor sobre cada caja para ver el filtro aplicado:</p>
+
+      <div class="demo-filter-grid">
+        <div class="filter-caja filter-blur">
+          <div class="filter-inner"></div>
+          <span>blur(4px)</span>
+        </div>
+        <div class="filter-caja filter-bright">
+          <div class="filter-inner"></div>
+          <span>brightness(1.6)</span>
+        </div>
+        <div class="filter-caja filter-contrast">
+          <div class="filter-inner"></div>
+          <span>contrast(2)</span>
+        </div>
+        <div class="filter-caja filter-gray">
+          <div class="filter-inner"></div>
+          <span>grayscale(100%)</span>
+        </div>
+        <div class="filter-caja filter-sepia">
+          <div class="filter-inner"></div>
+          <span>sepia(100%)</span>
+        </div>
+        <div class="filter-caja filter-hue">
+          <div class="filter-inner"></div>
+          <span>hue-rotate(180deg)</span>
+        </div>
+        <div class="filter-caja filter-sat">
+          <div class="filter-inner"></div>
+          <span>saturate(0.2)</span>
+        </div>
+        <div class="filter-caja filter-invert">
+          <div class="filter-inner"></div>
+          <span>invert(100%)</span>
+        </div>
+      </div>
+
+      <pre><code>/* Filtros individuales */
+filter: blur(4px);
+filter: brightness(150%);
+filter: grayscale(100%);
+
+/* Filtros combinados */
+filter: brightness(1.2) contrast(1.1) saturate(1.3);
+
+/* Truco hover en imágenes */
+img { filter: grayscale(80%); transition: filter 300ms ease; }
+img:hover { filter: grayscale(0%); }</code></pre>
+
+
+      <h3>backdrop-filter — efecto glassmorphism</h3>
+      <p><code>backdrop-filter</code> aplica filtros al contenido <em>detrás</em> del elemento. Requiere que el elemento tenga fondo semitransparente.</p>
+
+      <div class="demo-backdrop">
+        <div class="backdrop-fondo"></div>
+        <div class="backdrop-tarjeta">
+          <h3>Glassmorphism</h3>
+          <p>backdrop-filter: blur(12px)</p>
+        </div>
+      </div>
+
+      <pre><code>.tarjeta-vidrio {
+  background: rgba(255, 255, 255, 0.15);  /* semitransparente */
+  backdrop-filter: blur(12px) saturate(1.8);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 16px;
+}</code></pre>
+
+    </section>
+
+
+    <!-- ============================================================
+         SECCIÓN 6 — PROYECTO APLICADO
+    ============================================================= -->
+    <section class="seccion" id="proyecto">
+      <h2>6. Proyecto aplicado — Tarjetas interactivas</h2>
+
+      <p>Este componente combina <strong>todos los conceptos de la semana</strong>: variables CSS locales por tarjeta, pseudo-elementos para decoración, transiciones suaves, animaciones de entrada y efectos <code>transform</code>.</p>
+
+      <div class="nota azul">
+        <p><strong>Conceptos aplicados:</strong> variables CSS con <code>--tarjeta-acento</code> sobreescrita por tarjeta · <code>::before</code> para el borde superior · <code>::after</code> para el círculo de fondo · <code>animation: aparecer-tarjeta</code> con delay escalonado · <code>transition: transform + box-shadow</code> en hover · <code>:nth-child</code> para colores distintos · <code>:hover</code> en hijos descendientes.</p>
+      </div>
+
+      <div class="proyecto-grid">
+
+        <article class="tarjeta-proyecto">
+          <div class="tarjeta-icono">🎨</div>
+          <h3>Variables CSS</h3>
+          <p>Propiedades personalizadas que permiten theming dinámico y mantenimiento centralizado.</p>
+          <div class="tarjeta-tags">
+            <span class="tarjeta-tag">:root</span>
+            <span class="tarjeta-tag">var()</span>
+            <span class="tarjeta-tag">herencia</span>
+          </div>
+        </article>
+
+        <article class="tarjeta-proyecto">
+          <div class="tarjeta-icono">🎯</div>
+          <h3>Pseudo-selectores</h3>
+          <p>Selección de estados y posiciones sin agregar clases o markup extra al HTML.</p>
+          <div class="tarjeta-tags">
+            <span class="tarjeta-tag">:hover</span>
+            <span class="tarjeta-tag">::before</span>
+            <span class="tarjeta-tag">:nth-child</span>
+          </div>
+        </article>
+
+        <article class="tarjeta-proyecto">
+          <div class="tarjeta-icono">⚡</div>
+          <h3>Transiciones</h3>
+          <p>Cambios de estado suaves y fluidos con control total sobre la curva de velocidad.</p>
+          <div class="tarjeta-tags">
+            <span class="tarjeta-tag">ease</span>
+            <span class="tarjeta-tag">cubic-bezier</span>
+            <span class="tarjeta-tag">delay</span>
+          </div>
+        </article>
+
+        <article class="tarjeta-proyecto">
+          <div class="tarjeta-icono">✨</div>
+          <h3>Animaciones</h3>
+          <p>Secuencias de fotogramas clave que se ejecutan de forma autónoma, sin JavaScript.</p>
+          <div class="tarjeta-tags">
+            <span class="tarjeta-tag">@keyframes</span>
+            <span class="tarjeta-tag">forwards</span>
+            <span class="tarjeta-tag">infinite</span>
+          </div>
+        </article>
+
+      </div>
+
+      <h3>Código del componente (simplificado)</h3>
+      <pre><code>/* Variable local por tarjeta → sobreescribe la global */
+.tarjeta:nth-child(1) { --tarjeta-acento: navy;   }
+.tarjeta:nth-child(2) { --tarjeta-acento: green;  }
+.tarjeta:nth-child(3) { --tarjeta-acento: orange; }
+
+/* ::before → borde de color superior */
+.tarjeta::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 4px;
+  background: var(--tarjeta-acento);
+}
+
+/* ::after → círculo decorativo de fondo */
+.tarjeta::after {
+  content: "";
+  position: absolute; bottom: -30px; right: -30px;
+  width: 100px; height: 100px;
+  background: var(--tarjeta-acento);
+  border-radius: 50%;
+  opacity: 0.07;
+  transition: transform 600ms cubic-bezier(0.34,1.56,0.64,1);
+}
+
+/* Hover: eleva la tarjeta y expande el círculo */
+.tarjeta:hover { transform: translateY(-6px); }
+.tarjeta:hover::after { transform: scale(2.5); opacity: 0.12; }
+
+/* Animación de entrada con delay escalonado */
+.tarjeta { animation: aparecer 600ms ease both; }
+.tarjeta:nth-child(2) { animation-delay: 100ms; }
+.tarjeta:nth-child(3) { animation-delay: 200ms; }
+.tarjeta:nth-child(4) { animation-delay: 300ms; }</code></pre>
+
+    </section>
+
+
+    <!-- ============================================================
+         PIE DE PÁGINA
+    ============================================================= -->
+    <footer class="site-footer">
+      <p>Semana 05 — Diseño Web · CSS Avanzado</p>
+      <nav class="footer-nav" aria-label="Otras semanas">
+        <a href="semana-01-html.html">← Sem 01: HTML</a>
+        <a href="semana-02-css.html">← Sem 02: CSS</a>
+        <a href="semana-03-responsive.html">← Sem 03: Responsive</a>
+        <a href="semana-04-flexbox-grid.html">← Sem 04: Flex/Grid</a>
+      </nav>
+    </footer>
+
+  </div><!-- /.pagina-wrapper -->
+
+</body>
+</html>

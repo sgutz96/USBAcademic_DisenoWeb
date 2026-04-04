@@ -1,7 +1,7 @@
 ﻿# Semana-07-JS
 
 ## 📌 Descripción
-Introducción a JavaScript: variables, funciones, eventos y manipulación del DOM.
+Introducción a JavaScript: variables, funciones y manipulación del DOM.
 
 ## 🎯 Objetivo
 Comprender y aplicar los conceptos de esta semana mediante ejercicios prácticos.
