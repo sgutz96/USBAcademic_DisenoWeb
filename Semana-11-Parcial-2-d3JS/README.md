@@ -1,7 +1,7 @@
-﻿# Semana-11-Parcial-2
+﻿# Semana-11-D3js
 
 ## 📌 Descripción
-Proyecto creativo usando Three.js o p5.js.
+Introducción a D3.js para crear gráficos generativos e interactivos.
 
 ## 🎯 Objetivo
 Comprender y aplicar los conceptos de esta semana mediante ejercicios prácticos.

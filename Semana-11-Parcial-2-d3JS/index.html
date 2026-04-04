@@ -1,0 +1,1728 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Semana 11 — D3.js</title>
+
+  <!--
+    INTRODUCCIÓN A D3.js: VISUALIZACIÓN DE DATOS EN EL NAVEGADOR
+    =============================================================
+    D3.js (Data-Driven Documents) es la librería de referencia para
+    crear visualizaciones de datos en el navegador. Fue creada por
+    Mike Bostock en 2011 y es usada por The New York Times, The Guardian
+    y la mayoría de medios de datos del mundo.
+
+    A diferencia de librerías de gráficos "llave en mano" (Chart.js,
+    Highcharts), D3 NO dibuja gráficos predefinidos. En su lugar,
+    te da las herramientas para CONSTRUIR cualquier gráfico desde cero,
+    vinculando datos a elementos SVG del DOM.
+
+    LA IDEA CENTRAL: Data → DOM
+    ───────────────────────────
+    D3 te permite decir: "para cada fila de datos, crea un elemento
+    SVG y asígnale atributos que dependan del valor del dato".
+
+    d3.select('svg')
+      .selectAll('rect')
+      .data([10, 25, 40, 15, 30])     // datos
+      .enter().append('rect')          // un <rect> por dato
+        .attr('height', d => d * 4)   // altura proporcional al dato
+        .attr('fill', 'steelblue');
+
+    ESTA SEMANA:
+    1. SELECCIONES — select, selectAll, data, enter, append
+    2. ESCALAS — scaleLinear, scaleBand, scaleOrdinal
+    3. EJES — axisBottom, axisLeft
+    4. GRÁFICO DE BARRAS — el "hola mundo" de D3
+    5. GRÁFICO DE LÍNEAS — path + line generator
+    6. GRÁFICO CIRCULAR — pie + arc
+    7. TRANSICIONES — .transition().duration().attr()
+    8. PROYECTO — dashboard interactivo con tres gráficos
+  -->
+
+  <!-- D3.js v7 desde CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+
+  <style>
+
+    /* ============================================================
+       VARIABLES CSS — paleta del curso + colores D3.js
+       ============================================================ */
+    :root {
+      /* Paleta base del curso */
+      --color-primario:    #1a3a4a;
+      --color-secundario:  #2d7d5f;
+      --color-acento:      #e8a020;
+      --color-fondo:       #f4f1ec;
+      --color-superficie:  #ffffff;
+      --color-texto:       #1e1e1e;
+      --color-texto-suave: #5a5a5a;
+      --color-borde:       #d6cfc4;
+
+      /* Colores temáticos D3.js */
+      --color-d3:        #f68e2e;   /* naranja D3 */
+      --color-d3-oscuro: #1c1c2e;   /* fondo oscuro para gráficos */
+      --color-d3-mid:    #2a1f3d;   /* morado oscuro */
+
+      /* Paleta categórica para los gráficos */
+      --d3-cat-1: #4e79a7;
+      --d3-cat-2: #f28e2b;
+      --d3-cat-3: #e15759;
+      --d3-cat-4: #76b7b2;
+      --d3-cat-5: #59a14f;
+      --d3-cat-6: #edc948;
+
+      --fuente-titulos: 'Georgia', 'Times New Roman', serif;
+      --fuente-cuerpo:  'Trebuchet MS', 'Gill Sans', sans-serif;
+      --fuente-codigo:  'Courier New', 'Lucida Console', monospace;
+
+      --espacio-xs:  0.25rem;
+      --espacio-sm:  0.5rem;
+      --espacio-md:  1rem;
+      --espacio-lg:  1.5rem;
+      --espacio-xl:  2rem;
+      --espacio-xxl: 3rem;
+
+      --radio-sm:   4px;
+      --radio-md:   8px;
+      --radio-lg:   16px;
+      --radio-pill: 999px;
+
+      --sombra-sm: 0 1px 3px rgba(0,0,0,0.12);
+      --sombra-md: 0 4px 12px rgba(0,0,0,0.10);
+      --sombra-lg: 0 8px 24px rgba(0,0,0,0.12);
+
+      --duracion-rapida: 150ms;
+      --duracion-media:  300ms;
+      --duracion-lenta:  600ms;
+      --timing-rebote:   cubic-bezier(0.34, 1.56, 0.64, 1);
+      --timing-entrada:  cubic-bezier(0.0, 0.0, 0.2, 1);
+    }
+
+
+    /* ============================================================
+       RESET Y BASE
+       ============================================================ */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--fuente-cuerpo);
+      font-size: 16px;
+      line-height: 1.7;
+      color: var(--color-texto);
+      background-color: var(--color-fondo);
+    }
+
+    p {
+      margin-bottom: var(--espacio-md);
+      max-width: 65ch;
+    }
+
+    h1, h2, h3, h4 {
+      font-family: var(--fuente-titulos);
+      color: var(--color-primario);
+      line-height: 1.2;
+      margin-bottom: var(--espacio-md);
+    }
+
+    h2, h3 { margin-top: var(--espacio-xl); }
+
+    a {
+      color: var(--color-secundario);
+      text-decoration: none;
+      border-bottom: 1px solid transparent;
+      transition: border-color var(--duracion-media) ease;
+    }
+    a:hover { border-bottom-color: var(--color-secundario); }
+
+    code {
+      font-family: var(--fuente-codigo);
+      font-size: 0.875em;
+      background-color: #fdf0e6;
+      color: #8a3a00;
+      padding: 2px 6px;
+      border-radius: var(--radio-sm);
+    }
+
+    /*
+      Los bloques <pre> llevan la etiqueta "D3" en la esquina,
+      el mismo patrón que semana 10 usó "p5" y semana 08 usó "3JS".
+    */
+    pre {
+      background: var(--color-d3-oscuro);
+      color: #f8f8f2;
+      padding: var(--espacio-md);
+      border-radius: var(--radio-md);
+      overflow-x: auto;
+      font-family: var(--fuente-codigo);
+      font-size: 0.875rem;
+      line-height: 1.8;
+      margin-bottom: var(--espacio-lg);
+      tab-size: 2;
+      position: relative;
+    }
+
+    pre::before {
+      content: "D3";
+      position: absolute;
+      top: var(--espacio-sm);
+      right: var(--espacio-sm);
+      background: var(--color-d3);
+      color: #fff;
+      font-family: var(--fuente-codigo);
+      font-size: 0.65rem;
+      font-weight: bold;
+      padding: 1px 6px;
+      border-radius: var(--radio-sm);
+      letter-spacing: 0.05em;
+    }
+
+    pre code {
+      background: none;
+      color: inherit;
+      padding: 0;
+      font-size: inherit;
+    }
+
+    /* Colores de sintaxis */
+    .kw  { color: #ff79c6; }
+    .fn  { color: #50fa7b; }
+    .num { color: #bd93f9; }
+    .str { color: #f1fa8c; }
+    .cm  { color: #6272a4; font-style: italic; }
+    .d3f { color: #8be9fd; }   /* métodos D3 encadenados */
+    .sel { color: #ffb86c; }   /* selectores CSS */
+
+    ul, ol { padding-left: 1.5rem; }
+    li { margin-bottom: var(--espacio-xs); }
+
+    ::selection {
+      background-color: var(--color-d3);
+      color: #fff;
+    }
+
+
+    /* ============================================================
+       LAYOUT GENERAL
+       ============================================================ */
+    .pagina-wrapper {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 var(--espacio-md);
+    }
+
+
+    /* ============================================================
+       ENCABEZADO — fondo oscuro temático D3.js
+       ============================================================ */
+    .site-header {
+      background-color: var(--color-d3-oscuro);
+      color: #ffffff;
+      padding: var(--espacio-xl) var(--espacio-md);
+      margin-bottom: var(--espacio-xxl);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Texto decorativo "D3" grande en el fondo */
+    .site-header::before {
+      content: "D3";
+      position: absolute;
+      right: var(--espacio-xl);
+      top: 50%;
+      transform: translateY(-50%);
+      font-family: var(--fuente-titulos);
+      font-size: 7rem;
+      font-weight: bold;
+      color: var(--color-d3);
+      opacity: 0.08;
+      line-height: 1;
+      pointer-events: none;
+    }
+
+    .site-header::after {
+      content: "";
+      position: absolute;
+      bottom: -60px;
+      left: 40px;
+      width: 160px;
+      height: 160px;
+      background: rgba(246,142,46,0.05);
+      border-radius: 50%;
+    }
+
+    .site-header h1 {
+      color: #ffffff;
+      font-size: 2.5rem;
+      margin-bottom: var(--espacio-sm);
+    }
+
+    .site-header p {
+      color: rgba(255,255,255,0.75);
+      max-width: none;
+    }
+
+    .badge-semana {
+      display: inline-block;
+      background: var(--color-d3);
+      color: #ffffff;
+      font-family: var(--fuente-codigo);
+      font-size: 0.75rem;
+      font-weight: bold;
+      padding: 3px 10px;
+      border-radius: var(--radio-pill);
+      margin-bottom: var(--espacio-md);
+      letter-spacing: 0.05em;
+    }
+
+
+    /* ============================================================
+       NAVEGACIÓN INTERNA
+       ============================================================ */
+    .nav-interna {
+      background: var(--color-superficie);
+      border: 1px solid var(--color-borde);
+      border-radius: var(--radio-lg);
+      padding: var(--espacio-lg);
+      margin-bottom: var(--espacio-xxl);
+      box-shadow: var(--sombra-sm);
+    }
+
+    .nav-interna h2 {
+      font-size: 1rem;
+      margin-top: 0;
+      margin-bottom: var(--espacio-md);
+      color: var(--color-texto-suave);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-family: var(--fuente-cuerpo);
+    }
+
+    .nav-interna ul {
+      list-style: none;
+      padding: 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--espacio-sm);
+    }
+
+    .nav-interna a {
+      display: inline-block;
+      padding: var(--espacio-xs) var(--espacio-md);
+      background: var(--color-fondo);
+      border: 1px solid var(--color-borde);
+      border-radius: var(--radio-pill);
+      font-size: 0.875rem;
+      color: var(--color-primario);
+      border-bottom: none;
+      transition: background var(--duracion-media), border-color var(--duracion-media), color var(--duracion-media);
+    }
+
+    .nav-interna a:hover {
+      background: var(--color-d3-oscuro);
+      color: var(--color-d3);
+      border-color: var(--color-d3-oscuro);
+    }
+
+
+    /* ============================================================
+       ETIQUETA IDENTIFICADORA
+       ============================================================ */
+    .etiqueta {
+      display: inline-block;
+      background: var(--color-primario);
+      color: #fff;
+      font-family: var(--fuente-codigo);
+      font-size: 0.72rem;
+      padding: 2px 8px;
+      border-radius: var(--radio-sm);
+      margin-bottom: var(--espacio-sm);
+      letter-spacing: 0.03em;
+    }
+
+    .etiqueta.verde  { background: var(--color-secundario); }
+    .etiqueta.ambar  { background: var(--color-acento); color: var(--color-primario); }
+    .etiqueta.lila   { background: #5c3a8a; }
+    .etiqueta.d3     { background: var(--color-d3); }
+
+
+    /* ============================================================
+       SECCIÓN DE CONTENIDO
+       ============================================================ */
+    .seccion {
+      margin-bottom: var(--espacio-xxl);
+      scroll-margin-top: 2rem;
+    }
+
+    .seccion > h2 {
+      border-bottom: 2px solid var(--color-borde);
+      padding-bottom: var(--espacio-sm);
+    }
+
+
+    /* ============================================================
+       BLOQUE DE NOTA
+       ============================================================ */
+    .nota {
+      border-left: 4px solid var(--color-secundario);
+      background: #edf7f3;
+      padding: var(--espacio-md) var(--espacio-lg);
+      border-radius: 0 var(--radio-md) var(--radio-md) 0;
+      margin: var(--espacio-lg) 0;
+    }
+
+    .nota.ambar { border-color: var(--color-acento);  background: #fdf5e6; }
+    .nota.azul  { border-color: var(--color-primario); background: #eef2f5; }
+    .nota.lila  { border-color: #5c3a8a;              background: #f2eef9; }
+    .nota.d3    { border-color: var(--color-d3);      background: #fff5eb; }
+
+    .nota p { margin-bottom: 0; }
+    .nota p + p { margin-top: var(--espacio-sm); }
+
+
+    /* ============================================================
+       TABLA
+       ============================================================ */
+    .tabla-wrapper {
+      overflow-x: auto;
+      margin: var(--espacio-lg) 0;
+      border-radius: var(--radio-md);
+      box-shadow: var(--sombra-sm);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+      background: var(--color-superficie);
+    }
+
+    th, td {
+      border: 1px solid var(--color-borde);
+      padding: 0.6rem 1rem;
+      text-align: left;
+    }
+
+    th {
+      background-color: var(--color-d3-oscuro);
+      color: var(--color-d3);
+      font-family: var(--fuente-titulos);
+      font-weight: normal;
+    }
+
+    tr:nth-child(even) { background-color: #f0ece6; }
+    td code { font-size: 0.8rem; }
+
+
+    /* ============================================================
+       CHART WRAPPER — contenedor de gráficos D3 (≡ sketch-wrapper)
+       ============================================================
+       Mismo patrón que sketch-wrapper en p5.js. Borde, header,
+       área del gráfico y hint de interacción.
+    */
+    .chart-wrapper {
+      background: var(--color-superficie);
+      border: 1px solid var(--color-borde);
+      border-radius: var(--radio-lg);
+      overflow: hidden;
+      margin: var(--espacio-md) 0;
+      box-shadow: var(--sombra-sm);
+    }
+
+    .chart-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--espacio-sm) var(--espacio-md);
+      border-bottom: 1px solid var(--color-borde);
+      background: var(--color-fondo);
+    }
+
+    .chart-titulo {
+      font-family: var(--fuente-codigo);
+      font-size: 0.78rem;
+      color: var(--color-texto-suave);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .chart-badge {
+      background: var(--color-d3);
+      color: #fff;
+      font-family: var(--fuente-codigo);
+      font-size: 0.65rem;
+      font-weight: bold;
+      padding: 1px 8px;
+      border-radius: var(--radio-pill);
+      letter-spacing: 0.04em;
+    }
+
+    .chart-area {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: var(--espacio-lg);
+      background: var(--color-superficie);
+      overflow-x: auto;
+    }
+
+    .chart-area svg {
+      display: block;
+      max-width: 100%;
+    }
+
+    .chart-hint {
+      padding: var(--espacio-sm) var(--espacio-md);
+      font-size: 0.78rem;
+      color: var(--color-texto-suave);
+      font-family: var(--fuente-codigo);
+      background: var(--color-fondo);
+      border-top: 1px solid var(--color-borde);
+    }
+
+    /* Grid de dos gráficos lado a lado */
+    .chart-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--espacio-md);
+      margin: var(--espacio-md) 0;
+    }
+
+    @media (max-width: 640px) {
+      .chart-grid { grid-template-columns: 1fr; }
+    }
+
+    /* Estilos SVG generales para los gráficos */
+    .d3-axis text {
+      font-family: var(--fuente-codigo);
+      font-size: 0.72rem;
+      fill: var(--color-texto-suave);
+    }
+
+    .d3-axis line,
+    .d3-axis path {
+      stroke: var(--color-borde);
+    }
+
+    .d3-tooltip {
+      position: absolute;
+      background: var(--color-d3-oscuro);
+      color: #f8f8f2;
+      font-family: var(--fuente-codigo);
+      font-size: 0.78rem;
+      padding: 6px 12px;
+      border-radius: var(--radio-md);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.15s;
+      z-index: 100;
+      border: 1px solid rgba(246,142,46,0.3);
+    }
+
+
+    /* ============================================================
+       PROYECTO APLICADO — mismo patrón que semana 10
+       ============================================================ */
+    @keyframes aparecer-proyecto {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .proyecto-wrapper {
+      background: var(--color-superficie);
+      border: 1px solid var(--color-borde);
+      border-radius: var(--radio-lg);
+      overflow: hidden;
+      box-shadow: var(--sombra-lg);
+      margin: var(--espacio-xl) 0;
+      animation: aparecer-proyecto var(--duracion-lenta) var(--timing-entrada) both;
+    }
+
+    .proyecto-header {
+      background: var(--color-d3-oscuro);
+      color: #fff;
+      padding: var(--espacio-lg);
+      display: flex;
+      align-items: center;
+      gap: var(--espacio-md);
+    }
+
+    .proyecto-icono {
+      width: 42px;
+      height: 42px;
+      background: var(--color-d3);
+      color: #fff;
+      border-radius: var(--radio-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--fuente-codigo);
+      font-weight: bold;
+      font-size: 0.9rem;
+      flex-shrink: 0;
+    }
+
+    .proyecto-header h3 { color: #fff; margin: 0; font-size: 1.2rem; }
+    .proyecto-header p  { color: rgba(255,255,255,0.6); margin: 0; font-size: 0.8rem; }
+
+    .proyecto-charts {
+      padding: var(--espacio-lg);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--espacio-md);
+    }
+
+    @media (max-width: 640px) {
+      .proyecto-charts { grid-template-columns: 1fr; }
+    }
+
+    .proyecto-chart-card {
+      background: var(--color-fondo);
+      border: 1px solid var(--color-borde);
+      border-radius: var(--radio-md);
+      overflow: hidden;
+    }
+
+    .proyecto-chart-card h4 {
+      font-family: var(--fuente-codigo);
+      font-size: 0.78rem;
+      color: var(--color-texto-suave);
+      padding: var(--espacio-sm) var(--espacio-md);
+      border-bottom: 1px solid var(--color-borde);
+      margin: 0;
+      background: var(--color-superficie);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .proyecto-chart-card .chart-body {
+      padding: var(--espacio-md);
+      display: flex;
+      justify-content: center;
+    }
+
+    .proyecto-controles {
+      padding: var(--espacio-lg);
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--espacio-sm);
+      align-items: center;
+      border-top: 1px solid var(--color-borde);
+    }
+
+    .ctrl-btn {
+      display: inline-block;
+      padding: var(--espacio-sm) var(--espacio-lg);
+      background: var(--color-primario);
+      color: #fff;
+      border: none;
+      border-radius: var(--radio-pill);
+      font-family: var(--fuente-codigo);
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition:
+        background var(--duracion-media) ease,
+        transform  var(--duracion-media) var(--timing-rebote);
+    }
+
+    .ctrl-btn:hover { background: var(--color-secundario); transform: translateY(-2px); }
+    .ctrl-btn:active { transform: translateY(1px); }
+
+    .ctrl-btn.d3color  { background: var(--color-d3); }
+    .ctrl-btn.d3color:hover { background: #c46010; }
+
+    .ctrl-btn.ambar {
+      background: var(--color-acento);
+      color: var(--color-primario);
+    }
+    .ctrl-btn.ambar:hover { background: #c07a10; color: #fff; }
+
+    .ctrl-label {
+      font-family: var(--fuente-codigo);
+      font-size: 0.78rem;
+      color: var(--color-texto-suave);
+    }
+
+    .ctrl-slider-wrap {
+      display: flex;
+      align-items: center;
+      gap: var(--espacio-sm);
+    }
+
+    .ctrl-slider {
+      -webkit-appearance: none;
+      appearance: none;
+      height: 4px;
+      background: var(--color-borde);
+      border-radius: var(--radio-pill);
+      outline: none;
+      width: 120px;
+      cursor: pointer;
+    }
+
+    .ctrl-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--color-d3);
+      cursor: pointer;
+      transition: transform var(--duracion-rapida) var(--timing-rebote);
+    }
+
+    .ctrl-slider::-webkit-slider-thumb:hover { transform: scale(1.3); }
+
+    .ctrl-valor {
+      font-family: var(--fuente-codigo);
+      font-size: 0.78rem;
+      color: var(--color-d3);
+      min-width: 2.5rem;
+    }
+
+
+    /* ============================================================
+       ASIDE RESUMEN
+       ============================================================ */
+    .aside-resumen {
+      background: #eeedfe;
+      border-left: 4px solid var(--color-primario);
+      padding: var(--espacio-lg) var(--espacio-xl);
+      border-radius: 0 var(--radio-lg) var(--radio-lg) 0;
+      margin: var(--espacio-xxl) 0;
+    }
+
+    .aside-resumen h3 { margin-top: var(--espacio-sm); color: var(--color-primario); font-size: 1.1rem; }
+    .aside-resumen table { margin: var(--espacio-md) 0 0; font-size: 0.85rem; background: transparent; }
+    .aside-resumen th  { background: rgba(26,58,74,0.15); color: var(--color-primario); }
+    .aside-resumen td  { border-color: rgba(26,58,74,0.15); }
+
+
+    /* ============================================================
+       PIE DE PÁGINA
+       ============================================================ */
+    .site-footer {
+      border-top: 1px solid var(--color-borde);
+      padding: var(--espacio-xl) var(--espacio-md);
+      margin-top: var(--espacio-xxl);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--espacio-md);
+      font-size: 0.875rem;
+      color: var(--color-texto-suave);
+    }
+
+    .footer-nav { display: flex; gap: var(--espacio-md); flex-wrap: wrap; }
+    .footer-nav a { color: var(--color-texto-suave); font-size: 0.875rem; border-bottom: none; }
+    .footer-nav a:hover { color: var(--color-primario); }
+
+
+    /* ============================================================
+       ACCESIBILIDAD
+       ============================================================ */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <!-- Tooltip global para los gráficos -->
+  <div class="d3-tooltip" id="tooltip"></div>
+
+  <!-- ============================================================
+       ENCABEZADO
+  ============================================================= -->
+  <header class="site-header">
+    <div class="pagina-wrapper">
+      <p class="badge-semana">SEMANA 11</p>
+      <h1>Visualización de Datos con D3.js</h1>
+      <p>Selecciones · Escalas · Ejes · Barras · Líneas · Pie · Transiciones · Dashboard interactivo.</p>
+    </div>
+  </header>
+
+
+  <div class="pagina-wrapper">
+
+    <!-- Navegación interna -->
+    <nav class="nav-interna" aria-label="Contenido de esta página">
+      <h2>Contenido</h2>
+      <ul>
+        <li><a href="#intro">1. ¿Qué es D3?</a></li>
+        <li><a href="#selecciones">2. Selecciones y datos</a></li>
+        <li><a href="#escalas">3. Escalas</a></li>
+        <li><a href="#barras">4. Gráfico de barras</a></li>
+        <li><a href="#lineas">5. Gráfico de líneas</a></li>
+        <li><a href="#pie">6. Gráfico circular</a></li>
+        <li><a href="#transiciones">7. Transiciones</a></li>
+        <li><a href="#proyecto">8. Proyecto aplicado</a></li>
+      </ul>
+    </nav>
+
+
+    <!-- ============================================================
+         SECCIÓN 1: ¿QUÉ ES D3.JS?
+         ============================================================ -->
+    <section class="seccion" id="intro">
+      <span class="etiqueta d3">introducción</span>
+      <h2>1. ¿Qué es D3.js?</h2>
+
+      <p>
+        <strong>D3.js</strong> (Data-Driven Documents) no es una librería de gráficos:
+        es un conjunto de herramientas para <em>unir datos a elementos del DOM</em>.
+        Tú decides qué elementos crear y cómo deben verse; D3 te da las herramientas
+        para calcularlo a partir de los datos.
+      </p>
+
+      <div class="nota d3">
+        <p>
+          <strong>D3 vs Chart.js:</strong> Chart.js dibuja gráficos predefinidos (barra, línea, pie…)
+          con pocas líneas de código. D3 no dibuja nada directamente: te da escalas, ejes y generadores
+          de formas para que <em>construyas</em> cualquier gráfico imaginable. Más código, control infinito.
+        </p>
+      </div>
+
+      <h3>La filosofía central: <em>Join</em></h3>
+      <p>
+        Todo en D3 gira en torno al concepto de <strong>data join</strong>: vincular un array
+        de datos a un conjunto de elementos DOM. D3 calcula automáticamente qué elementos
+        hay que crear (enter), actualizar (update) o eliminar (exit).
+      </p>
+
+      <pre><code><span class="cm">// La idea central de D3 en 6 líneas:</span>
+
+<span class="d3f">d3</span>.<span class="fn">select</span>(<span class="str">'svg'</span>)              <span class="cm">// selecciona el SVG</span>
+  .<span class="fn">selectAll</span>(<span class="str">'rect'</span>)        <span class="cm">// selecciona todos los <rect> (aunque no existan aún)</span>
+  .<span class="fn">data</span>([<span class="num">10</span>, <span class="num">25</span>, <span class="num">40</span>, <span class="num">15</span>, <span class="num">30</span>])  <span class="cm">// vincula el array de datos</span>
+  .<span class="fn">join</span>(<span class="str">'rect'</span>)              <span class="cm">// crea un <rect> por cada dato (enter + update)</span>
+    .<span class="fn">attr</span>(<span class="str">'width'</span>, <span class="num">40</span>)       <span class="cm">// atributo fijo</span>
+    .<span class="fn">attr</span>(<span class="str">'height'</span>, d => d * <span class="num">4</span>) <span class="cm">// atributo que depende del dato (d)</span>
+    .<span class="fn">attr</span>(<span class="str">'fill'</span>, <span class="str">'steelblue'</span>);  <span class="cm">// color</span></code></pre>
+    </section>
+
+
+    <!-- ============================================================
+         SECCIÓN 2: SELECCIONES Y JOIN DE DATOS
+         ============================================================ -->
+    <section class="seccion" id="selecciones">
+      <span class="etiqueta d3">selecciones</span>
+      <h2>2. Selecciones y Join de datos</h2>
+
+      <p>
+        Las <strong>selecciones</strong> son el corazón de D3. Funcionan como
+        <code>querySelectorAll</code> pero devuelven un objeto D3 con métodos
+        para vincular datos y modificar el DOM.
+      </p>
+
+      <pre><code><span class="cm">// ── SELECCIONAR ELEMENTOS ────────────────────────────────────</span>
+<span class="d3f">d3</span>.<span class="fn">select</span>(<span class="str">'#mi-svg'</span>)         <span class="cm">// selecciona UNO (el primero que coincida)</span>
+<span class="d3f">d3</span>.<span class="fn">selectAll</span>(<span class="str">'.barras rect'</span>) <span class="cm">// selecciona TODOS</span>
+
+<span class="cm">// ── JOIN DE DATOS (patrón moderno con .join()) ───────────────</span>
+<span class="kw">const</span> datos = [<span class="num">42</span>, <span class="num">18</span>, <span class="num">73</span>, <span class="num">55</span>, <span class="num">29</span>];
+
+svg.<span class="fn">selectAll</span>(<span class="str">'circle'</span>)
+  .<span class="fn">data</span>(datos)               <span class="cm">// vincula datos</span>
+  .<span class="fn">join</span>(<span class="str">'circle'</span>)            <span class="cm">// crea/actualiza/elimina elementos</span>
+    .<span class="fn">attr</span>(<span class="str">'r'</span>, d => d / <span class="num">2</span>)  <span class="cm">// radio proporcional al valor (d)</span>
+    .<span class="fn">attr</span>(<span class="str">'cx'</span>, (d, i) => i * <span class="num">80</span> + <span class="num">40</span>) <span class="cm">// i = índice del dato</span>
+    .<span class="fn">attr</span>(<span class="str">'cy'</span>, <span class="num">50</span>)
+    .<span class="fn">attr</span>(<span class="str">'fill'</span>, <span class="str">'#f68e2e'</span>);
+
+<span class="cm">// ── MODIFICAR ATRIBUTOS vs ESTILOS ───────────────────────────</span>
+sel.<span class="fn">attr</span>(<span class="str">'fill'</span>, <span class="str">'red'</span>);     <span class="cm">// atributo SVG: fill, cx, r, d, ...</span>
+sel.<span class="fn">style</span>(<span class="str">'color'</span>, <span class="str">'red'</span>);  <span class="cm">// propiedad CSS inline</span>
+sel.<span class="fn">text</span>(<span class="str">'Hola'</span>);           <span class="cm">// contenido de texto</span>
+sel.<span class="fn">html</span>(<span class="str">'&lt;b&gt;Ok&lt;/b&gt;'</span>);      <span class="cm">// contenido HTML</span>
+sel.<span class="fn">classed</span>(<span class="str">'activo'</span>, <span class="kw">true</span>); <span class="cm">// añadir/quitar clase CSS</span>
+sel.<span class="fn">property</span>(<span class="str">'value'</span>, <span class="str">'x'</span>); <span class="cm">// propiedad DOM (value, checked...)</span></code></pre>
+
+      <!-- Demo: círculos vinculados a datos -->
+      <h3>Demo — círculos vinculados a datos</h3>
+      <div class="chart-wrapper">
+        <div class="chart-header">
+          <span class="chart-titulo">d3.selectAll('circle').data(valores).join('circle')</span>
+          <span class="chart-badge">D3</span>
+        </div>
+        <div class="chart-area">
+          <svg id="svg-circulos" width="520" height="100"></svg>
+        </div>
+        <div class="chart-hint">Haz click en un círculo para cambiar su color · El radio es proporcional al valor</div>
+      </div>
+    </section>
+
+
+    <!-- ============================================================
+         SECCIÓN 3: ESCALAS
+         ============================================================ -->
+    <section class="seccion" id="escalas">
+      <span class="etiqueta verde">escalas</span>
+      <h2>3. Escalas</h2>
+
+      <p>
+        Las <strong>escalas</strong> son funciones que mapean un dominio de datos
+        (los valores reales) a un rango visual (píxeles, colores...). Son la pieza
+        más importante de D3: sin escalas, no hay forma de convertir datos en posiciones.
+      </p>
+
+      <div class="tabla-wrapper">
+        <table>
+          <thead>
+            <tr><th>Escala</th><th>Dominio → Rango</th><th>Uso típico</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>d3.scaleLinear()</code></td><td>Número → Número/Color</td><td>Eje Y, radios, colores continuos</td></tr>
+            <tr><td><code>d3.scaleBand()</code></td><td>Categoría → Número</td><td>Eje X de gráficos de barras</td></tr>
+            <tr><td><code>d3.scaleOrdinal()</code></td><td>Categoría → Color</td><td>Colores por categoría</td></tr>
+            <tr><td><code>d3.scaleTime()</code></td><td>Fecha → Número</td><td>Series temporales</td></tr>
+            <tr><td><code>d3.scaleLog()</code></td><td>Número (log) → Número</td><td>Datos con rangos muy amplios</td></tr>
+            <tr><td><code>d3.scaleSqrt()</code></td><td>Número (√) → Número</td><td>Radios de burbujas (área ∝ dato)</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <pre><code><span class="cm">// ── scaleLinear: dominio continuo → rango continuo ───────────</span>
+<span class="kw">const</span> escalaY = <span class="d3f">d3</span>.<span class="fn">scaleLinear</span>()
+  .<span class="fn">domain</span>([<span class="num">0</span>, <span class="num">100</span>])    <span class="cm">// mínimo y máximo de los datos</span>
+  .<span class="fn">range</span>([altura, <span class="num">0</span>]); <span class="cm">// píxeles (invertido: SVG crece hacia abajo)</span>
+
+escalaY(<span class="num">50</span>);  <span class="cm">// → altura / 2 (en píxeles)</span>
+escalaY(<span class="num">0</span>);   <span class="cm">// → altura (fondo del SVG)</span>
+escalaY(<span class="num">100</span>); <span class="cm">// → 0 (tope del SVG)</span>
+
+<span class="cm">// ── scaleBand: categorías en posiciones discretas ────────────</span>
+<span class="kw">const</span> meses = [<span class="str">'Ene'</span>, <span class="str">'Feb'</span>, <span class="str">'Mar'</span>, <span class="str">'Abr'</span>, <span class="str">'May'</span>];
+<span class="kw">const</span> escalaX = <span class="d3f">d3</span>.<span class="fn">scaleBand</span>()
+  .<span class="fn">domain</span>(meses)        <span class="cm">// categorías</span>
+  .<span class="fn">range</span>([<span class="num">0</span>, ancho])    <span class="cm">// espacio total en píxeles</span>
+  .<span class="fn">padding</span>(<span class="num">0.2</span>);       <span class="cm">// espacio entre barras (0-1)</span>
+
+escalaX(<span class="str">'Feb'</span>);           <span class="cm">// → posición X de la barra Febrero</span>
+escalaX.<span class="fn">bandwidth</span>();      <span class="cm">// → ancho de cada barra</span>
+
+<span class="cm">// ── scaleOrdinal: categorías → colores ───────────────────────</span>
+<span class="kw">const</span> color = <span class="d3f">d3</span>.<span class="fn">scaleOrdinal</span>(<span class="d3f">d3</span>.schemeTableau10)
+  .<span class="fn">domain</span>(categorias);
+color(<span class="str">'Ventas'</span>);  <span class="cm">// → '#4e79a7' (color de esa categoría)</span>
+
+<span class="cm">// ── Métodos útiles ────────────────────────────────────────────</span>
+<span class="d3f">d3</span>.<span class="fn">extent</span>(datos);       <span class="cm">// → [min, max] del array</span>
+<span class="d3f">d3</span>.<span class="fn">max</span>(datos);          <span class="cm">// → valor máximo</span>
+<span class="d3f">d3</span>.<span class="fn">min</span>(datos, d => d.valor); <span class="cm">// → mínimo usando accessor</span></code></pre>
+
+      <!-- Demo visual de escalas -->
+      <h3>Demo — visualización de escala lineal</h3>
+      <div class="chart-wrapper">
+        <div class="chart-header">
+          <span class="chart-titulo">scaleLinear() · el dominio de datos se mapea a píxeles</span>
+          <span class="chart-badge">D3</span>
+        </div>
+        <div class="chart-area">
+          <svg id="svg-escala" width="520" height="80"></svg>
+        </div>
+        <div class="chart-hint">Los valores del dominio [0, 100] se mapean al rango [0, 480px]</div>
+      </div>
+    </section>
+
+
+    <!-- ============================================================
+         SECCIÓN 4: GRÁFICO DE BARRAS
+         ============================================================ -->
+    <section class="seccion" id="barras">
+      <span class="etiqueta d3">gráfico de barras</span>
+      <h2>4. Gráfico de barras — el "hola mundo" de D3</h2>
+
+      <p>
+        El gráfico de barras es el punto de partida para aprender D3. Introduce
+        todos los conceptos fundamentales: SVG con márgenes, dos escalas, dos ejes
+        y los rectángulos vinculados a datos.
+      </p>
+
+      <pre><code><span class="cm">// ── PATRÓN MARGIN CONVENTION (convención estándar de D3) ─────</span>
+<span class="cm">// Siempre se trabaja con un SVG exterior y un <g> interior.</span>
+<span class="kw">const</span> margen = { top: <span class="num">20</span>, right: <span class="num">20</span>, bottom: <span class="num">40</span>, left: <span class="num">50</span> };
+<span class="kw">const</span> ancho   = <span class="num">500</span> - margen.left - margen.right; <span class="cm">// ancho del área de dibujo</span>
+<span class="kw">const</span> altura  = <span class="num">300</span> - margen.top  - margen.bottom;
+
+<span class="kw">const</span> svg = <span class="d3f">d3</span>.<span class="fn">select</span>(<span class="str">'#mi-grafico'</span>)
+  .<span class="fn">append</span>(<span class="str">'svg'</span>)
+  .<span class="fn">attr</span>(<span class="str">'width'</span>,  ancho  + margen.left + margen.right)
+  .<span class="fn">attr</span>(<span class="str">'height'</span>, altura + margen.top  + margen.bottom)
+  .<span class="fn">append</span>(<span class="str">'g'</span>)                            <span class="cm">// grupo de trabajo</span>
+  .<span class="fn">attr</span>(<span class="str">'transform'</span>, <span class="str">`translate(${margen.left}, ${margen.top})`</span>);
+
+<span class="cm">// ── ESCALAS ───────────────────────────────────────────────────</span>
+<span class="kw">const</span> x = <span class="d3f">d3</span>.<span class="fn">scaleBand</span>()
+  .<span class="fn">domain</span>(datos.<span class="fn">map</span>(d => d.mes))
+  .<span class="fn">range</span>([<span class="num">0</span>, ancho])
+  .<span class="fn">padding</span>(<span class="num">0.2</span>);
+
+<span class="kw">const</span> y = <span class="d3f">d3</span>.<span class="fn">scaleLinear</span>()
+  .<span class="fn">domain</span>([<span class="num">0</span>, <span class="d3f">d3</span>.<span class="fn">max</span>(datos, d => d.valor)])
+  .<span class="fn">range</span>([altura, <span class="num">0</span>]);
+
+<span class="cm">// ── EJES ──────────────────────────────────────────────────────</span>
+svg.<span class="fn">append</span>(<span class="str">'g'</span>)
+  .<span class="fn">attr</span>(<span class="str">'transform'</span>, <span class="str">`translate(0, ${altura})`</span>)
+  .<span class="fn">call</span>(<span class="d3f">d3</span>.<span class="fn">axisBottom</span>(x));
+
+svg.<span class="fn">append</span>(<span class="str">'g'</span>)
+  .<span class="fn">call</span>(<span class="d3f">d3</span>.<span class="fn">axisLeft</span>(y).<span class="fn">ticks</span>(<span class="num">5</span>));
+
+<span class="cm">// ── BARRAS ────────────────────────────────────────────────────</span>
+svg.<span class="fn">selectAll</span>(<span class="str">'rect'</span>)
+  .<span class="fn">data</span>(datos)
+  .<span class="fn">join</span>(<span class="str">'rect'</span>)
+    .<span class="fn">attr</span>(<span class="str">'x'</span>,      d => x(d.mes))
+    .<span class="fn">attr</span>(<span class="str">'y'</span>,      d => y(d.valor))
+    .<span class="fn">attr</span>(<span class="str">'width'</span>,  x.<span class="fn">bandwidth</span>())
+    .<span class="fn">attr</span>(<span class="str">'height'</span>, d => altura - y(d.valor))
+    .<span class="fn">attr</span>(<span class="str">'fill'</span>,   <span class="str">'#f68e2e'</span>)
+    .<span class="fn">attr</span>(<span class="str">'rx'</span>,     <span class="num">3</span>); <span class="cm">// esquinas redondeadas</span></code></pre>
+
+      <div class="chart-wrapper">
+        <div class="chart-header">
+          <span class="chart-titulo">Gráfico de barras — scaleBand + scaleLinear + axisBottom + axisLeft</span>
+          <span class="chart-badge">D3</span>
+        </div>
+        <div class="chart-area">
+          <svg id="svg-barras"></svg>
+        </div>
+        <div class="chart-hint">Pasa el cursor sobre las barras para ver el valor exacto · Click para resaltar</div>
+      </div>
+    </section>
+
+
+    <!-- ============================================================
+         SECCIÓN 5: GRÁFICO DE LÍNEAS
+         ============================================================ -->
+    <section class="seccion" id="lineas">
+      <span class="etiqueta verde">líneas</span>
+      <h2>5. Gráfico de líneas</h2>
+
+      <p>
+        Para dibujar una línea en D3 se usa un <strong>generador de línea</strong>:
+        <code>d3.line()</code>. Le dices cómo calcular X e Y para cada dato, y te
+        devuelve un string de ruta SVG (<code>d</code>) que se asigna a un <code>&lt;path&gt;</code>.
+      </p>
+
+      <pre><code><span class="cm">// ── GENERADOR DE LÍNEA ────────────────────────────────────────</span>
+<span class="kw">const</span> linea = <span class="d3f">d3</span>.<span class="fn">line</span>()
+  .<span class="fn">x</span>(d => x(d.fecha))    <span class="cm">// función que devuelve la posición X del punto</span>
+  .<span class="fn">y</span>(d => y(d.valor))    <span class="cm">// función que devuelve la posición Y del punto</span>
+  .<span class="fn">curve</span>(<span class="d3f">d3</span>.curveMonotoneX); <span class="cm">// curva suavizada (opcional)</span>
+  <span class="cm">// otras curvas: d3.curveLinear, d3.curveBasis, d3.curveStep</span>
+
+<span class="cm">// ── DIBUJAR EL PATH ───────────────────────────────────────────</span>
+svg.<span class="fn">append</span>(<span class="str">'path'</span>)
+  .<span class="fn">datum</span>(datos)             <span class="cm">// .datum() para UN elemento que usa todos los datos</span>
+  .<span class="fn">attr</span>(<span class="str">'d'</span>, linea)          <span class="cm">// el generador produce el string "M x,y L x,y..."</span>
+  .<span class="fn">attr</span>(<span class="str">'fill'</span>, <span class="str">'none'</span>)
+  .<span class="fn">attr</span>(<span class="str">'stroke'</span>, <span class="str">'#f68e2e'</span>)
+  .<span class="fn">attr</span>(<span class="str">'stroke-width'</span>, <span class="num">2.5</span>);
+
+<span class="cm">// ── ÁREA RELLENA (bonus) ──────────────────────────────────────</span>
+<span class="kw">const</span> area = <span class="d3f">d3</span>.<span class="fn">area</span>()
+  .<span class="fn">x</span>(d => x(d.fecha))
+  .<span class="fn">y0</span>(altura)               <span class="cm">// base del área (fondo del gráfico)</span>
+  .<span class="fn">y1</span>(d => y(d.valor))      <span class="cm">// tope del área (la línea en sí)</span>
+  .<span class="fn">curve</span>(<span class="d3f">d3</span>.curveMonotoneX);
+
+svg.<span class="fn">append</span>(<span class="str">'path'</span>)
+  .<span class="fn">datum</span>(datos)
+  .<span class="fn">attr</span>(<span class="str">'d'</span>, area)
+  .<span class="fn">attr</span>(<span class="str">'fill'</span>, <span class="str">'rgba(246,142,46,0.15)'</span>)
+  .<span class="fn">attr</span>(<span class="str">'stroke'</span>, <span class="str">'none'</span>);</code></pre>
+
+      <div class="chart-wrapper">
+        <div class="chart-header">
+          <span class="chart-titulo">Gráfico de líneas — d3.line() + curveMonotoneX + área rellena</span>
+          <span class="chart-badge">D3</span>
+        </div>
+        <div class="chart-area">
+          <svg id="svg-lineas"></svg>
+        </div>
+        <div class="chart-hint">Pasa el cursor sobre el gráfico para ver el valor en esa posición</div>
+      </div>
+    </section>
+
+
+    <!-- ============================================================
+         SECCIÓN 6: GRÁFICO CIRCULAR (PIE / DONUT)
+         ============================================================ -->
+    <section class="seccion" id="pie">
+      <span class="etiqueta lila">pie / donut</span>
+      <h2>6. Gráfico circular (Pie y Donut)</h2>
+
+      <p>
+        Para gráficos circulares D3 usa dos generadores: <code>d3.pie()</code> que calcula
+        los ángulos a partir de los datos, y <code>d3.arc()</code> que genera el string
+        SVG de cada sector.
+      </p>
+
+      <pre><code><span class="cm">// ── GENERADORES pie + arc ─────────────────────────────────────</span>
+<span class="kw">const</span> generadorPie = <span class="d3f">d3</span>.<span class="fn">pie</span>()
+  .<span class="fn">value</span>(d => d.valor)     <span class="cm">// qué propiedad es el valor</span>
+  .<span class="fn">sort</span>(<span class="kw">null</span>);             <span class="cm">// null → respetar el orden original</span>
+
+<span class="kw">const</span> generadorArc = <span class="d3f">d3</span>.<span class="fn">arc</span>()
+  .<span class="fn">innerRadius</span>(<span class="num">0</span>)         <span class="cm">// 0 = pie lleno; > 0 = donut</span>
+  .<span class="fn">outerRadius</span>(radio);
+
+<span class="cm">// Donut: innerRadius > 0</span>
+<span class="kw">const</span> arcDonut = <span class="d3f">d3</span>.<span class="fn">arc</span>()
+  .<span class="fn">innerRadius</span>(radio * <span class="num">0.55</span>) <span class="cm">// agujero del 55%</span>
+  .<span class="fn">outerRadius</span>(radio);
+
+<span class="cm">// ── DIBUJAR ───────────────────────────────────────────────────</span>
+<span class="cm">// Los datos del pie son los ángulos calculados por d3.pie()</span>
+<span class="kw">const</span> datosPie = generadorPie(datos); <span class="cm">// [{startAngle, endAngle, data, ...}]</span>
+
+svg.<span class="fn">selectAll</span>(<span class="str">'path'</span>)
+  .<span class="fn">data</span>(datosPie)
+  .<span class="fn">join</span>(<span class="str">'path'</span>)
+    .<span class="fn">attr</span>(<span class="str">'d'</span>, generadorArc)        <span class="cm">// genera el sector SVG</span>
+    .<span class="fn">attr</span>(<span class="str">'fill'</span>, d => color(d.data.categoria))
+    .<span class="fn">attr</span>(<span class="str">'stroke'</span>, <span class="str">'#fff'</span>)
+    .<span class="fn">attr</span>(<span class="str">'stroke-width'</span>, <span class="num">2</span>);</code></pre>
+
+      <div class="chart-grid">
+        <div class="chart-wrapper">
+          <div class="chart-header">
+            <span class="chart-titulo">Pie — innerRadius: 0</span>
+            <span class="chart-badge">D3</span>
+          </div>
+          <div class="chart-area">
+            <svg id="svg-pie"></svg>
+          </div>
+          <div class="chart-hint">Hover para ver porcentaje</div>
+        </div>
+        <div class="chart-wrapper">
+          <div class="chart-header">
+            <span class="chart-titulo">Donut — innerRadius: 55%</span>
+            <span class="chart-badge">D3</span>
+          </div>
+          <div class="chart-area">
+            <svg id="svg-donut"></svg>
+          </div>
+          <div class="chart-hint">Click en un sector para resaltarlo</div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ============================================================
+         SECCIÓN 7: TRANSICIONES
+         ============================================================ -->
+    <section class="seccion" id="transiciones">
+      <span class="etiqueta verde">transiciones</span>
+      <h2>7. Transiciones</h2>
+
+      <p>
+        D3 incluye un sistema de transiciones que anima suavemente los cambios de atributos.
+        Solo hay que insertar <code>.transition()</code> en la cadena antes de los atributos
+        que quieres animar.
+      </p>
+
+      <pre><code><span class="cm">// ── TRANSICIÓN BÁSICA ─────────────────────────────────────────</span>
+seleccion
+  .<span class="fn">transition</span>()              <span class="cm">// activa el modo transición</span>
+  .<span class="fn">duration</span>(<span class="num">800</span>)             <span class="cm">// duración en ms</span>
+  .<span class="fn">delay</span>((d, i) => i * <span class="num">100</span>) <span class="cm">// retardo escalonado por índice</span>
+  .<span class="fn">ease</span>(<span class="d3f">d3</span>.easeBounceOut)    <span class="cm">// función de easing</span>
+  .<span class="fn">attr</span>(<span class="str">'height'</span>, d => y(d))  <span class="cm">// este atributo se animará</span>
+  .<span class="fn">attr</span>(<span class="str">'fill'</span>, <span class="str">'#4aa8ff'</span>);   <span class="cm">// y también este</span>
+
+<span class="cm">// ── FUNCIONES DE EASING MÁS USADAS ───────────────────────────</span>
+<span class="d3f">d3</span>.easeLinear      <span class="cm">// velocidad constante</span>
+<span class="d3f">d3</span>.easeQuadInOut   <span class="cm">// suave en inicio y fin</span>
+<span class="d3f">d3</span>.easeCubicInOut  <span class="cm">// más suave que quad</span>
+<span class="d3f">d3</span>.easeElasticOut  <span class="cm">// efecto resorte al final</span>
+<span class="d3f">d3</span>.easeBounceOut   <span class="cm">// efecto rebote al final</span>
+<span class="d3f">d3</span>.easeBackOut     <span class="cm">// sobrepasa un poco y vuelve</span>
+
+<span class="cm">// ── ACTUALIZAR DATOS CON TRANSICIÓN ──────────────────────────</span>
+<span class="cm">// El flujo es: nuevos datos → re-bind → transition → update atributos</span>
+<span class="kw">function</span> <span class="fn">actualizar</span>(nuevosDatos) {
+  svg.<span class="fn">selectAll</span>(<span class="str">'rect'</span>)
+    .<span class="fn">data</span>(nuevosDatos)
+    .<span class="fn">join</span>(<span class="str">'rect'</span>)
+    .<span class="fn">transition</span>().<span class="fn">duration</span>(<span class="num">600</span>).<span class="fn">ease</span>(<span class="d3f">d3</span>.easeBackOut)
+      .<span class="fn">attr</span>(<span class="str">'y'</span>,      d => y(d.valor))
+      .<span class="fn">attr</span>(<span class="str">'height'</span>, d => altura - y(d.valor));
+}</code></pre>
+
+      <div class="chart-wrapper">
+        <div class="chart-header">
+          <span class="chart-titulo">Barras animadas con .transition().ease(d3.easeBackOut)</span>
+          <span class="chart-badge">D3</span>
+        </div>
+        <div class="chart-area">
+          <svg id="svg-transicion"></svg>
+        </div>
+        <div class="chart-hint" id="chart-hint-transicion">Haz click en un botón para actualizar los datos con una transición animada</div>
+      </div>
+
+      <div style="display:flex; gap:var(--espacio-sm); flex-wrap:wrap; margin-top: var(--espacio-md);">
+        <button class="ctrl-btn d3color" id="btn-dataset-a">Dataset A</button>
+        <button class="ctrl-btn" id="btn-dataset-b">Dataset B</button>
+        <button class="ctrl-btn ambar" id="btn-dataset-random">Aleatorio</button>
+        <span class="ctrl-label" style="margin-left:auto; align-self:center" id="label-ease">ease: easeBackOut</span>
+      </div>
+    </section>
+
+
+    <!-- ============================================================
+         ASIDE: RESUMEN RÁPIDO
+         ============================================================ -->
+    <aside class="aside-resumen">
+      <span class="etiqueta">Resumen</span>
+      <h3>Cheat Sheet — D3.js fundamentos</h3>
+      <div class="tabla-wrapper">
+        <table>
+          <thead>
+            <tr><th>API</th><th>Para qué sirve</th><th>Retorna</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>d3.select(sel)</code></td><td>Selecciona el primer elemento coincidente</td><td>Selección D3</td></tr>
+            <tr><td><code>d3.selectAll(sel)</code></td><td>Selecciona todos los elementos coincidentes</td><td>Selección D3</td></tr>
+            <tr><td><code>.data(arr).join(tag)</code></td><td>Vincula datos y crea/actualiza/elimina elementos</td><td>Selección actualizada</td></tr>
+            <tr><td><code>.attr(nombre, val)</code></td><td>Asigna un atributo SVG/HTML</td><td>Selección (chainable)</td></tr>
+            <tr><td><code>d3.scaleLinear()</code></td><td>Escala continua</td><td>Función de mapeo</td></tr>
+            <tr><td><code>d3.scaleBand()</code></td><td>Escala de categorías con ancho de banda</td><td>Función de mapeo</td></tr>
+            <tr><td><code>d3.axisBottom(escala)</code></td><td>Generador de eje inferior</td><td>Función para .call()</td></tr>
+            <tr><td><code>d3.line()</code></td><td>Generador de path de línea</td><td>Función que devuelve string SVG "d"</td></tr>
+            <tr><td><code>d3.pie()</code></td><td>Calcula ángulos de inicio/fin para cada dato</td><td>Array de objetos de arco</td></tr>
+            <tr><td><code>d3.arc()</code></td><td>Generador de sectores circulares</td><td>Función que devuelve string SVG "d"</td></tr>
+            <tr><td><code>.transition().duration(ms)</code></td><td>Anima cambios de atributos</td><td>Transición D3</td></tr>
+            <tr><td><code>d3.extent(arr)</code></td><td>Devuelve [min, max] del array</td><td>[min, max]</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </aside>
+
+
+    <!-- ============================================================
+         SECCIÓN 8: PROYECTO APLICADO — DASHBOARD
+         ============================================================ -->
+    <section class="seccion" id="proyecto">
+      <span class="etiqueta ambar">proyecto aplicado</span>
+      <h2>8. Proyecto Aplicado — Dashboard interactivo</h2>
+
+      <div class="proyecto-wrapper">
+        <div class="proyecto-header">
+          <div class="proyecto-icono">D3</div>
+          <div>
+            <h3>Dashboard de ventas — 3 gráficos interactivos</h3>
+            <p>Barras · Línea · Donut · Filtros y transiciones</p>
+          </div>
+        </div>
+
+        <div class="proyecto-charts">
+          <div class="proyecto-chart-card" style="grid-column: 1 / -1">
+            <h4>Ventas mensuales por categoría</h4>
+            <div class="chart-body"><svg id="dash-barras"></svg></div>
+          </div>
+          <div class="proyecto-chart-card">
+            <h4>Tendencia acumulada</h4>
+            <div class="chart-body"><svg id="dash-linea"></svg></div>
+          </div>
+          <div class="proyecto-chart-card">
+            <h4>Distribución por categoría</h4>
+            <div class="chart-body"><svg id="dash-donut"></svg></div>
+          </div>
+        </div>
+
+        <div class="proyecto-controles">
+          <button class="ctrl-btn d3color" id="dash-btn-2023">Año 2023</button>
+          <button class="ctrl-btn" id="dash-btn-2024">Año 2024</button>
+          <button class="ctrl-btn ambar" id="dash-btn-random">Datos aleatorios</button>
+          <div class="ctrl-slider-wrap" style="margin-left:auto">
+            <span class="ctrl-label">Duración:</span>
+            <input type="range" class="ctrl-slider" id="dash-slider-dur" min="200" max="1500" value="600" step="100">
+            <span class="ctrl-valor" id="dash-label-dur">600ms</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div><!-- /.pagina-wrapper -->
+
+
+  <!-- ============================================================
+       PIE DE PÁGINA
+  ============================================================= -->
+  <footer class="site-footer">
+    <div class="footer-nav">
+      <a href="semana-09-threejs-eventos.html">← Sem. 09 Three.js</a>
+      <a href="index.html">← Sem. 10 p5.js</a>
+      <strong style="color: var(--color-primario)">Sem. 11 D3.js</strong>
+      <a href="#">Sem. 12 Final →</a>
+    </div>
+    <address>
+      Diseño Web &bull; Semana 11 &bull;
+      <a href="mailto:docente@curso.edu">docente@curso.edu</a>
+    </address>
+  </footer>
+
+
+  <!-- ============================================================
+       TODOS LOS GRÁFICOS D3
+       ============================================================ -->
+  <script>
+    /* ─── PALETA Y UTILIDADES ────────────────────────────────── */
+    const PALETA = ['#4e79a7','#f28e2b','#e15759','#76b7b2','#59a14f','#edc948','#b07aa1','#ff9da7'];
+    const COLOR_D3 = '#f68e2e';
+
+    const tooltip = d3.select('#tooltip');
+
+    function mostrarTip(event, html) {
+      tooltip.html(html).style('opacity', 1)
+        .style('left', (event.pageX + 14) + 'px')
+        .style('top',  (event.pageY - 28) + 'px');
+    }
+    function ocultarTip() {
+      tooltip.style('opacity', 0);
+    }
+
+    /* ─── DEMO 1: CÍRCULOS VINCULADOS A DATOS ───────────────── */
+    ;(function() {
+      const datos = [22, 48, 35, 60, 15, 42, 55, 30];
+      const W = 520, H = 100;
+      const svg = d3.select('#svg-circulos').attr('width', W).attr('height', H);
+
+      const x = d3.scaleLinear().domain([0, datos.length - 1]).range([30, W - 30]);
+      const color = d3.scaleSequential(d3.interpolateOranges).domain([0, 70]);
+
+      svg.selectAll('circle')
+        .data(datos).join('circle')
+        .attr('cx', (d, i) => x(i))
+        .attr('cy', H / 2)
+        .attr('r', d => d / 2.5)
+        .attr('fill', d => color(d))
+        .attr('stroke', '#fff')
+        .attr('stroke-width', 2)
+        .style('cursor', 'pointer')
+        .on('mouseover', (ev, d) => mostrarTip(ev, `valor: <b>${d}</b>`))
+        .on('mouseout', ocultarTip)
+        .on('click', function(ev, d) {
+          d3.select(this).transition().duration(300)
+            .attr('fill', c => c === d ? '#50fa7b' : color(c));
+          setTimeout(() => d3.select(this).transition().duration(600).attr('fill', color(d)), 600);
+        });
+
+      svg.selectAll('text')
+        .data(datos).join('text')
+        .attr('x', (d, i) => x(i))
+        .attr('y', H / 2 + d / 2.5 + 14)
+        .attr('text-anchor', 'middle')
+        .attr('font-family', 'Courier New')
+        .attr('font-size', '10px')
+        .attr('fill', '#5a5a5a')
+        .text(d => d);
+    })();
+
+
+    /* ─── DEMO 2: VISUALIZACIÓN DE ESCALA ───────────────────── */
+    ;(function() {
+      const W = 520, H = 80;
+      const svg = d3.select('#svg-escala').attr('width', W).attr('height', H);
+      const margen = { left: 20, right: 20 };
+      const escala = d3.scaleLinear().domain([0, 100]).range([margen.left, W - margen.right]);
+
+      // Gradiente
+      const grad = svg.append('defs').append('linearGradient')
+        .attr('id', 'grad-escala').attr('x1', '0%').attr('x2', '100%');
+      grad.append('stop').attr('offset', '0%').attr('stop-color', '#e8e0f0');
+      grad.append('stop').attr('offset', '100%').attr('stop-color', COLOR_D3);
+
+      svg.append('rect')
+        .attr('x', margen.left).attr('y', 20).attr('width', W - margen.left - margen.right)
+        .attr('height', 20).attr('rx', 4).attr('fill', 'url(#grad-escala)');
+
+      // Ticks
+      [0, 25, 50, 75, 100].forEach(v => {
+        svg.append('line')
+          .attr('x1', escala(v)).attr('x2', escala(v))
+          .attr('y1', 18).attr('y2', 44)
+          .attr('stroke', '#d6cfc4').attr('stroke-width', 1);
+        svg.append('text')
+          .attr('x', escala(v)).attr('y', 58)
+          .attr('text-anchor', 'middle')
+          .attr('font-family', 'Courier New').attr('font-size', '11px')
+          .attr('fill', '#5a5a5a').text(v);
+        svg.append('text')
+          .attr('x', escala(v)).attr('y', 14)
+          .attr('text-anchor', 'middle')
+          .attr('font-family', 'Courier New').attr('font-size', '10px')
+          .attr('fill', '#1a3a4a').text(Math.round(escala(v)) + 'px');
+      });
+    })();
+
+
+    /* ─── DEMO 3: GRÁFICO DE BARRAS ─────────────────────────── */
+    ;(function() {
+      const datos = [
+        { mes: 'Ene', valor: 42 }, { mes: 'Feb', valor: 68 }, { mes: 'Mar', valor: 35 },
+        { mes: 'Abr', valor: 80 }, { mes: 'May', valor: 55 }, { mes: 'Jun', valor: 72 },
+        { mes: 'Jul', valor: 90 }, { mes: 'Ago', valor: 48 }, { mes: 'Sep', valor: 63 },
+        { mes: 'Oct', valor: 77 }, { mes: 'Nov', valor: 59 }, { mes: 'Dic', valor: 85 },
+      ];
+
+      const margen = { top: 20, right: 20, bottom: 36, left: 44 };
+      const W = 520, H = 220;
+      const w = W - margen.left - margen.right;
+      const h = H - margen.top - margen.bottom;
+
+      const svg = d3.select('#svg-barras').attr('width', W).attr('height', H)
+        .append('g').attr('transform', `translate(${margen.left},${margen.top})`);
+
+      const x = d3.scaleBand().domain(datos.map(d => d.mes)).range([0, w]).padding(0.25);
+      const y = d3.scaleLinear().domain([0, 100]).range([h, 0]);
+      const colorEsc = d3.scaleSequential(d3.interpolateOranges).domain([30, 100]);
+
+      svg.append('g').attr('transform', `translate(0,${h})`).call(d3.axisBottom(x))
+        .selectAll('text').attr('font-family', 'Courier New').attr('font-size', '10px');
+      svg.append('g').call(d3.axisLeft(y).ticks(5).tickFormat(d => d + '%'))
+        .selectAll('text').attr('font-family', 'Courier New').attr('font-size', '10px');
+
+      // Grid lines
+      svg.append('g').attr('class', 'grid')
+        .call(d3.axisLeft(y).ticks(5).tickSize(-w).tickFormat(''))
+        .selectAll('line').attr('stroke', '#f0ece6').attr('stroke-dasharray', '3,3');
+      svg.select('.grid path').attr('stroke', 'none');
+
+      svg.selectAll('rect').data(datos).join('rect')
+        .attr('x', d => x(d.mes))
+        .attr('y', h)
+        .attr('width', x.bandwidth())
+        .attr('height', 0)
+        .attr('fill', d => colorEsc(d.valor))
+        .attr('rx', 3)
+        .style('cursor', 'pointer')
+        .on('mouseover', function(ev, d) {
+          d3.select(this).attr('fill', '#50fa7b');
+          mostrarTip(ev, `<b>${d.mes}</b>: ${d.valor}%`);
+        })
+        .on('mouseout', function(ev, d) {
+          d3.select(this).attr('fill', colorEsc(d.valor));
+          ocultarTip();
+        })
+        .transition().duration(800).delay((d, i) => i * 60).ease(d3.easeBackOut)
+        .attr('y', d => y(d.valor))
+        .attr('height', d => h - y(d.valor));
+    })();
+
+
+    /* ─── DEMO 4: GRÁFICO DE LÍNEAS ─────────────────────────── */
+    ;(function() {
+      const datos = [12, 28, 22, 45, 38, 60, 52, 75, 68, 88, 80, 95].map((v, i) => ({
+        mes: i, valor: v
+      }));
+
+      const margen = { top: 20, right: 20, bottom: 36, left: 44 };
+      const W = 520, H = 220;
+      const w = W - margen.left - margen.right;
+      const h = H - margen.top - margen.bottom;
+
+      const svg = d3.select('#svg-lineas').attr('width', W).attr('height', H)
+        .append('g').attr('transform', `translate(${margen.left},${margen.top})`);
+
+      const meses = ['E','F','M','A','M','J','J','A','S','O','N','D'];
+      const x = d3.scaleLinear().domain([0, 11]).range([0, w]);
+      const y = d3.scaleLinear().domain([0, 100]).range([h, 0]);
+
+      svg.append('g').attr('transform', `translate(0,${h})`)
+        .call(d3.axisBottom(x).ticks(11).tickFormat(i => meses[i]))
+        .selectAll('text').attr('font-family', 'Courier New').attr('font-size', '10px');
+      svg.append('g').call(d3.axisLeft(y).ticks(5).tickFormat(d => d + '%'))
+        .selectAll('text').attr('font-family', 'Courier New').attr('font-size', '10px');
+
+      // Grid
+      svg.append('g').call(d3.axisLeft(y).ticks(5).tickSize(-w).tickFormat(''))
+        .selectAll('line').attr('stroke', '#f0ece6').attr('stroke-dasharray', '3,3');
+      svg.select('.grid') && svg.selectAll('.domain').attr('stroke', '#d6cfc4');
+
+      // Área
+      const area = d3.area().x(d => x(d.mes)).y0(h).y1(d => y(d.valor)).curve(d3.curveMonotoneX);
+      svg.append('path').datum(datos).attr('d', area).attr('fill', 'rgba(246,142,46,0.12)').attr('stroke', 'none');
+
+      // Línea
+      const linea = d3.line().x(d => x(d.mes)).y(d => y(d.valor)).curve(d3.curveMonotoneX);
+      const path = svg.append('path').datum(datos).attr('d', linea)
+        .attr('fill', 'none').attr('stroke', COLOR_D3).attr('stroke-width', 2.5);
+
+      // Animación de dibujado
+      const L = path.node().getTotalLength();
+      path.attr('stroke-dasharray', L).attr('stroke-dashoffset', L)
+        .transition().duration(1200).ease(d3.easeLinear).attr('stroke-dashoffset', 0);
+
+      // Puntos
+      svg.selectAll('circle').data(datos).join('circle')
+        .attr('cx', d => x(d.mes)).attr('cy', d => y(d.valor))
+        .attr('r', 4).attr('fill', '#fff').attr('stroke', COLOR_D3).attr('stroke-width', 2)
+        .style('cursor', 'pointer')
+        .on('mouseover', (ev, d) => mostrarTip(ev, `<b>${meses[d.mes]}</b>: ${d.valor}%`))
+        .on('mouseout', ocultarTip);
+    })();
+
+
+    /* ─── DEMO 5: PIE Y DONUT ────────────────────────────────── */
+    function dibujarPie(svgId, innerR) {
+      const datos = [
+        { cat: 'Ventas',    val: 35 },
+        { cat: 'Marketing', val: 25 },
+        { cat: 'I+D',       val: 20 },
+        { cat: 'Logística', val: 12 },
+        { cat: 'Admin',     val: 8  },
+      ];
+
+      const W = 220, H = 200;
+      const radio = Math.min(W, H) / 2 - 10;
+
+      const svg = d3.select('#' + svgId).attr('width', W).attr('height', H)
+        .append('g').attr('transform', `translate(${W/2},${H/2})`);
+
+      const color = d3.scaleOrdinal(PALETA).domain(datos.map(d => d.cat));
+      const pie   = d3.pie().value(d => d.val).sort(null);
+      const arc   = d3.arc().innerRadius(innerR).outerRadius(radio);
+      const arcH  = d3.arc().innerRadius(innerR).outerRadius(radio + 6);
+
+      svg.selectAll('path').data(pie(datos)).join('path')
+        .attr('d', arc)
+        .attr('fill', d => color(d.data.cat))
+        .attr('stroke', '#fff').attr('stroke-width', 2)
+        .style('cursor', 'pointer')
+        .on('mouseover', function(ev, d) {
+          d3.select(this).transition().duration(150).attr('d', arcH);
+          mostrarTip(ev, `<b>${d.data.cat}</b>: ${d.data.val}%`);
+        })
+        .on('mouseout', function() {
+          d3.select(this).transition().duration(150).attr('d', arc);
+          ocultarTip();
+        })
+        .transition().duration(800).delay((d, i) => i * 100).ease(d3.easeBackOut)
+        .attrTween('d', function(d) {
+          const i = d3.interpolate({ startAngle: 0, endAngle: 0 }, d);
+          return t => arc(i(t));
+        });
+    }
+
+    dibujarPie('svg-pie', 0);
+    dibujarPie('svg-donut', 55);
+
+
+    /* ─── DEMO 6: TRANSICIONES ───────────────────────────────── */
+    ;(function() {
+      const SETS = {
+        A: [
+          { cat: 'Ene', val: 60 }, { cat: 'Feb', val: 40 }, { cat: 'Mar', val: 75 },
+          { cat: 'Abr', val: 50 }, { cat: 'May', val: 85 }, { cat: 'Jun', val: 45 },
+        ],
+        B: [
+          { cat: 'Ene', val: 20 }, { cat: 'Feb', val: 70 }, { cat: 'Mar', val: 35 },
+          { cat: 'Abr', val: 90 }, { cat: 'May', val: 55 }, { cat: 'Jun', val: 65 },
+        ],
+      };
+
+      const margen = { top: 20, right: 20, bottom: 36, left: 44 };
+      const W = 520, H = 200;
+      const w = W - margen.left - margen.right;
+      const h = H - margen.top - margen.bottom;
+
+      const svg = d3.select('#svg-transicion').attr('width', W).attr('height', H)
+        .append('g').attr('transform', `translate(${margen.left},${margen.top})`);
+
+      const x = d3.scaleBand().domain(SETS.A.map(d => d.cat)).range([0, w]).padding(0.25);
+      const y = d3.scaleLinear().domain([0, 100]).range([h, 0]);
+
+      svg.append('g').attr('transform', `translate(0,${h})`).call(d3.axisBottom(x))
+        .selectAll('text').attr('font-family', 'Courier New').attr('font-size', '10px');
+      svg.append('g').call(d3.axisLeft(y).ticks(5).tickFormat(d => d + '%'))
+        .selectAll('text').attr('font-family', 'Courier New').attr('font-size', '10px');
+
+      const rects = svg.selectAll('rect').data(SETS.A).join('rect')
+        .attr('x', d => x(d.cat)).attr('width', x.bandwidth()).attr('rx', 3)
+        .attr('y', h).attr('height', 0).attr('fill', COLOR_D3);
+
+      function actualizar(datos, ease, dur) {
+        rects.data(datos).join('rect')
+          .transition().duration(dur).ease(ease)
+          .delay((d, i) => i * 80)
+          .attr('y', d => y(d.val))
+          .attr('height', d => h - y(d.val))
+          .attr('fill', (d, i) => PALETA[i % PALETA.length]);
+      }
+
+      // Entrada inicial
+      rects.transition().duration(800).ease(d3.easeBackOut).delay((d, i) => i * 80)
+        .attr('y', d => y(d.val)).attr('height', d => h - y(d.val));
+
+      document.getElementById('btn-dataset-a').addEventListener('click', () =>
+        actualizar(SETS.A, d3.easeBackOut, 600));
+      document.getElementById('btn-dataset-b').addEventListener('click', () =>
+        actualizar(SETS.B, d3.easeBounceOut, 800));
+      document.getElementById('btn-dataset-random').addEventListener('click', () => {
+        const rand = SETS.A.map(d => ({ cat: d.cat, val: Math.round(Math.random() * 90 + 5) }));
+        actualizar(rand, d3.easeElasticOut, 700);
+      });
+    })();
+
+
+    /* ─── PROYECTO: DASHBOARD ────────────────────────────────── */
+    ;(function() {
+      let duracion = 600;
+      const categorias = ['Tecnología', 'Ropa', 'Hogar', 'Deportes', 'Libros'];
+
+      function genDatos() {
+        return categorias.map(cat => ({
+          cat,
+          val: Math.round(Math.random() * 80 + 15)
+        }));
+      }
+
+      const DATA = {
+        2023: [
+          { cat: 'Tecnología', val: 72 }, { cat: 'Ropa',       val: 48 },
+          { cat: 'Hogar',      val: 55 }, { cat: 'Deportes',   val: 63 },
+          { cat: 'Libros',     val: 30 },
+        ],
+        2024: [
+          { cat: 'Tecnología', val: 85 }, { cat: 'Ropa',       val: 60 },
+          { cat: 'Hogar',      val: 42 }, { cat: 'Deportes',   val: 77 },
+          { cat: 'Libros',     val: 50 },
+        ],
+      };
+
+      let datosActuales = DATA[2023];
+      const color = d3.scaleOrdinal(PALETA).domain(categorias);
+
+      /* ── Barras del dashboard ── */
+      const mB = { top: 16, right: 16, bottom: 40, left: 48 };
+      const WB = 420, HB = 180;
+      const wB = WB - mB.left - mB.right, hB = HB - mB.top - mB.bottom;
+
+      const svgB = d3.select('#dash-barras').attr('width', WB).attr('height', HB)
+        .append('g').attr('transform', `translate(${mB.left},${mB.top})`);
+
+      const xB = d3.scaleBand().domain(categorias).range([0, wB]).padding(0.25);
+      const yB = d3.scaleLinear().domain([0, 100]).range([hB, 0]);
+
+      svgB.append('g').attr('transform', `translate(0,${hB})`).call(d3.axisBottom(xB).tickSizeOuter(0))
+        .selectAll('text').attr('font-family', 'Courier New').attr('font-size', '9px').attr('dy', '0.9em');
+      svgB.append('g').call(d3.axisLeft(yB).ticks(4).tickFormat(d => d + '%'))
+        .selectAll('text').attr('font-family', 'Courier New').attr('font-size', '9px');
+
+      const barrasD = svgB.selectAll('rect').data(datosActuales).join('rect')
+        .attr('x', d => xB(d.cat)).attr('width', xB.bandwidth())
+        .attr('y', hB).attr('height', 0).attr('rx', 3)
+        .attr('fill', d => color(d.cat))
+        .on('mouseover', (ev, d) => mostrarTip(ev, `<b>${d.cat}</b>: ${d.val}%`))
+        .on('mouseout', ocultarTip);
+
+      barrasD.transition().duration(800).ease(d3.easeBackOut).delay((d, i) => i * 80)
+        .attr('y', d => yB(d.val)).attr('height', d => hB - yB(d.val));
+
+      /* ── Línea del dashboard ── */
+      const mL = { top: 16, right: 16, bottom: 36, left: 44 };
+      const WL = 220, HL = 170;
+      const wL = WL - mL.left - mL.right, hL = HL - mL.top - mL.bottom;
+
+      const svgL = d3.select('#dash-linea').attr('width', WL).attr('height', HL)
+        .append('g').attr('transform', `translate(${mL.left},${mL.top})`);
+
+      const xL = d3.scaleLinear().domain([0, categorias.length - 1]).range([0, wL]);
+      const yL = d3.scaleLinear().domain([0, 100]).range([hL, 0]);
+
+      svgL.append('g').attr('transform', `translate(0,${hL})`).call(d3.axisBottom(xL).ticks(4).tickFormat(i => categorias[i]?.slice(0, 3) || ''))
+        .selectAll('text').attr('font-family', 'Courier New').attr('font-size', '8px');
+      svgL.append('g').call(d3.axisLeft(yL).ticks(4))
+        .selectAll('text').attr('font-family', 'Courier New').attr('font-size', '8px');
+
+      const lineaGen = d3.line().x((d, i) => xL(i)).y(d => yL(d.val)).curve(d3.curveMonotoneX);
+      const pathL = svgL.append('path').attr('fill', 'none').attr('stroke', COLOR_D3).attr('stroke-width', 2);
+      const puntosL = svgL.selectAll('circle').data(datosActuales).join('circle')
+        .attr('cx', (d, i) => xL(i)).attr('cy', d => yL(d.val))
+        .attr('r', 4).attr('fill', '#fff').attr('stroke', COLOR_D3).attr('stroke-width', 2);
+
+      pathL.datum(datosActuales).attr('d', lineaGen);
+
+      /* ── Donut del dashboard ── */
+      const WD = 220, HD = 170;
+      const radioD = Math.min(WD, HD) / 2 - 12;
+
+      const svgD = d3.select('#dash-donut').attr('width', WD).attr('height', HD)
+        .append('g').attr('transform', `translate(${WD/2},${HD/2})`);
+
+      const pieGen  = d3.pie().value(d => d.val).sort(null);
+      const arcGen  = d3.arc().innerRadius(radioD * 0.52).outerRadius(radioD);
+      const arcHov  = d3.arc().innerRadius(radioD * 0.52).outerRadius(radioD + 5);
+
+      const sectores = svgD.selectAll('path').data(pieGen(datosActuales)).join('path')
+        .attr('d', arcGen).attr('fill', d => color(d.data.cat))
+        .attr('stroke', '#fff').attr('stroke-width', 2)
+        .on('mouseover', function(ev, d) {
+          d3.select(this).transition().duration(120).attr('d', arcHov);
+          mostrarTip(ev, `<b>${d.data.cat}</b>: ${d.data.val}%`);
+        })
+        .on('mouseout', function() {
+          d3.select(this).transition().duration(120).attr('d', arcGen);
+          ocultarTip();
+        });
+
+      /* ── Función de actualización ── */
+      function actualizar(nuevosDatos) {
+        datosActuales = nuevosDatos;
+
+        // Barras
+        svgB.selectAll('rect').data(nuevosDatos).join('rect')
+          .transition().duration(duracion).ease(d3.easeBackOut).delay((d, i) => i * 60)
+          .attr('y', d => yB(d.val)).attr('height', d => hB - yB(d.val))
+          .attr('fill', d => color(d.cat));
+
+        // Línea
+        pathL.datum(nuevosDatos).transition().duration(duracion).ease(d3.easeCubicInOut)
+          .attr('d', lineaGen);
+        svgL.selectAll('circle').data(nuevosDatos)
+          .transition().duration(duracion).ease(d3.easeBackOut)
+          .attr('cx', (d, i) => xL(i)).attr('cy', d => yL(d.val));
+
+        // Donut
+        svgD.selectAll('path').data(pieGen(nuevosDatos)).join('path')
+          .transition().duration(duracion).ease(d3.easeBackOut)
+          .attrTween('d', function(d) {
+            const prev = this._current || { startAngle: 0, endAngle: 0 };
+            const interp = d3.interpolate(prev, d);
+            this._current = interp(1);
+            return t => arcGen(interp(t));
+          })
+          .attr('fill', d => color(d.data.cat));
+      }
+
+      document.getElementById('dash-btn-2023').addEventListener('click', () => actualizar(DATA[2023]));
+      document.getElementById('dash-btn-2024').addEventListener('click', () => actualizar(DATA[2024]));
+      document.getElementById('dash-btn-random').addEventListener('click', () => actualizar(genDatos()));
+
+      document.getElementById('dash-slider-dur').addEventListener('input', function() {
+        duracion = parseInt(this.value);
+        document.getElementById('dash-label-dur').textContent = duracion + 'ms';
+      });
+    })();
+
+  </script>
+
+</body>
+</html>
