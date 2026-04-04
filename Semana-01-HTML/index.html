@@ -53,6 +53,95 @@
     Debe ser descriptivo y único por página.
   -->
 
+  <style>
+    /* 
+      <style>: Bloque para escribir CSS directamente en el HTML.
+      En proyectos reales se prefiere un archivo .css separado,
+      pero para practicar aquí está bien.
+      
+      Nota: En la Semana 02 veremos CSS en profundidad.
+    */
+
+    body {
+      font-family: Georgia, serif; /* Fuente base del documento */
+      max-width: 800px;            /* Ancho máximo del contenido */
+      margin: 0 auto;              /* Centrar horizontalmente */
+      padding: 2rem;               /* Espacio interno */
+      background-color: #f9f6f0;   /* Color de fondo suave */
+      color: #2c2c2a;              /* Color del texto */
+      line-height: 1.7;            /* Espaciado entre líneas */
+    }
+
+    /* ---- Estilos del encabezado principal ---- */
+    header {
+      border-bottom: 2px solid #c8b89a;
+      padding-bottom: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    /* ---- Etiquetas de sección para identificar cada elemento ---- */
+    .etiqueta {
+      display: inline-block;
+      background: #3c3489;
+      color: #ffffff;
+      font-family: monospace;
+      font-size: 0.75rem;
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin-bottom: 4px;
+    }
+
+    /* ---- Estilos para la tabla ---- */
+    table {
+      width: 100%;
+      border-collapse: collapse;   /* Elimina espacios entre celdas */
+      margin: 1rem 0;
+    }
+    th, td {
+      border: 1px solid #c8b89a;
+      padding: 0.6rem 1rem;
+      text-align: left;
+    }
+    th {
+      background-color: #3c3489;
+      color: #ffffff;
+    }
+    tr:nth-child(even) { background-color: #ede8df; } /* Filas alternas */
+
+    /* ---- Estilos para listas ---- */
+    ul, ol { padding-left: 1.5rem; }
+
+    /* ---- Resaltar código ---- */
+    code {
+      background: #e8e4f0;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: monospace;
+      font-size: 0.9em;
+      color: #3c3489;
+    }
+
+    /* ---- Cita ---- */
+    blockquote {
+      border-left: 4px solid #3c3489;
+      margin: 1.5rem 0;
+      padding: 0.5rem 1.5rem;
+      background: #eeedfe;
+      color: #26215c;
+      font-style: italic;
+    }
+
+    /* ---- Footer ---- */
+    footer {
+      border-top: 1px solid #c8b89a;
+      margin-top: 3rem;
+      padding-top: 1rem;
+      text-align: center;
+      font-size: 0.85rem;
+      color: #888780;
+    }
+  </style>
+
 </head>
 <!-- Aquí termina el <head>. Todo lo que vemos en pantalla va en <body> -->
 

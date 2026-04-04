@@ -1,0 +1,684 @@
+
+    /* =====================================================
+       VARIABLES Y RESET
+       ===================================================== */
+    :root {
+      --verde:      #1e4035;
+      --verde-med:  #2d6a4f;
+      --verde-claro:#74b89a;
+      --crema:      #f5f0e8;
+      --crema-osc:  #e8dfd0;
+      --arena:      #c9b99a;
+      --texto:      #1a1a18;
+      --texto-suave:#5a5248;
+
+      --f-titulo: 'Playfair Display', Georgia, serif;
+      --f-cuerpo:  'DM Sans', 'Trebuchet MS', sans-serif;
+
+      /* clamp(mínimo, preferido, máximo)
+         El valor preferido usa unidades de viewport (vw).
+         Resultado: el tamaño crece/mengua FLUIDAMENTE con la pantalla
+         sin saltos bruscos entre breakpoints. */
+      --fs-hero:    clamp(2.4rem, 7vw, 5rem);
+      --fs-h2:      clamp(1.6rem, 4vw, 2.6rem);
+      --fs-h3:      clamp(1.1rem, 2.5vw, 1.4rem);
+      --fs-body:    clamp(0.95rem, 1.5vw, 1.05rem);
+
+      --gap-sm:  clamp(0.75rem, 2vw, 1rem);
+      --gap-md:  clamp(1rem,    3vw, 2rem);
+      --gap-lg:  clamp(2rem,    6vw, 4rem);
+
+      --radio: 12px;
+      --sombra: 0 4px 24px rgba(30,64,53,0.12);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--f-cuerpo);
+      font-size: var(--fs-body);
+      color: var(--texto);
+      background: var(--crema);
+      line-height: 1.7;
+    }
+
+    img { max-width: 100%; display: block; }
+    a   { color: inherit; text-decoration: none; }
+
+
+    /* =====================================================
+       UTILIDADES
+       ===================================================== */
+    .contenedor {
+      /* Patrón clásico: padding para no pegar a los bordes en móvil,
+         max-width para no estirarse demasiado en desktop,
+         margin auto para centrar horizontalmente. */
+      width: 100%;
+      max-width: 1100px;
+      margin-inline: auto;          /* equivale a margin: 0 auto */
+      padding-inline: var(--gap-md); /* padding izquierdo + derecho */
+    }
+
+    .seccion {
+      padding-block: var(--gap-lg); /* padding arriba + abajo */
+    }
+
+    .chip {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--verde-med);
+      border: 1px solid var(--verde-claro);
+      padding: 4px 14px;
+      border-radius: 999px;
+      margin-bottom: 1rem;
+    }
+
+    .titulo-seccion {
+      font-family: var(--f-titulo);
+      font-size: var(--fs-h2);
+      color: var(--verde);
+      line-height: 1.15;
+      margin-bottom: 1rem;
+    }
+
+    .subtitulo-seccion {
+      color: var(--texto-suave);
+      max-width: 55ch;
+    }
+
+    .texto-centro { text-align: center; }
+    .texto-centro .subtitulo-seccion { margin-inline: auto; }
+
+
+    /* =====================================================
+       NAVEGACIÓN
+
+       MOBILE FIRST: primero se escribe el estilo para el
+       ancho más pequeño. Luego se amplía con @media.
+       ===================================================== */
+    .nav {
+      position: sticky;   /* Se pega al tope al hacer scroll */
+      top: 0;
+      z-index: 100;
+      background: var(--verde);
+      /* Comentario mobile-first: en móvil apilamos logo y links verticalmente */
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 1rem var(--gap-md);
+    }
+
+    .nav-logo {
+      font-family: var(--f-titulo);
+      font-size: 1.4rem;
+      color: var(--crema);
+      letter-spacing: 0.02em;
+    }
+
+    .nav-logo span { color: var(--verde-claro); }
+
+    .nav-links {
+      display: flex;
+      flex-wrap: wrap;          /* Si no caben, bajan a la siguiente línea */
+      justify-content: center;
+      gap: 0.25rem 1.5rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: rgba(245,240,232,0.75);
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover { color: var(--crema); }
+
+    /* ---- 600px: nav en una fila horizontal ---- */
+    @media (min-width: 600px) {
+      .nav {
+        flex-direction: row;          /* Logo y links en la misma fila */
+        justify-content: space-between;
+      }
+    }
+
+
+    /* =====================================================
+       HERO
+
+       MOBILE FIRST: una columna, imagen debajo del texto.
+       ===================================================== */
+    .hero {
+      background: var(--verde);
+      color: var(--crema);
+      overflow: hidden;
+    }
+
+    .hero-inner {
+      /* En móvil: columna (texto arriba, imagen abajo) */
+      display: flex;
+      flex-direction: column;
+      gap: var(--gap-lg);
+      padding-block: var(--gap-lg);
+    }
+
+    .hero-texto { order: 1; } /* Texto primero en el flujo */
+    .hero-imagen { order: 2; }
+
+    .hero-eyebrow {
+      font-size: 0.8rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--verde-claro);
+      margin-bottom: 1rem;
+    }
+
+    .hero-titulo {
+      font-family: var(--f-titulo);
+      font-size: var(--fs-hero);
+      line-height: 1.05;
+      margin-bottom: 1.25rem;
+    }
+
+    .hero-titulo em {
+      font-style: italic;
+      color: var(--verde-claro);
+    }
+
+    .hero-desc {
+      color: rgba(245,240,232,0.8);
+      max-width: 44ch;
+      margin-bottom: 2rem;
+      font-size: 1.05rem;
+    }
+
+    .hero-ctas {
+      display: flex;
+      flex-wrap: wrap;    /* En móvil estrecho los botones pueden bajar */
+      gap: 0.75rem;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 0.75rem 1.75rem;
+      border-radius: 999px;
+      font-family: var(--f-cuerpo);
+      font-size: 0.95rem;
+      font-weight: 500;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: transform 0.15s, background 0.2s, color 0.2s, border-color 0.2s;
+    }
+
+    .btn:hover { transform: translateY(-2px); }
+
+    .btn-primary {
+      background: var(--crema);
+      color: var(--verde);
+    }
+
+    .btn-primary:hover { background: #fff; }
+
+    .btn-outline {
+      background: transparent;
+      border-color: rgba(245,240,232,0.4);
+      color: var(--crema);
+    }
+
+    .btn-outline:hover {
+      background: rgba(245,240,232,0.1);
+      border-color: var(--crema);
+    }
+
+    /* Imagen hero: placeholder con degradado */
+    .hero-imagen-placeholder {
+      width: 100%;
+      aspect-ratio: 4 / 3;  /* Mantiene proporción sin height fijo */
+      border-radius: var(--radio);
+      background:
+        linear-gradient(160deg, #2d6a4f 0%, #1e4035 60%, #0d2b22 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 4rem;
+    }
+
+    /* ---- 768px: hero en dos columnas, imagen a la derecha ---- */
+    @media (min-width: 768px) {
+      .hero-inner {
+        flex-direction: row;
+        align-items: center;
+      }
+
+      .hero-texto { order: 1; flex: 1; }  /* Columna izquierda */
+      .hero-imagen { order: 2; flex: 1; } /* Columna derecha */
+    }
+
+
+    /* =====================================================
+       MÉTRICAS / STATS
+       ===================================================== */
+    .stats {
+      background: var(--verde);
+      color: var(--crema);
+      padding-block: var(--gap-md);
+    }
+
+    .stats-grid {
+      /* MOBILE: una columna */
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1px;              /* 1px de separación = línea visible sobre fondo oscuro */
+      background: rgba(255,255,255,0.1); /* El fondo del gap funciona como divisor */
+      border-radius: var(--radio);
+      overflow: hidden;
+    }
+
+    .stat-item {
+      background: var(--verde);  /* Cada celda tapa el fondo del gap */
+      text-align: center;
+      padding: 1.5rem;
+    }
+
+    .stat-numero {
+      font-family: var(--f-titulo);
+      font-size: clamp(2rem, 5vw, 2.8rem);
+      color: var(--verde-claro);
+      line-height: 1;
+      margin-bottom: 0.25rem;
+    }
+
+    .stat-label { font-size: 0.85rem; color: rgba(245,240,232,0.7); }
+
+    /* ---- 480px: 2 columnas ---- */
+    @media (min-width: 480px) {
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+    }
+
+    /* ---- 900px: 4 columnas ---- */
+    @media (min-width: 900px) {
+      .stats-grid { grid-template-columns: repeat(4, 1fr); }
+    }
+
+
+    /* =====================================================
+       CARACTERÍSTICAS / FEATURES
+       ===================================================== */
+    .features-grid {
+      /* MOBILE FIRST: 1 columna */
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: var(--gap-md);
+      margin-top: var(--gap-md);
+    }
+
+    .feature-card {
+      background: #fff;
+      border: 1px solid var(--crema-osc);
+      border-radius: var(--radio);
+      padding: 1.75rem;
+      transition: box-shadow 0.25s, transform 0.2s;
+    }
+
+    .feature-card:hover {
+      box-shadow: var(--sombra);
+      transform: translateY(-3px);
+    }
+
+    .feature-icon {
+      width: 48px;
+      height: 48px;
+      background: var(--crema);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      margin-bottom: 1rem;
+    }
+
+    .feature-titulo {
+      font-family: var(--f-titulo);
+      font-size: var(--fs-h3);
+      color: var(--verde);
+      margin-bottom: 0.5rem;
+    }
+
+    .feature-desc { color: var(--texto-suave); font-size: 0.95rem; }
+
+    /* ---- 600px: 2 columnas ---- */
+    @media (min-width: 600px) {
+      .features-grid { grid-template-columns: 1fr 1fr; }
+    }
+
+    /* ---- 900px: 3 columnas ---- */
+    @media (min-width: 900px) {
+      .features-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+
+
+    /* =====================================================
+       MENÚ / PRODUCTOS
+
+       Aquí demostramos: mobile 1 col → tablet 2 col → desktop flex
+       ===================================================== */
+    .menu-seccion { background: var(--verde); color: var(--crema); }
+
+    .menu-grid {
+      display: grid;
+      grid-template-columns: 1fr;         /* MOBILE: 1 columna */
+      gap: var(--gap-md);
+      margin-top: var(--gap-md);
+    }
+
+    .menu-card {
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: var(--radio);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;             /* MOBILE: imagen arriba, texto abajo */
+      transition: background 0.25s;
+    }
+
+    .menu-card:hover { background: rgba(255,255,255,0.11); }
+
+    .menu-card-img {
+      height: 160px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+      background: rgba(0,0,0,0.2);
+    }
+
+    .menu-card-body { padding: 1.25rem; flex: 1; }
+
+    .menu-card-titulo {
+      font-family: var(--f-titulo);
+      font-size: 1.15rem;
+      margin-bottom: 0.35rem;
+      color: var(--crema);
+    }
+
+    .menu-card-desc { font-size: 0.9rem; color: rgba(245,240,232,0.7); margin-bottom: 1rem; }
+
+    .menu-card-pie {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .precio {
+      font-size: 1.1rem;
+      font-weight: 500;
+      color: var(--verde-claro);
+    }
+
+    .tag {
+      font-size: 0.75rem;
+      background: rgba(116,184,154,0.2);
+      color: var(--verde-claro);
+      padding: 3px 10px;
+      border-radius: 999px;
+    }
+
+    /* ---- 600px: 2 columnas ---- */
+    @media (min-width: 600px) {
+      .menu-grid { grid-template-columns: 1fr 1fr; }
+    }
+
+    /* ---- 900px: 4 columnas, cards en fila (imagen+texto horizontal) ---- */
+    @media (min-width: 900px) {
+      .menu-grid { grid-template-columns: repeat(4, 1fr); }
+    }
+
+
+    /* =====================================================
+       SECCIÓN RESPONSIVE EXPLICADA
+       — DEMO VISUAL de breakpoints para la clase —
+       ===================================================== */
+    .demo-seccion { background: #fff; }
+
+    .breakpoints-visual {
+      margin-top: var(--gap-md);
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: var(--gap-sm);
+    }
+
+    .bp-fila {
+      border: 2px solid var(--crema-osc);
+      border-radius: var(--radio);
+      padding: 1rem 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .bp-fila.activo {
+      border-color: var(--verde-med);
+      background: #f0faf5;
+    }
+
+    .bp-codigo {
+      font-family: 'Courier New', monospace;
+      font-size: 0.85rem;
+      color: var(--verde);
+      background: var(--crema);
+      padding: 2px 8px;
+      border-radius: 4px;
+      align-self: flex-start;
+    }
+
+    .bp-desc { font-size: 0.9rem; color: var(--texto-suave); }
+
+    /* Resalta el breakpoint activo según el ancho actual */
+    /* MOBILE (default) */
+    .bp-mobile  { border-color: var(--verde-med); background: #f0faf5; }
+    .bp-tablet  { }
+    .bp-desktop { }
+
+    @media (min-width: 600px) {
+      .bp-mobile  { border-color: var(--crema-osc); background: transparent; }
+      .bp-tablet  { border-color: var(--verde-med); background: #f0faf5; }
+    }
+
+    @media (min-width: 900px) {
+      .bp-tablet  { border-color: var(--crema-osc); background: transparent; }
+      .bp-desktop { border-color: var(--verde-med); background: #f0faf5; }
+    }
+
+    /* Demo de unidades */
+    .unidades-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: var(--gap-sm);
+      margin-top: var(--gap-md);
+    }
+
+    .unidad-fila {
+      background: var(--crema);
+      border-radius: var(--radio);
+      padding: 1rem 1.25rem;
+    }
+
+    .unidad-etiqueta {
+      font-family: monospace;
+      font-size: 0.8rem;
+      color: var(--verde-med);
+      margin-bottom: 0.35rem;
+    }
+
+    /* Las tres formas de hacer el mismo título — compara el comportamiento */
+    .px-titulo   { font-size: 32px;   line-height: 1.2; color: var(--texto); }
+    .rem-titulo  { font-size: 2rem;   line-height: 1.2; color: var(--texto); }
+    .clamp-titulo{ font-size: clamp(1.2rem, 4vw, 2.2rem); line-height: 1.2; color: var(--texto); }
+
+    @media (min-width: 600px) {
+      .unidades-grid { grid-template-columns: 1fr 1fr 1fr; }
+    }
+
+
+    /* =====================================================
+       TESTIMONIOS
+       ===================================================== */
+    .testimonios-grid {
+      display: grid;
+      grid-template-columns: 1fr;         /* MOBILE */
+      gap: var(--gap-md);
+      margin-top: var(--gap-md);
+    }
+
+    @media (min-width: 700px) {
+      .testimonios-grid { grid-template-columns: 1fr 1fr; }    /* TABLET */
+    }
+
+    @media (min-width: 1000px) {
+      .testimonios-grid { grid-template-columns: repeat(3, 1fr); } /* DESKTOP */
+    }
+
+    .testimonio {
+      background: #fff;
+      border: 1px solid var(--crema-osc);
+      border-radius: var(--radio);
+      padding: 1.5rem;
+    }
+
+    .testimonio-texto {
+      font-style: italic;
+      color: var(--texto-suave);
+      margin-bottom: 1rem;
+      font-size: 0.95rem;
+    }
+
+    .testimonio-texto::before { content: '"'; font-size: 1.5rem; color: var(--verde-claro); line-height: 0; vertical-align: -0.3em; margin-right: 2px; }
+    .testimonio-texto::after  { content: '"'; font-size: 1.5rem; color: var(--verde-claro); line-height: 0; vertical-align: -0.3em; margin-left: 2px; }
+
+    .testimonio-autor {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--verde-med);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-weight: 700;
+      font-size: 0.9rem;
+      flex-shrink: 0;
+    }
+
+    .autor-nombre { font-weight: 500; font-size: 0.9rem; }
+    .autor-cargo  { font-size: 0.8rem; color: var(--texto-suave); }
+
+
+    /* =====================================================
+       CTA FINAL
+       ===================================================== */
+    .cta-seccion {
+      background: var(--verde);
+      color: var(--crema);
+      text-align: center;
+    }
+
+    .cta-seccion .titulo-seccion { color: var(--crema); }
+    .cta-seccion .subtitulo-seccion { color: rgba(245,240,232,0.75); margin-inline: auto; }
+
+    .cta-botones {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    .btn-crema {
+      background: var(--crema);
+      color: var(--verde);
+    }
+
+    .btn-crema:hover { background: #fff; }
+
+    .btn-outline-claro {
+      background: transparent;
+      border: 2px solid rgba(245,240,232,0.35);
+      color: var(--crema);
+    }
+
+    .btn-outline-claro:hover {
+      background: rgba(245,240,232,0.1);
+      border-color: var(--crema);
+    }
+
+
+    /* =====================================================
+       FOOTER
+       ===================================================== */
+    .footer {
+      background: #0d2b22;
+      color: rgba(245,240,232,0.6);
+      padding-block: var(--gap-lg);
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 1fr;     /* MOBILE */
+      gap: var(--gap-lg);
+    }
+
+    @media (min-width: 600px) {
+      .footer-grid { grid-template-columns: 2fr 1fr 1fr; }  /* DESKTOP */
+    }
+
+    .footer-marca {
+      font-family: var(--f-titulo);
+      font-size: 1.4rem;
+      color: var(--crema);
+      margin-bottom: 0.75rem;
+    }
+
+    .footer-marca span { color: var(--verde-claro); }
+
+    .footer-desc { font-size: 0.9rem; line-height: 1.7; }
+
+    .footer-titulo {
+      font-size: 0.75rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--verde-claro);
+      margin-bottom: 0.75rem;
+    }
+
+    .footer-links { list-style: none; }
+
+    .footer-links li { margin-bottom: 0.4rem; }
+
+    .footer-links a {
+      color: rgba(245,240,232,0.6);
+      font-size: 0.9rem;
+      transition: color 0.2s;
+    }
+
+    .footer-links a:hover { color: var(--crema); }
+
+    .footer-bottom {
+      margin-top: var(--gap-lg);
+      padding-top: 1.5rem;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      text-align: center;
+      font-size: 0.8rem;
+    }
+

@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Curso Frontend — Índice</title>
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #f4f4f5;
+      --card: #ffffff;
+      --primary: #1f3a44;
+      --accent: #ff6b3d;
+      --text: #2b2b2b;
+      --muted: #6b7280;
+      --radius: 18px;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    /* HERO */
+    .hero {
+      background: linear-gradient(135deg, #1f3a44, #274c59);
+      color: white;
+      padding: 100px 20px 130px;
+      text-align: center;
+      position: relative;
+    }
+
+    .hero h1 {
+      font-size: 3rem;
+      margin-bottom: 15px;
+      font-weight: 700;
+      letter-spacing: -1px;
+    }
+
+    .hero p {
+      opacity: 0.9;
+      max-width: 650px;
+      margin: auto;
+      font-size: 1.1rem;
+    }
+
+    /* CONTAINER */
+    .container {
+      max-width: 1200px;
+      margin: -80px auto 60px;
+      padding: 0 20px;
+    }
+
+    .card-wrapper {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 40px;
+      box-shadow: 0 25px 60px rgba(0,0,0,0.08);
+    }
+
+    .card-wrapper h2 {
+      margin-bottom: 30px;
+      font-size: 1.8rem;
+      color: var(--primary);
+    }
+
+    /* GRID */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 20px;
+    }
+
+    /* CARD */
+    .card {
+      background: #fafafa;
+      padding: 22px;
+      border-radius: 16px;
+      text-decoration: none;
+      color: inherit;
+      border: 1px solid #eee;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at top left, rgba(255,107,61,0.15), transparent 70%);
+      opacity: 0;
+      transition: 0.3s;
+    }
+
+    .card:hover::after {
+      opacity: 1;
+    }
+
+    .card:hover {
+      transform: translateY(-8px) scale(1.02);
+      box-shadow: 0 18px 40px rgba(0,0,0,0.12);
+      border-color: var(--accent);
+    }
+
+    .card span {
+      font-size: 0.75rem;
+      color: var(--accent);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .card h3 {
+      margin-top: 10px;
+      font-size: 1.2rem;
+      color: var(--primary);
+    }
+
+    .card p {
+      margin-top: 6px;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    /* FOOTER */
+    footer {
+      text-align: center;
+      padding: 30px 15px;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    footer strong {
+      color: var(--primary);
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <!-- HERO -->
+  <section class="hero">
+    <h1>Curso de Desarrollo Frontend</h1>
+    <p>
+      Explora cada semana del curso: desde HTML y CSS hasta experiencias interactivas con Three.js,
+      p5.js, APIs y Vue. Aprende construyendo proyectos reales.
+    </p>
+  </section>
+
+  <!-- CONTENT -->
+  <main class="container">
+    <div class="card-wrapper">
+      <h2>Contenido del Curso</h2>
+
+      <div class="grid">
+
+        <a class="card" href="./Semana-01-HTML/index.html">
+          <span>Semana 01</span>
+          <h3>HTML</h3>
+          <p>Estructura base de páginas web.</p>
+        </a>
+
+        <a class="card" href="./Semana-02-CSS/index.html">
+          <span>Semana 02</span>
+          <h3>CSS</h3>
+          <p>Estilos, box model y tipografía.</p>
+        </a>
+
+        <a class="card" href="./Semana-03-Responsive/index.html">
+          <span>Semana 03</span>
+          <h3>Responsive</h3>
+          <p>Diseño adaptable a dispositivos.</p>
+        </a>
+
+        <a class="card" href="./Semana-04-Flexbox-Grid/index.html">
+          <span>Semana 04</span>
+          <h3>Flexbox & Grid</h3>
+          <p>Layouts modernos con CSS.</p>
+        </a>
+
+        <a class="card" href="./Semana-05-CSS-Avanzado/index.html">
+          <span>Semana 05</span>
+          <h3>CSS Avanzado</h3>
+          <p>Animaciones y efectos.</p>
+        </a>
+
+        <a class="card" href="./Semana-06-Parcial-1-librerias-css/index.html">
+          <span>Semana 06</span>
+          <h3>Parcial 1</h3>
+          <p>Evaluación + librerías CSS.</p>
+        </a>
+
+        <a class="card" href="./Semana-07-JS/index.html">
+          <span>Semana 07</span>
+          <h3>JavaScript</h3>
+          <p>Fundamentos del lenguaje.</p>
+        </a>
+
+        <a class="card" href="./Semana-08-ThreeJS/index.html">
+          <span>Semana 08</span>
+          <h3>Three.js</h3>
+          <p>Introducción a gráficos 3D.</p>
+        </a>
+
+        <a class="card" href="./Semana-09-ThreeJS-Web/index.html">
+          <span>Semana 09</span>
+          <h3>Three.js Web</h3>
+          <p>Integración en web.</p>
+        </a>
+
+        <a class="card" href="./Semana-10-p5js/index.html">
+          <span>Semana 10</span>
+          <h3>p5.js</h3>
+          <p>Arte generativo.</p>
+        </a>
+
+        <a class="card" href="./Semana-11-Parcial-2/index.html">
+          <span>Semana 11</span>
+          <h3>Parcial 2</h3>
+          <p>Evaluación intermedia.</p>
+        </a>
+
+        <a class="card" href="./Semana-12-APIs/index.html">
+          <span>Semana 12</span>
+          <h3>APIs</h3>
+          <p>Consumo de datos externos.</p>
+        </a>
+
+        <a class="card" href="./Semana-13-Vue-Intro/index.html">
+          <span>Semana 13</span>
+          <h3>Vue Intro</h3>
+          <p>Primeros pasos con Vue.</p>
+        </a>
+
+        <a class="card" href="./Semana-14-Vue/index.html">
+          <span>Semana 14</span>
+          <h3>Vue</h3>
+          <p>Componentes y reactividad.</p>
+        </a>
+
+        <a class="card" href="./Semana-15-Experiencias-Interactivas/index.html">
+          <span>Semana 15</span>
+          <h3>Experiencias</h3>
+          <p>Interacción avanzada.</p>
+        </a>
+
+        <a class="card" href="./Semana-16-Parcial-Final/index.html">
+          <span>Semana 16</span>
+          <h3>Final</h3>
+          <p>Proyecto final del curso.</p>
+        </a>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer>
+    © 2026 — Proyecto educativo | Propiedad de <strong>@Sgutz96</strong>
+  </footer>
+
+</body>
+</html>
